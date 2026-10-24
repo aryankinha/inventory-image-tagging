@@ -1,0 +1,18 @@
+{
+  "name": "hog_fine_rbf_svm",
+  "representation": "hog_fine",
+  "family": "rbf_svm",
+  "parameters": {
+    "C": 3.0,
+    "gamma": "scale"
+  },
+  "accuracy": 0.9135833333333333,
+  "macro_f1": 0.9134397308592457,
+  "fit_seconds": 229.66869833300007,
+  "convergence_warnings": [],
+  "training_images": 48000,
+  "validation_images": 12000,
+  "feature_count": 1296,
+  "model_sha256": "46c27a545460e1fe6124df71a37a58c98e7a15ddbf0ebc5c87e3135c71c2d173",
+  "split_sha256": "65975afc1edb0423e33ae8e6e732b9eef1e6dca4609c6c57561c1568d1d31718"
+}

@@ -1,0 +1,26 @@
+[
+  {
+    "name": "hog_logistic_regression",
+    "representation": "hog",
+    "family": "logistic_regression",
+    "parameters": {
+      "C": 0.1
+    },
+    "accuracy": 0.8550833333333333,
+    "macro_f1": 0.8549035539499377,
+    "fit_seconds": 4.378055208013393,
+    "convergence_warnings": []
+  },
+  {
+    "name": "hog_logistic_regression",
+    "representation": "hog",
+    "family": "logistic_regression",
+    "parameters": {
+      "C": 1.0
+    },
+    "accuracy": 0.8523333333333334,
+    "macro_f1": 0.8520871304152988,
+    "fit_seconds": 7.267503082985058,
+    "convergence_warnings": []
+  }
+]

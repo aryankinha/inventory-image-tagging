@@ -1,0 +1,14 @@
+[
+  {
+    "name": "pixels_linear_svm",
+    "representation": "pixels",
+    "family": "linear_svm",
+    "parameters": {
+      "C": 0.1
+    },
+    "accuracy": 0.8560833333333333,
+    "macro_f1": 0.8545087291296,
+    "fit_seconds": 299.5434055830119,
+    "convergence_warnings": []
+  }
+]

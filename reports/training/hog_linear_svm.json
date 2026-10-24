@@ -1,0 +1,17 @@
+{
+  "name": "hog_linear_svm",
+  "representation": "hog",
+  "family": "linear_svm",
+  "parameters": {
+    "C": 1.0
+  },
+  "accuracy": 0.8531666666666666,
+  "macro_f1": 0.8521470327896704,
+  "fit_seconds": 12.909097875002772,
+  "convergence_warnings": [],
+  "training_images": 48000,
+  "validation_images": 12000,
+  "feature_count": 324,
+  "model_sha256": "aab360e1abd3f4b837fb9560ba9285f1393fe44a8fdc9c3d554b977e24f2acee",
+  "split_sha256": "65975afc1edb0423e33ae8e6e732b9eef1e6dca4609c6c57561c1568d1d31718"
+}

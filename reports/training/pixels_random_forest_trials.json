@@ -1,0 +1,28 @@
+[
+  {
+    "name": "pixels_random_forest",
+    "representation": "pixels",
+    "family": "random_forest",
+    "parameters": {
+      "n_estimators": 200,
+      "max_depth": 25
+    },
+    "accuracy": 0.8853333333333333,
+    "macro_f1": 0.8843376449972578,
+    "fit_seconds": 33.05300725001143,
+    "convergence_warnings": []
+  },
+  {
+    "name": "pixels_random_forest",
+    "representation": "pixels",
+    "family": "random_forest",
+    "parameters": {
+      "n_estimators": 400,
+      "max_depth": null
+    },
+    "accuracy": 0.8861666666666667,
+    "macro_f1": 0.8850122704335959,
+    "fit_seconds": 67.48567866699887,
+    "convergence_warnings": []
+  }
+]

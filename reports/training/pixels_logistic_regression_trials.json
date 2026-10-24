@@ -1,0 +1,26 @@
+[
+  {
+    "name": "pixels_logistic_regression",
+    "representation": "pixels",
+    "family": "logistic_regression",
+    "parameters": {
+      "C": 0.1
+    },
+    "accuracy": 0.8596666666666667,
+    "macro_f1": 0.8590772125494045,
+    "fit_seconds": 16.950966000003973,
+    "convergence_warnings": []
+  },
+  {
+    "name": "pixels_logistic_regression",
+    "representation": "pixels",
+    "family": "logistic_regression",
+    "parameters": {
+      "C": 1.0
+    },
+    "accuracy": 0.8505,
+    "macro_f1": 0.8499505128189698,
+    "fit_seconds": 25.80909445899306,
+    "convergence_warnings": []
+  }
+]

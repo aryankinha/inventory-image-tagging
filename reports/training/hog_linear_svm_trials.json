@@ -1,0 +1,26 @@
+[
+  {
+    "name": "hog_linear_svm",
+    "representation": "hog",
+    "family": "linear_svm",
+    "parameters": {
+      "C": 0.1
+    },
+    "accuracy": 0.8480833333333333,
+    "macro_f1": 0.8470328415515056,
+    "fit_seconds": 10.189163333008764,
+    "convergence_warnings": []
+  },
+  {
+    "name": "hog_linear_svm",
+    "representation": "hog",
+    "family": "linear_svm",
+    "parameters": {
+      "C": 1.0
+    },
+    "accuracy": 0.8531666666666666,
+    "macro_f1": 0.8521470327896704,
+    "fit_seconds": 12.909097875002772,
+    "convergence_warnings": []
+  }
+]

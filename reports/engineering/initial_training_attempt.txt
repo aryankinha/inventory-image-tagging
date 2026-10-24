@@ -1,0 +1,26 @@
+Extracting pixels for 60000 official training images...
+pixels_logistic_regression: {'C': 0.1}
+  validation accuracy=85.9667%, F1=0.8591, fit=17.0s
+pixels_logistic_regression: {'C': 1.0}
+  validation accuracy=85.0500%, F1=0.8500, fit=25.8s
+pixels_knn: {'n_neighbors': 3}
+/Users/aryankinha/Documents/Learn/Deep:ALML project/inventory-image-tagging/.venv/lib/python3.12/site-packages/joblib/externals/loky/backend/context.py:134: UserWarning: Could not find the number of physical cores for the following reason:
+invalid literal for int() with base 10: ''
+Returning the number of logical cores instead. You can silence this warning by setting LOKY_MAX_CPU_COUNT to the number of cores you want to use.
+  warnings.warn(
+  File "/Users/aryankinha/Documents/Learn/Deep:ALML project/inventory-image-tagging/.venv/lib/python3.12/site-packages/joblib/externals/loky/backend/context.py", line 264, in _count_physical_cores
+    cpu_count_physical = _count_physical_cores_darwin()
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/aryankinha/Documents/Learn/Deep:ALML project/inventory-image-tagging/.venv/lib/python3.12/site-packages/joblib/externals/loky/backend/context.py", line 420, in _count_physical_cores_darwin
+    return int(cpu_info)
+           ^^^^^^^^^^^^^
+  validation accuracy=85.9167%, F1=0.8596, fit=0.0s
+pixels_knn: {'n_neighbors': 5}
+  validation accuracy=85.8417%, F1=0.8585, fit=0.0s
+pixels_random_forest: {'n_estimators': 200, 'max_depth': 25}
+  validation accuracy=88.5333%, F1=0.8843, fit=33.1s
+pixels_random_forest: {'n_estimators': 400, 'max_depth': None}
+  validation accuracy=88.6167%, F1=0.8850, fit=67.5s
+pixels_linear_svm: {'C': 0.1}
+  validation accuracy=85.6083%, F1=0.8545, fit=299.5s
+pixels_linear_svm: {'C': 1.0}

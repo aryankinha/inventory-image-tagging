@@ -1,0 +1,17 @@
+{
+  "name": "pixels_knn",
+  "representation": "pixels",
+  "family": "knn",
+  "parameters": {
+    "n_neighbors": 3
+  },
+  "accuracy": 0.8591666666666666,
+  "macro_f1": 0.8595706093635475,
+  "fit_seconds": 0.007000999990850687,
+  "convergence_warnings": [],
+  "training_images": 48000,
+  "validation_images": 12000,
+  "feature_count": 784,
+  "model_sha256": "0774c7bc6f241692ea848819fa1c94c7ac7b43e7a99b7eab912add311bdefe9a",
+  "split_sha256": "65975afc1edb0423e33ae8e6e732b9eef1e6dca4609c6c57561c1568d1d31718"
+}

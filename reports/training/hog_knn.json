@@ -1,0 +1,17 @@
+{
+  "name": "hog_knn",
+  "representation": "hog",
+  "family": "knn",
+  "parameters": {
+    "n_neighbors": 5
+  },
+  "accuracy": 0.8475,
+  "macro_f1": 0.8476122062847036,
+  "fit_seconds": 0.003951791004510596,
+  "convergence_warnings": [],
+  "training_images": 48000,
+  "validation_images": 12000,
+  "feature_count": 324,
+  "model_sha256": "9064028d86d0208e83afd8a349ef31b255ae15003df7257cf2e41ee2c07d32e9",
+  "split_sha256": "65975afc1edb0423e33ae8e6e732b9eef1e6dca4609c6c57561c1568d1d31718"
+}

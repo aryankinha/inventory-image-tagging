@@ -1,0 +1,18 @@
+{
+  "name": "pixels_random_forest",
+  "representation": "pixels",
+  "family": "random_forest",
+  "parameters": {
+    "n_estimators": 400,
+    "max_depth": null
+  },
+  "accuracy": 0.8861666666666667,
+  "macro_f1": 0.8850122704335959,
+  "fit_seconds": 67.48567866699887,
+  "convergence_warnings": [],
+  "training_images": 48000,
+  "validation_images": 12000,
+  "feature_count": 784,
+  "model_sha256": "581989e661354d527a16d679dac2c96880a858db08ce9e563c4da03d12113892",
+  "split_sha256": "65975afc1edb0423e33ae8e6e732b9eef1e6dca4609c6c57561c1568d1d31718"
+}

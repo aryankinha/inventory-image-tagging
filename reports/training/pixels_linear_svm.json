@@ -1,0 +1,17 @@
+{
+  "name": "pixels_linear_svm",
+  "representation": "pixels",
+  "family": "linear_svm",
+  "parameters": {
+    "C": 0.1
+  },
+  "accuracy": 0.8588333333333333,
+  "macro_f1": 0.8571380961915258,
+  "fit_seconds": 33.65473062498495,
+  "convergence_warnings": [],
+  "training_images": 48000,
+  "validation_images": 12000,
+  "feature_count": 784,
+  "model_sha256": "134c0333e6144aa4907355a97171b7f70eecd099873fb46dfc0ac2850fe19a35",
+  "split_sha256": "65975afc1edb0423e33ae8e6e732b9eef1e6dca4609c6c57561c1568d1d31718"
+}

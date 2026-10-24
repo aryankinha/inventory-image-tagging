@@ -1,0 +1,26 @@
+[
+  {
+    "name": "pixels_linear_svm",
+    "representation": "pixels",
+    "family": "linear_svm",
+    "parameters": {
+      "C": 0.1
+    },
+    "accuracy": 0.8588333333333333,
+    "macro_f1": 0.8571380961915258,
+    "fit_seconds": 33.65473062498495,
+    "convergence_warnings": []
+  },
+  {
+    "name": "pixels_linear_svm",
+    "representation": "pixels",
+    "family": "linear_svm",
+    "parameters": {
+      "C": 1.0
+    },
+    "accuracy": 0.8569166666666667,
+    "macro_f1": 0.8552317461925844,
+    "fit_seconds": 39.826866415998666,
+    "convergence_warnings": []
+  }
+]

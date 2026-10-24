@@ -1,0 +1,28 @@
+[
+  {
+    "name": "pixels_rbf_svm",
+    "representation": "pixels",
+    "family": "rbf_svm",
+    "parameters": {
+      "C": 3.0,
+      "gamma": "scale"
+    },
+    "accuracy": 0.9038333333333334,
+    "macro_f1": 0.9035470038016188,
+    "fit_seconds": 144.15807408301043,
+    "convergence_warnings": []
+  },
+  {
+    "name": "pixels_rbf_svm",
+    "representation": "pixels",
+    "family": "rbf_svm",
+    "parameters": {
+      "C": 10.0,
+      "gamma": "scale"
+    },
+    "accuracy": 0.90775,
+    "macro_f1": 0.9075867244682817,
+    "fit_seconds": 141.22629545797827,
+    "convergence_warnings": []
+  }
+]

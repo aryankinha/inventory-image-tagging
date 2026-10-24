@@ -1,0 +1,26 @@
+[
+  {
+    "name": "pixels_knn",
+    "representation": "pixels",
+    "family": "knn",
+    "parameters": {
+      "n_neighbors": 3
+    },
+    "accuracy": 0.8591666666666666,
+    "macro_f1": 0.8595706093635475,
+    "fit_seconds": 0.007000999990850687,
+    "convergence_warnings": []
+  },
+  {
+    "name": "pixels_knn",
+    "representation": "pixels",
+    "family": "knn",
+    "parameters": {
+      "n_neighbors": 5
+    },
+    "accuracy": 0.8584166666666667,
+    "macro_f1": 0.8584910270751076,
+    "fit_seconds": 0.013734833017224446,
+    "convergence_warnings": []
+  }
+]

@@ -1,0 +1,18 @@
+{
+  "name": "hog_random_forest",
+  "representation": "hog",
+  "family": "random_forest",
+  "parameters": {
+    "n_estimators": 200,
+    "max_depth": 25
+  },
+  "accuracy": 0.85,
+  "macro_f1": 0.8494722950474507,
+  "fit_seconds": 51.822125000006054,
+  "convergence_warnings": [],
+  "training_images": 48000,
+  "validation_images": 12000,
+  "feature_count": 324,
+  "model_sha256": "1ebee57e75deca5002431a71bf4d390c199d38b0e694b0b1c559fa11ef0d0655",
+  "split_sha256": "65975afc1edb0423e33ae8e6e732b9eef1e6dca4609c6c57561c1568d1d31718"
+}
