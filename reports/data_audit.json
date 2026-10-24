@@ -1,0 +1,31 @@
+{
+  "official_training_images": 60000,
+  "training_images": 48000,
+  "validation_images": 12000,
+  "image_shape": [
+    28,
+    28
+  ],
+  "dtype": "uint8",
+  "pixel_range": [
+    0,
+    255
+  ],
+  "blank_images": 0,
+  "exact_duplicate_images": 0,
+  "split_overlap": 0,
+  "train_validation_image_overlap": 0,
+  "finite_pixels": true,
+  "near_duplicate_check": "Not established by exact hashing; product IDs are unavailable.",
+  "archives": {
+    "train-images-idx3-ubyte.gz": {
+      "md5": "8d4fb7e6c68d591d4c3dfef9ec88bf0d",
+      "sha256": "3aede38d61863908ad78613f6a32ed271626dd12800ba2636569512369268a84"
+    },
+    "train-labels-idx1-ubyte.gz": {
+      "md5": "25c81989df183df01b3e8a0aad5dffbe",
+      "sha256": "a04f17134ac03560a47e3764e11b92fc97de4d1bfaf8ba1a3aa29af54cc90845"
+    }
+  },
+  "official_test_loaded": false
+}

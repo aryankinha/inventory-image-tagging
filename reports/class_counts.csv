@@ -1,0 +1,11 @@
+label,category,official_train,training,validation
+0,T-shirt/top,6000,4800,1200
+1,Trouser,6000,4800,1200
+2,Pullover,6000,4800,1200
+3,Dress,6000,4800,1200
+4,Coat,6000,4800,1200
+5,Sandal,6000,4800,1200
+6,Shirt,6000,4800,1200
+7,Sneaker,6000,4800,1200
+8,Bag,6000,4800,1200
+9,Ankle boot,6000,4800,1200
