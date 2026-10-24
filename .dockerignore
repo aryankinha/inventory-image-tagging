@@ -1,0 +1,12 @@
+.git
+.venv
+.uv-cache
+.mpl-cache
+data
+models
+runs
+reports/presentation/.build
+__pycache__
+**/__pycache__
+
+.venv-pip

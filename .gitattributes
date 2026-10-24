@@ -1,0 +1,8 @@
+# Preserve source hashes and shell scripts across Windows/macOS/Linux checkouts.
+* text=auto eol=lf
+*.png binary
+*.pdf binary
+*.pptx binary
+*.npz binary
+*.npy binary
+*.joblib binary
