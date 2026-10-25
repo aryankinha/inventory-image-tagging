@@ -19,6 +19,32 @@ Validation selects Fine HOG + RBF SVM. It achieves 90.87% accuracy and macro F1 
 5. [Viva guide](docs/viva_guide.md)
 6. [Requirements checklist](docs/phase1_checklist.md)
 
+## Quick start (macOS, pip)
+
+Needs Python 3.11 or 3.12 (run `python3.12 --version` or `python3.11 --version` to see which you have; `brew install python@3.12` installs one). Use a project folder whose path has no `:` in it.
+
+```bash
+git clone https://github.com/aryankinha/inventory-image-tagging.git
+cd inventory-image-tagging
+python3.12 -m venv ~/venvs/inventory-tagging      # or python3.11
+source ~/venvs/inventory-tagging/bin/activate
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
+python scripts/check_environment.py               # should end with "passed"
+python -m pytest -q                               # 12 passed
+python scripts/verify_results.py                  # "status": "passed"
+python -m streamlit run app.py                    # open http://localhost:8501
+```
+
+The dashboard shows the saved results straight away. To try the notebook, first download the official Fashion-MNIST training archives (about 25 MB, checksum-verified, saved under the ignored `data/` folder), then open it:
+
+```bash
+python -m src.inventory_tagging.cli prepare
+python -m jupyterlab notebooks/phase1.ipynb       # choose the "Python 3" kernel from this environment
+```
+
+To retrain everything and enable image prediction, see [Reproduce the complete experiment](#reproduce-the-complete-experiment). Every new terminal needs the `source ...activate` line again. If a command fails, check the three causes listed under [Using pip](#using-pip) before anything else.
+
 ## Technology
 
 Python 3.12 (3.11 also allowed), pip or `uv`, Streamlit, Plotly, NumPy, pandas, SciPy, scikit-image, scikit-learn, matplotlib, Pillow, joblib, JupyterLab and pytest. Exact dependencies are in `uv.lock`; `requirements.txt` exports the same locked versions for pip, including the notebook and test tools. PyTorch is reserved for Phase 2 and is not needed to reproduce this ML-only study.
@@ -28,6 +54,7 @@ uv sync --locked
 bash scripts/uv.sh run --locked python3 scripts/check_environment.py
 bash scripts/uv.sh run --locked python3 -m pytest -q
 bash scripts/uv.sh run --locked python3 scripts/verify_results.py
+bash scripts/uv.sh run --locked python3 -m src.inventory_tagging.cli prepare   # fresh clone only: downloads the data the notebook reads
 bash scripts/uv.sh run --locked python3 -m jupyterlab notebooks/phase1.ipynb
 ```
 
@@ -49,15 +76,22 @@ Run these commands from the `inventory-image-tagging` folder. The dashboard show
 
 ### Using pip
 
-Use Python 3.12 (recommended) or 3.11. Check `python3 --version` first.
+Three things make pip setups fail on one Mac and work on another:
+
+1. **Python version.** The project supports Python 3.11 and 3.12 only. A bare `python3` may be newer (for example 3.13 or later from Homebrew), and `scripts/check_environment.py` stops with "Use Python 3.12 (recommended) or 3.11". Pick the interpreter by name: run `python3.12 --version` or `python3.11 --version` and use whichever exists. Install one with `brew install python@3.12` or from python.org.
+2. **A `:` in the folder path.** `python -m venv` refuses to create an environment inside a path containing a colon, and `source .../activate` would break `PATH`. If the project folder is called `Deep:ALML project`, either rename it or keep the environment outside it, as below.
+3. **Wrong folder.** Run every command from the repository root (the folder containing `app.py`).
 
 ```bash
-python3 -m venv .venv-pip
-source .venv-pip/bin/activate
-python3 -m pip install --upgrade pip
-python3 -m pip install -r requirements.txt
-python3 -m streamlit run app.py
+python3.12 -m venv ~/venvs/inventory-tagging      # or python3.11
+source ~/venvs/inventory-tagging/bin/activate
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
+python scripts/check_environment.py               # must end with "passed"
+python -m streamlit run app.py
 ```
+
+Inside the activated environment `python` is the right interpreter, so use `python` rather than `python3` from here on. Run `deactivate` to leave it. A new terminal needs the `source` line again.
 
 ### Using uv
 
@@ -79,7 +113,13 @@ python3 scripts/reproduce.py
 
 With uv, use the reproduction command in the next section. After the run completes, enter `runs/reproduction` in the dashboard's **Experiment folder** field. The default `.` uses the original local experiment. The included sample is a training image for demonstrating prediction, not an extra accuracy test.
 
-You can run other Python commands from this README with pip by replacing `bash scripts/uv.sh run --locked python3` with `python3` in your activated environment. No uv installation is needed for that workflow.
+You can run other Python commands from this README with pip by replacing `bash scripts/uv.sh run --locked python3` with `python` in your activated environment. No uv installation is needed for that workflow. On a fresh clone, the command-line `predict` needs the reproduced models, so add `--work-dir runs/reproduction`:
+
+```bash
+python -m src.inventory_tagging.cli --work-dir runs/reproduction predict assets/sample.png
+```
+
+Without that flag a fresh clone stops with a `FileNotFoundError` for `models/hog_fine_rbf_svm.joblib`, because the fitted models are not in Git.
 
 When dependencies change, maintain them in `pyproject.toml`, update `uv.lock`, and refresh the pip export:
 
@@ -93,7 +133,7 @@ The team uses Macs. The project instructions and upload scripts target macOS wit
 
 Do not copy a `.venv` folder between computers. Recreate the environment from `requirements.txt` or `uv.lock`. Keep fitted models with their matching locked scikit-learn version, or reproduce the experiment on the new computer.
 
-Local checks have passed on the development Mac. GitHub Actions checks installation, the pipeline and the dashboard on macOS with Python 3.11 and 3.12 after the changes are pushed. Remote checks have not run yet.
+Local checks have passed on the development Mac. GitHub Actions checks installation, the pipeline and the dashboard on macOS with Python 3.11 and 3.12 on every push, and the latest run passed.
 
 ## Reproduce the complete experiment
 
@@ -117,19 +157,22 @@ If you interrupt a fit, completed model/feature combinations are reused before t
 bash scripts/uv.sh run --locked python3 scripts/reproduce.py --work-dir runs/reproduction-2
 ```
 
-The first complete experiment is already present in the local checkout, including its ignored data and model files. A later reproduction may differ across platforms/library environments; keep its results separate.
+The original author's checkout also holds the ignored data and model files from the first complete experiment; a fresh clone does not, so run this command once before using prediction. A later reproduction may differ across platforms/library environments; keep its results separate.
 
 ## Step-by-step commands
 
 For a new, empty experiment directory, set the same `--work-dir` on every stage:
 
 ```bash
+mkdir -p runs/my-study/reports      # the eda stage needs this folder to exist
 bash scripts/uv.sh run --locked python3 -m src.inventory_tagging.cli --work-dir runs/my-study prepare
 bash scripts/uv.sh run --locked python3 -m src.inventory_tagging.cli --work-dir runs/my-study eda
 bash scripts/uv.sh run --locked python3 -m src.inventory_tagging.cli --work-dir runs/my-study train
 bash scripts/uv.sh run --locked python3 -m src.inventory_tagging.cli --work-dir runs/my-study improve
 bash scripts/uv.sh run --locked python3 -m src.inventory_tagging.cli --work-dir runs/my-study evaluate
 ```
+
+With pip, drop the `bash scripts/uv.sh run --locked python3` prefix and start each line with `python` (inside the activated environment). `scripts/reproduce.py` creates the `reports` folder itself, so the `mkdir` line is only for these manual steps.
 
 `prepare` and `evaluate` also accept `--source /path/to/original/archives`. `train` never reads test files. `improve` is optional for the eight-model core but included in our completed experiment. `evaluate` freezes choices and refuses repeat test runs. Once choices are frozen, further tuning in that work directory is refused.
 

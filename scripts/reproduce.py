@@ -9,6 +9,8 @@ parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--work-dir', type=Path, default=root / 'runs/reproduction')
 parser.add_argument('--source', type=Path, help='Optional original Fashion-MNIST archive cache')
 args = parser.parse_args()
+# The EDA stage writes reports/class_counts.csv without creating its folder.
+(args.work_dir.resolve() / 'reports').mkdir(parents=True, exist_ok=True)
 for step in ('prepare', 'eda', 'train', 'improve', 'evaluate'):
     command = [sys.executable, '-m', 'src.inventory_tagging.cli',
                '--work-dir', str(args.work_dir.resolve()), step]
