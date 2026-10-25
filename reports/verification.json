@@ -1,0 +1,7 @@
+{
+  "status": "passed",
+  "models_recomputed": 11,
+  "source_hashes_verified": 8,
+  "present_model_hashes_verified": 11,
+  "note": "Ignored model files may be absent on a fresh clone; generated evidence is still checked."
+}

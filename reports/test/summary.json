@@ -1,0 +1,39 @@
+{
+  "status": "complete",
+  "selected_before_test": "hog_fine_rbf_svm",
+  "selected_results": {
+    "name": "hog_fine_rbf_svm",
+    "representation": "hog_fine",
+    "family": "rbf_svm",
+    "validation_macro_f1": 0.9134397308592457,
+    "test_accuracy": 0.9087,
+    "test_macro_f1": 0.9083955808458445,
+    "train_images": 48000,
+    "test_images": 10000,
+    "feature_count": 1296,
+    "fit_seconds": 229.66869833300007,
+    "model_bytes": 55305234,
+    "single_ms_median": 10.16891650215257,
+    "single_ms_p95": 15.732137142913416,
+    "batch_ms_per_image": 16.810476887684445,
+    "batch_images_per_second": 59.48671216654252,
+    "complexity_kind": "support vectors",
+    "complexity_count": 17835
+  },
+  "models_evaluated": 11,
+  "timing_protocol": {
+    "device": "CPU",
+    "threads": 2,
+    "single_repetitions": 20,
+    "batch_repetitions": 5,
+    "batch_size": 128,
+    "batch_images": 1024,
+    "scope": "uint8 resident images to labels, including descriptors and scaler; excludes file decoding and model loading"
+  },
+  "limitations": [
+    "one training split and random seed",
+    "bounded validation tuning",
+    "test set was also used in the supplied reference, so this is an existing public benchmark, not new unseen domain data",
+    "real catalogue/phone images and near-duplicate products were not evaluated"
+  ]
+}

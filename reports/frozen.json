@@ -1,0 +1,238 @@
+{
+  "created_at_utc": "2026-10-23T15:03:52.078045+00:00",
+  "selected": "hog_fine_rbf_svm",
+  "selection": "validation macro F1, then accuracy",
+  "train_count": 48000,
+  "validation_count": 12000,
+  "seed": 42,
+  "models": [
+    {
+      "name": "hog_fine_rbf_svm",
+      "representation": "hog_fine",
+      "family": "rbf_svm",
+      "parameters": {
+        "C": 3.0,
+        "gamma": "scale"
+      },
+      "accuracy": 0.9135833333333333,
+      "macro_f1": 0.9134397308592457,
+      "fit_seconds": 229.66869833300007,
+      "convergence_warnings": [],
+      "training_images": 48000,
+      "validation_images": 12000,
+      "feature_count": 1296,
+      "model_sha256": "46c27a545460e1fe6124df71a37a58c98e7a15ddbf0ebc5c87e3135c71c2d173",
+      "split_sha256": "65975afc1edb0423e33ae8e6e732b9eef1e6dca4609c6c57561c1568d1d31718"
+    },
+    {
+      "name": "pixels_rbf_svm",
+      "representation": "pixels",
+      "family": "rbf_svm",
+      "parameters": {
+        "C": 10.0,
+        "gamma": "scale"
+      },
+      "accuracy": 0.90775,
+      "macro_f1": 0.9075867244682817,
+      "fit_seconds": 141.22629545797827,
+      "convergence_warnings": [],
+      "training_images": 48000,
+      "validation_images": 12000,
+      "feature_count": 784,
+      "model_sha256": "51423b3d0b9e422d621006f9294eff6c46eb838b0c9e702ee239b225314c8e7d",
+      "split_sha256": "65975afc1edb0423e33ae8e6e732b9eef1e6dca4609c6c57561c1568d1d31718"
+    },
+    {
+      "name": "pixels_random_forest",
+      "representation": "pixels",
+      "family": "random_forest",
+      "parameters": {
+        "n_estimators": 400,
+        "max_depth": null
+      },
+      "accuracy": 0.8861666666666667,
+      "macro_f1": 0.8850122704335959,
+      "fit_seconds": 67.48567866699887,
+      "convergence_warnings": [],
+      "training_images": 48000,
+      "validation_images": 12000,
+      "feature_count": 784,
+      "model_sha256": "581989e661354d527a16d679dac2c96880a858db08ce9e563c4da03d12113892",
+      "split_sha256": "65975afc1edb0423e33ae8e6e732b9eef1e6dca4609c6c57561c1568d1d31718"
+    },
+    {
+      "name": "hog_rbf_svm",
+      "representation": "hog",
+      "family": "rbf_svm",
+      "parameters": {
+        "C": 3.0,
+        "gamma": "scale"
+      },
+      "accuracy": 0.88475,
+      "macro_f1": 0.8848169785469253,
+      "fit_seconds": 85.35987691601622,
+      "convergence_warnings": [],
+      "training_images": 48000,
+      "validation_images": 12000,
+      "feature_count": 324,
+      "model_sha256": "b9c30bbebef759435f5044aeff5073cc5b767e5ca94668bb7d322a1573ee178d",
+      "split_sha256": "65975afc1edb0423e33ae8e6e732b9eef1e6dca4609c6c57561c1568d1d31718"
+    },
+    {
+      "name": "pixels_knn",
+      "representation": "pixels",
+      "family": "knn",
+      "parameters": {
+        "n_neighbors": 3
+      },
+      "accuracy": 0.8591666666666666,
+      "macro_f1": 0.8595706093635475,
+      "fit_seconds": 0.007000999990850687,
+      "convergence_warnings": [],
+      "training_images": 48000,
+      "validation_images": 12000,
+      "feature_count": 784,
+      "model_sha256": "0774c7bc6f241692ea848819fa1c94c7ac7b43e7a99b7eab912add311bdefe9a",
+      "split_sha256": "65975afc1edb0423e33ae8e6e732b9eef1e6dca4609c6c57561c1568d1d31718"
+    },
+    {
+      "name": "pixels_logistic_regression",
+      "representation": "pixels",
+      "family": "logistic_regression",
+      "parameters": {
+        "C": 0.1
+      },
+      "accuracy": 0.8596666666666667,
+      "macro_f1": 0.8590772125494045,
+      "fit_seconds": 16.950966000003973,
+      "convergence_warnings": [],
+      "training_images": 48000,
+      "validation_images": 12000,
+      "feature_count": 784,
+      "model_sha256": "9932cc57d6febed4decd988962d213ff19ba657b4cf91d718d8260e1e82bcfc0",
+      "split_sha256": "65975afc1edb0423e33ae8e6e732b9eef1e6dca4609c6c57561c1568d1d31718"
+    },
+    {
+      "name": "pixels_linear_svm",
+      "representation": "pixels",
+      "family": "linear_svm",
+      "parameters": {
+        "C": 0.1
+      },
+      "accuracy": 0.8588333333333333,
+      "macro_f1": 0.8571380961915258,
+      "fit_seconds": 33.65473062498495,
+      "convergence_warnings": [],
+      "training_images": 48000,
+      "validation_images": 12000,
+      "feature_count": 784,
+      "model_sha256": "134c0333e6144aa4907355a97171b7f70eecd099873fb46dfc0ac2850fe19a35",
+      "split_sha256": "65975afc1edb0423e33ae8e6e732b9eef1e6dca4609c6c57561c1568d1d31718"
+    },
+    {
+      "name": "hog_logistic_regression",
+      "representation": "hog",
+      "family": "logistic_regression",
+      "parameters": {
+        "C": 0.1
+      },
+      "accuracy": 0.8550833333333333,
+      "macro_f1": 0.8549035539499377,
+      "fit_seconds": 4.378055208013393,
+      "convergence_warnings": [],
+      "training_images": 48000,
+      "validation_images": 12000,
+      "feature_count": 324,
+      "model_sha256": "cc68897e2d001bf3d529af280950a8be1ddf45fedefba15c776b4aaa6f7f73f5",
+      "split_sha256": "65975afc1edb0423e33ae8e6e732b9eef1e6dca4609c6c57561c1568d1d31718"
+    },
+    {
+      "name": "hog_linear_svm",
+      "representation": "hog",
+      "family": "linear_svm",
+      "parameters": {
+        "C": 1.0
+      },
+      "accuracy": 0.8531666666666666,
+      "macro_f1": 0.8521470327896704,
+      "fit_seconds": 12.909097875002772,
+      "convergence_warnings": [],
+      "training_images": 48000,
+      "validation_images": 12000,
+      "feature_count": 324,
+      "model_sha256": "aab360e1abd3f4b837fb9560ba9285f1393fe44a8fdc9c3d554b977e24f2acee",
+      "split_sha256": "65975afc1edb0423e33ae8e6e732b9eef1e6dca4609c6c57561c1568d1d31718"
+    },
+    {
+      "name": "hog_random_forest",
+      "representation": "hog",
+      "family": "random_forest",
+      "parameters": {
+        "n_estimators": 200,
+        "max_depth": 25
+      },
+      "accuracy": 0.85,
+      "macro_f1": 0.8494722950474507,
+      "fit_seconds": 51.822125000006054,
+      "convergence_warnings": [],
+      "training_images": 48000,
+      "validation_images": 12000,
+      "feature_count": 324,
+      "model_sha256": "1ebee57e75deca5002431a71bf4d390c199d38b0e694b0b1c559fa11ef0d0655",
+      "split_sha256": "65975afc1edb0423e33ae8e6e732b9eef1e6dca4609c6c57561c1568d1d31718"
+    },
+    {
+      "name": "hog_knn",
+      "representation": "hog",
+      "family": "knn",
+      "parameters": {
+        "n_neighbors": 5
+      },
+      "accuracy": 0.8475,
+      "macro_f1": 0.8476122062847036,
+      "fit_seconds": 0.003951791004510596,
+      "convergence_warnings": [],
+      "training_images": 48000,
+      "validation_images": 12000,
+      "feature_count": 324,
+      "model_sha256": "9064028d86d0208e83afd8a349ef31b255ae15003df7257cf2e41ee2c07d32e9",
+      "split_sha256": "65975afc1edb0423e33ae8e6e732b9eef1e6dca4609c6c57561c1568d1d31718"
+    }
+  ],
+  "hog": {
+    "orientations": 9,
+    "pixels_per_cell": [
+      7,
+      7
+    ],
+    "cells_per_block": [
+      2,
+      2
+    ],
+    "block_norm": "L2-Hys",
+    "transform_sqrt": false,
+    "feature_vector": true,
+    "channel_axis": null
+  },
+  "training_archives_sha256": {
+    "train-images-idx3-ubyte.gz": "3aede38d61863908ad78613f6a32ed271626dd12800ba2636569512369268a84",
+    "train-labels-idx1-ubyte.gz": "a04f17134ac03560a47e3764e11b92fc97de4d1bfaf8ba1a3aa29af54cc90845"
+  },
+  "source_sha256": {
+    "models.py": "7e7daa23d5084eafb69d81bab9b3a6300a1dd22605e429cc03060b797f28fbbf",
+    "__init__.py": "e7a76bf6d6e611ff5c11bbf7c48c0c7b17f533d9320634ceaadccb9d85de7200",
+    "features.py": "b95da524869fd84ef1a8cd185e4f23ab63b12a2e29c7a63a3f928444d1c568d0",
+    "eda.py": "17ef6e62fc63de5298c15291b069c2c787368bc86f5028effc1c24dd28c9bfd4",
+    "cli.py": "a8fda61ea510fbdc354db71a44e44d528525993b41dd0742b72ced2248386e21",
+    "train.py": "baceb13de3b051c693508219788b11b4cd6abd6986aa12cf44b7dee7d316882a",
+    "evaluate.py": "333d769e17032a1f003f38214a20e4fcfc03db31bcf27396ab4deb6d5c3621dd",
+    "data.py": "c6d3efaccbdc4d97f44d4e693879bad9cc1105dfb71c9560b3f90b16b75d66a0"
+  },
+  "environment": {
+    "python": "3.12.13",
+    "platform": "macOS-26.5.1-arm64-arm-64bit",
+    "numpy": "2.5.4",
+    "sklearn": "1.9.1",
+    "skimage": "0.26.0"
+  }
+}

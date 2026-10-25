@@ -1,0 +1,10 @@
+Python: 3.12.13 | macOS-26.5.1-arm64-arm-64bit
+numpy 2.5.4
+pandas 2.3.3
+scipy 1.18.1
+scikit-learn 1.9.1
+scikit-image 0.26.0
+matplotlib 3.11.2
+pillow 12.3.0
+joblib 1.6.0
+Phase 1 imports, HOG and classifier fit/predict passed; no dataset downloaded.
