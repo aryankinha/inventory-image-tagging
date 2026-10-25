@@ -21,7 +21,7 @@ FAMILY_NAMES = {'logistic_regression': 'Linear scoring', 'knn': 'Closest example
 METRICS = {'test_accuracy': 'Final test accuracy', 'test_macro_f1': 'Category balance score',
            'validation_macro_f1': 'Practice-set balance score', 'single_ms_median': 'Typical prediction time (ms)',
            'batch_ms_per_image': 'Time per image when processed together (ms)', 'fit_seconds': 'Training time (seconds)',
-           'model_bytes': 'Saved file size (bytes)', 'feature_count': 'Number of image measurements'}
+           'model_bytes': 'Saved file size (MB)', 'feature_count': 'Number of image measurements'}
 
 
 def model_label(name, records):
@@ -135,7 +135,8 @@ def prediction_lab(work_dir, results, frozen, records):
                 try:
                     runs.append(predict_one(work_dir, records[name], pixels))
                 except Exception as error:
-                    failures.append(f'{model_label(name, records)}: {error}')
+                    detail = 'This model file has changed. Restore the matching file for these saved results.' if 'checksum mismatch' in str(error) else str(error)
+                    failures.append(f'{model_label(name, records)}: {detail}')
         st.session_state['prediction_run'] = (signature, runs, failures)
     previous = st.session_state.get('prediction_run')
     if signature is not None and previous and previous[0] == signature:
@@ -204,13 +205,16 @@ def comparison(work_dir, results, frozen, records):
     filtered['Model'] = filtered.name.map(lambda n: model_label(n, records))
     filtered['Choice'] = np.where(filtered.name == frozen['selected'], 'Chosen before final test', 'Other saved model')
     filtered = filtered.sort_values(metric, ascending=metric not in ('test_accuracy', 'test_macro_f1', 'validation_macro_f1'))
-    measured = filtered.dropna(subset=[metric])
+    display_table = filtered.copy()
+    if 'model_bytes' in display_table:
+        display_table['model_bytes'] = display_table.model_bytes / 1_000_000
+    measured = display_table.dropna(subset=[metric])
     chart = px.bar(measured, x=metric, y='Model', color='Choice', orientation='h', labels={metric: METRICS[metric]}, color_discrete_map={'Chosen before final test': '#167d9a', 'Other saved model': '#b3c8d0'})
     st.plotly_chart(chart, width='stretch')
     if len(measured) != len(filtered):
         st.caption('Models with no saved value for this measurement are left out of the chart.')
     table_columns = [k for k in METRICS if k in filtered]
-    st.dataframe(filtered[['Model', 'Choice', *table_columns]].rename(columns=METRICS), hide_index=True, width='stretch')
+    st.dataframe(display_table[['Model', 'Choice', *table_columns]].rename(columns=METRICS), hide_index=True, width='stretch')
     st.caption('Accuracy and balance scores are better when larger. Times and file sizes are smaller when less work or storage is needed. Click a table heading to sort it.')
     if {'single_ms_median', 'test_accuracy'}.issubset(filtered.columns):
         points = filtered.dropna(subset=['single_ms_median', 'test_accuracy'])

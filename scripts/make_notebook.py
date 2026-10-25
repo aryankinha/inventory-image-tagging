@@ -65,16 +65,29 @@ code('''display(test[["name","fit_seconds","single_ms_median","single_ms_p95","b
 display(Image(filename=str(ROOT / "reports/figures/accuracy_cost.png")))'''),
 md('''## 7. Reusable prediction\nThis example loads a saved model and predicts one training image. It demonstrates prediction only and provides no additional accuracy estimate. For a command-line demonstration use `uv run python3 -m src.inventory_tagging.cli predict path/to/image.png` with a 28x28 grayscale image on a dark background. Arbitrary phone-photo performance has not been measured.'''),
 code('''import joblib
-record = next(m for m in frozen["models"] if m["name"] == selected)
-model_path = ROOT / "models" / f"{selected}.joblib"
-if model_path.exists():
+from src.inventory_tagging.data import sha256
+# A new clone builds into runs/reproduction; the original reports stay separate.
+demo_root = ROOT if (ROOT / "models" / f"{selected}.joblib").exists() else ROOT / "runs/reproduction"
+demo_manifest = demo_root / "reports/frozen.json"
+if demo_manifest.exists():
+    demo_frozen = json.loads(demo_manifest.read_text())
+    record = next(m for m in demo_frozen["models"] if m["name"] == demo_frozen["selected"])
+    model_path = demo_root / "models" / f"{record['name']}.joblib"
+else:
+    model_path = None
+if model_path is not None and model_path.exists():
+    if sha256(model_path) != record["model_sha256"]:
+        raise ValueError("The model does not match this run's saved record.")
+    if sha256(ROOT / "data/split.npz") != record["split_sha256"]:
+        raise ValueError("The demo's training images use a different split.")
     model = joblib.load(model_path)
     index = int(train_ids[0])
     prediction = int(model.predict(extract(images[index:index+1], record["representation"]))[0])
-    print("Demonstration true category:", CLASSES[int(labels[index])])
+    print("Model folder for this demonstration:", demo_root)
+    print("Known category:", CLASSES[int(labels[index])])
     print("Predicted category:", CLASSES[prediction])
 else:
-    print("Run the training stages locally to create the ignored model artifacts.")'''),
+    print("Saved results are available. To enable prediction, run: bash scripts/build_models.sh")'''),
 md('''## 8. Conclusions, limitations, and viva\nRead `reports/phase1_findings.md` for result-specific conclusions, `docs/literature_review.md` for primary sources, and `docs/viva_guide.md` for explanations. The findings apply to one split and a limited search. Full catalogue photos, unseen classes, near-duplicates and calibration need separate evaluation.\n\nThe reference is acknowledged in `docs/ATTRIBUTION.md`. All result tables use our new experiment with 48k training images. Phase 2 will use this same split for a small CNN with pooling, dropout and early stopping, then compare errors and compute cost.''')
 ]
 nb.metadata.kernelspec = {'display_name': 'Python 3 (project uv environment)', 'language': 'python', 'name': 'python3'}

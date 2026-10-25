@@ -25,7 +25,7 @@ def test_benchmark_input_is_unchanged_and_invalid_inputs_explained():
     assert pixels.dtype == np.uint8 and pixels.shape == (28, 28)
     assert (pixels == 128).all()
     for content in (image_bytes('RGB'), image_bytes(size=(40, 28)), image_bytes(fmt='JPEG')):
-        with pytest.raises(ValueError, match='Benchmark input'):
+        with pytest.raises(ValueError, match='Dataset image mode'):
             prepare_image(content)
     with pytest.raises(OSError):
         prepare_image(b'not an image')

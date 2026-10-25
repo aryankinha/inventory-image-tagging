@@ -85,7 +85,7 @@ def prepare_image(content, experimental=False, sizing='Pad', invert=False, brigh
             raise ValueError('Use an image with at most 20 million pixels.')
         if not experimental:
             if opened.format != 'PNG' or opened.size != (28, 28) or opened.mode != 'L':
-                raise ValueError('Benchmark input must be a PNG exactly 28x28 pixels in grayscale mode (L).')
+                raise ValueError('Dataset image mode needs a 28×28 grayscale PNG. To convert other pictures, switch to Prepare an ordinary picture.')
             image = opened.copy()
             return np.asarray(image, dtype=np.uint8).copy(), [('Benchmark input (unchanged)', image)]
         oriented = ImageOps.exif_transpose(opened)

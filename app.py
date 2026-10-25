@@ -37,4 +37,4 @@ views = dict(zip(PAGES, [overview, prediction_lab, comparison, error_analysis, d
 try:
     views[section](work_dir, results, frozen, records)
 except (OSError, ValueError, KeyError, TypeError, IndexError, EOFError, BadZipFile) as error:
-    st.error(f'Could not display this artifact: {error}. Check that the files belong to this completed experiment.')
+    st.error(f'Could not show these saved files: {error}. Check that the files belong to this completed experiment.')
