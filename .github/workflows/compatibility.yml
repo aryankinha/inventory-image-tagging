@@ -33,3 +33,5 @@ jobs:
         run: python3 -m pytest -q
       - name: Verify saved experiment evidence
         run: python3 scripts/verify_results.py
+      - name: Verify protected reports and sample pictures
+        run: python3 scripts/verify_artifacts.py

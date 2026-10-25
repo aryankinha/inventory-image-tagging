@@ -88,21 +88,49 @@ def prepare_image(content, experimental=False, sizing='Pad', invert=False, brigh
                 raise ValueError('Benchmark input must be a PNG exactly 28x28 pixels in grayscale mode (L).')
             image = opened.copy()
             return np.asarray(image, dtype=np.uint8).copy(), [('Benchmark input (unchanged)', image)]
-        original = ImageOps.exif_transpose(opened).convert('RGB')
+        oriented = ImageOps.exif_transpose(opened)
+        has_alpha = oriented.mode in ('RGBA', 'LA') or (oriented.mode == 'P' and 'transparency' in oriented.info)
+        if has_alpha:
+            fill = 255 if invert else 0
+            background = Image.new('RGBA', oriented.size, (fill, fill, fill, 255))
+            oriented = Image.alpha_composite(background, oriented.convert('RGBA'))
+        original = oriented.convert('RGB')
     gray = ImageOps.grayscale(original)
+    if gray.getextrema()[0] == gray.getextrema()[1]:
+        raise ValueError('This picture is blank or has no visible detail. Choose a picture with a visible clothing item.')
     if sizing == 'Crop':
         sized = ImageOps.fit(gray, (28, 28), method=Image.Resampling.LANCZOS)
     elif sizing == 'Stretch':
         sized = gray.resize((28, 28), Image.Resampling.LANCZOS)
     else:
-        # A light background needs light padding before inversion.
-        sized = ImageOps.pad(gray, (28, 28), method=Image.Resampling.LANCZOS, color=255 if invert else 0)
+        # Clamp each side to one pixel, including extremely narrow uploads.
+        ratio = min(28 / gray.width, 28 / gray.height)
+        size = tuple(max(1, min(28, round(side * ratio))) for side in gray.size)
+        reduced = gray.resize(size, Image.Resampling.LANCZOS)
+        sized = Image.new('L', (28, 28), 255 if invert else 0)
+        sized.paste(reduced, ((28 - size[0]) // 2, (28 - size[1]) // 2))
     adjusted = ImageEnhance.Contrast(ImageEnhance.Brightness(sized).enhance(brightness)).enhance(contrast)
     if invert:
         adjusted = ImageOps.invert(adjusted)
+    if adjusted.getextrema()[0] == adjusted.getextrema()[1]:
+        raise ValueError('The prepared picture has no visible detail. Try different picture settings or another image.')
     return np.asarray(adjusted, dtype=np.uint8).copy(), [
-        ('Original', original), ('Grayscale', gray), ('28x28 ' + sizing.lower(), sized),
+        ('Original (transparent areas filled)' if has_alpha else 'Original', original), ('Shades of gray', gray), ('Resized to 28×28', sized),
         ('Prepared input', adjusted)]
+
+
+def sample_gallery():
+    """Small, checked training examples work even when the full dataset is absent."""
+    path = ROOT / 'assets/examples/manifest.json'
+    manifest = read_json(stamp(path))
+    for record in manifest['samples']:
+        name = record['filename']
+        if Path(name).name != name or '/' in name or '\\' in name:
+            raise ValueError('Invalid sample filename.')
+        sample = path.parent / name
+        if sha256(sample) != record['sha256']:
+            raise ValueError('A sample picture has changed. Restore the original sample files.')
+    return manifest['samples']
 
 
 @st.cache_data(max_entries=32, show_spinner=False)

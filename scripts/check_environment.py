@@ -11,7 +11,7 @@ from src.inventory_tagging.features import extract
 from src.inventory_tagging.models import build
 
 print('Python:', platform.python_version(), '|', platform.platform())
-for package in ('numpy','pandas','scipy','scikit-learn','scikit-image','matplotlib','pillow','joblib','streamlit'):
+for package in ('numpy','pandas','scipy','scikit-learn','scikit-image','matplotlib','pillow','joblib','streamlit','plotly'):
     print(package, importlib.metadata.version(package))
 images = np.random.default_rng(42).integers(0, 256, (20,28,28), dtype=np.uint8)
 x = extract(images, 'hog')
@@ -19,4 +19,6 @@ model = build('logistic_regression', {'C': 1})
 model.fit(x, np.repeat([0,1],10))
 assert model.predict(x).shape == (20,)
 assert x.shape == (20,324) and np.isfinite(x).all()
+import plotly.graph_objects as go
+assert go.Figure(go.Bar(x=['example'], y=[1])).to_json()
 print('Phase 1 imports, HOG and classifier fit/predict passed; no dataset downloaded.')

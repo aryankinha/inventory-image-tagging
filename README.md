@@ -1,237 +1,182 @@
 # Inventory Image Tagging
 
-Project 11, Phase 1: handcrafted visual features and classical machine learning.
+Project 11, Phase 1: recognise ten Fashion-MNIST clothing categories using image
+brightness, edge measurements and classical machine learning.
 
-We classify 28x28 grayscale clothing images into ten Fashion-MNIST categories. We compare pixels and HOG using Logistic Regression, k-NN, Random Forest and linear SVM, then test RBF SVMs with finer HOG cells. Phase 2 will add a small CNN.
-
-Every model trains on all 48,000 images from the same 48k/12k stratified split. The supplied reference used a 12k training subset. We acknowledge the choices we adapted in [attribution](docs/ATTRIBUTION.md).
+We compare raw pixels and HOG with Logistic Regression, k-NN, Random Forest and
+linear SVM, then compare additional RBF SVMs and finer HOG cells. Every model uses
+the same 48,000 training and 12,000 validation images. The supplied reference used
+a smaller training subset; see [attribution](docs/ATTRIBUTION.md).
 
 <!-- RESULTS_START -->
-Validation selects Fine HOG + RBF SVM. It achieves 90.87% accuracy and macro F1 0.9084 on the official test set after training on all 48,000 images. See the results, errors and timings in [Phase 1 findings](reports/phase1_findings.md).
+Validation selected Fine HOG + RBF SVM before the final test. Its saved official
+test accuracy is **90.87%**, with Macro F1 **0.9084**. These are the original saved
+results, not scores from a fresh reproduction. See [Phase 1 findings](reports/phase1_findings.md).
 <!-- RESULTS_END -->
 
-## Start here
+## Start on a Mac
 
-1. [Executed teaching notebook](notebooks/phase1.ipynb)
-2. [Phase 1 findings](reports/phase1_findings.md)
-3. [IEEE report PDF](reports/phase1_report/main.pdf) ([LaTeX source](reports/phase1_report/main.tex))
-4. [Presentation](reports/presentation/phase1.pptx)
-5. [Viva guide](docs/viva_guide.md)
-6. [Requirements checklist](docs/phase1_checklist.md)
-
-## Quick start (macOS, pip)
-
-Needs Python 3.11 or 3.12 (run `python3.12 --version` or `python3.11 --version` to see which you have; `brew install python@3.12` installs one). Use a project folder whose path has no `:` in it.
+Install [uv](https://docs.astral.sh/uv/getting-started/installation/) if you want
+it to manage Python and the project dependencies. Then:
 
 ```bash
 git clone https://github.com/aryankinha/inventory-image-tagging.git
 cd inventory-image-tagging
-python3.12 -m venv ~/venvs/inventory-tagging      # or python3.11
-source ~/venvs/inventory-tagging/bin/activate
-python -m pip install --upgrade pip
-python -m pip install -r requirements.txt
-python scripts/check_environment.py               # should end with "passed"
-python -m pytest -q                               # 12 passed
-python scripts/verify_results.py                  # "status": "passed"
-python -m streamlit run app.py                    # open http://localhost:8501
+bash scripts/setup_mac.sh
+bash scripts/start_dashboard.sh
 ```
 
-The dashboard shows the saved results straight away. To try the notebook, first download the official Fashion-MNIST training archives (about 25 MB, checksum-verified, saved under the ignored `data/` folder), then open it:
+Open the local address printed in Terminal, usually <http://localhost:8501>.
+Stop the app with **Control+C**. In a new Terminal, run the start command again;
+you do not need to activate an environment or remember a Python executable.
+
+If you prefer pip, install Python **3.11 or 3.12**, then replace the setup command
+with this one. The start and other helper commands stay the same:
 
 ```bash
-python -m src.inventory_tagging.cli prepare
-python -m jupyterlab notebooks/phase1.ipynb       # choose the "Python 3" kernel from this environment
+bash scripts/setup_mac.sh --pip
+bash scripts/start_dashboard.sh
 ```
 
-To retrain everything and enable image prediction, see [Reproduce the complete experiment](#reproduce-the-complete-experiment). Every new terminal needs the `source ...activate` line again. If a command fails, check the three causes listed under [Using pip](#using-pip) before anything else.
+Setup installs the exact locked dependencies, checks imports and saved evidence,
+and installs a notebook kernel **inside that environment**. It does not download
+the dataset or train models. Each clone gets its own environment. The pip helper
+puts its environment under `~/venvs/`, so spaces and a colon in the project path
+are handled without renaming your folder. `INVENTORY_PIP_ENV` can select another
+absolute environment path without a colon.
 
-## Technology
+## What works immediately after cloning?
 
-Python 3.12 (3.11 also allowed), pip or `uv`, Streamlit, Plotly, NumPy, pandas, SciPy, scikit-image, scikit-learn, matplotlib, Pillow, joblib, JupyterLab and pytest. Exact dependencies are in `uv.lock`; `requirements.txt` exports the same locked versions for pip, including the notebook and test tools. PyTorch is reserved for Phase 2 and is not needed to reproduce this ML-only study.
+All six pages open with the included saved reports and ten small training examples:
+
+| Page | What you can do |
+|---|---|
+| Overview | Read the project goal and the chosen model's saved scores |
+| Prediction Lab | Browse known-category examples and preview image preparation |
+| Model Comparison | Filter saved scores, speed and file sizes; compare mistakes made by two models |
+| Error Analysis | Explore saved answers, clothing mix-ups and scores for each category |
+| Dataset Explorer | View included training examples, category counts and saved training figures |
+| How It Works | Read a simple explanation of the methods |
+
+The full dataset and fitted model files are excluded from Git. They are not
+silently downloaded when the dashboard starts. Full training-image browsing
+requires local data. **Making new predictions requires locally built models.**
+
+## Build the models once on your Mac
+
+After setup, run:
 
 ```bash
-uv sync --locked
-bash scripts/uv.sh run --locked python3 scripts/check_environment.py
-bash scripts/uv.sh run --locked python3 -m pytest -q
-bash scripts/uv.sh run --locked python3 scripts/verify_results.py
-bash scripts/uv.sh run --locked python3 -m src.inventory_tagging.cli prepare   # fresh clone only: downloads the data the notebook reads
-bash scripts/uv.sh run --locked python3 -m jupyterlab notebooks/phase1.ipynb
+bash scripts/build_models.sh
 ```
 
-The launcher delegates to `uv`. It also handles the colon in the current parent folder (`Deep:ALML project`) by making a temporary alias to the local `.venv`; it does not move your source or environment. In an ordinary path without a colon, normal `uv run ...` commands work directly. If Jupyter opens a browser, select the project interpreter/kernel, not an unrelated global Python.
+This downloads and checks the official data, creates the shared training split,
+trains the eight core combinations plus three RBF combinations, fixes all choices
+using validation data, and evaluates the official test set once. Keep Terminal
+open until it finishes. Models and this run's own reports go under
+`runs/reproduction/`; the original committed reports stay untouched.
 
-## Interactive dashboard
-
-The sidebar opens six sections: **Overview**, **Prediction Lab**, **Model Comparison**, **Error Analysis**, **Dataset Explorer** and **How It Works**.
-
-Prediction Lab can compare any available frozen models on the same image, shows real inference latency, and visualizes the exact pixel/HOG representation. Exact 28×28 grayscale PNG input is preserved. A separate experimental PNG/JPEG preparation mode previews grayscale, sizing, brightness, contrast and inversion; ordinary-photo accuracy has not been measured.
-
-Plotly charts support filtered model comparisons and confusion-matrix exploration. Dataset Explorer uses only the persisted training split. Saved results remain useful without local models or downloaded images. Every loaded model still requires its recorded SHA-256 checksum; the dashboard never retrains or changes frozen evidence.
-
-See [dashboard usage and artifact fallbacks](docs/DASHBOARD.md) for details.
-
-## Run the Streamlit dashboard
-
-Run these commands from the `inventory-image-tagging` folder. The dashboard shows the saved model comparison, confusion matrix and error examples. It also supports prediction when the fitted model is available locally.
-
-### Using pip
-
-Three things make pip setups fail on one Mac and work on another:
-
-1. **Python version.** The project supports Python 3.11 and 3.12 only. A bare `python3` may be newer (for example 3.13 or later from Homebrew), and `scripts/check_environment.py` stops with "Use Python 3.12 (recommended) or 3.11". Pick the interpreter by name: run `python3.12 --version` or `python3.11 --version` and use whichever exists. Install one with `brew install python@3.12` or from python.org.
-2. **A `:` in the folder path.** `python -m venv` refuses to create an environment inside a path containing a colon, and `source .../activate` would break `PATH`. If the project folder is called `Deep:ALML project`, either rename it or keep the environment outside it, as below.
-3. **Wrong folder.** Run every command from the repository root (the folder containing `app.py`).
+When it finishes, enter **runs/reproduction** in the dashboard's **Results folder**
+box. The app then shows that run's scores and uses that run's matching model files.
+A reproduction can differ between computers; its results are not substituted into
+the original report. Running the build command again checks a completed run and
+exits without repeating its final test. An interrupted final test requires a new
+work folder, keeping the interrupted evidence:
 
 ```bash
-python3.12 -m venv ~/venvs/inventory-tagging      # or python3.11
-source ~/venvs/inventory-tagging/bin/activate
-python -m pip install --upgrade pip
-python -m pip install -r requirements.txt
-python scripts/check_environment.py               # must end with "passed"
-python -m streamlit run app.py
+bash scripts/build_models.sh --work-dir runs/reproduction-2
 ```
 
-Inside the activated environment `python` is the right interpreter, so use `python` rather than `python3` from here on. Run `deactivate` to leave it. A new terminal needs the `source` line again.
+To reuse original downloaded archives, add `--source /absolute/path/to/archives`.
+If a fit is interrupted before choices are frozen, already completed fits are reused.
+You cannot use the project root as the reproduction folder.
 
-### Using uv
+For command-line prediction from a completed reproduction:
 
 ```bash
-uv python install 3.12
-uv sync --locked
-bash scripts/uv.sh run --locked python3 -m streamlit run app.py
+bash scripts/run_python.sh -m src.inventory_tagging.cli --work-dir runs/reproduction predict assets/sample.png
 ```
 
-In a folder path without a colon, you can also use `uv run --locked python3 -m streamlit run app.py` directly.
+This command expects an upright 28×28 grayscale image. The dashboard also offers
+an explicitly experimental mode for ordinary photos, with visible resizing,
+brightness, contrast and background controls. Photos have not been benchmarked.
+Transparent areas are filled with the selected background; blank photo inputs
+show a helpful error. Dataset-image mode preserves the original pixels exactly.
 
-Open [localhost:8501](http://localhost:8501) in your browser. Press `Ctrl+C` in the terminal to stop the dashboard. These launch commands follow the [Streamlit installation guide](https://docs.streamlit.io/get-started/installation/command-line).
-
-The saved result tables and figures work on a fresh clone. Prediction also needs the fitted model files, which are excluded from Git. To generate them with pip, run this in the activated environment:
+## Check the installation and saved results
 
 ```bash
-python3 scripts/reproduce.py
+bash scripts/run_python.sh -m pytest -q
+bash scripts/run_python.sh scripts/verify_results.py
+bash scripts/run_python.sh scripts/verify_artifacts.py
+bash scripts/run_python.sh scripts/check_dashboard.py
 ```
 
-With uv, use the reproduction command in the next section. After the run completes, enter `runs/reproduction` in the dashboard's **Experiment folder** field. The default `.` uses the original local experiment. The included sample is a training image for demonstrating prediction, not an extra accuracy test.
+The result check independently recomputes scores from saved answers and checks
+recall, timing summaries, model sizes/capacity records, frozen source hashes and
+any local model/split/archive hashes. The artifact check additionally protects
+164 saved files, including reports, figures and documented training examples.
+The dashboard check opens all six sections and runs any locally available models;
+it reports zero fitted models on a clean clone instead of substituting another one.
 
-You can run other Python commands from this README with pip by replacing `bash scripts/uv.sh run --locked python3` with `python` in your activated environment. No uv installation is needed for that workflow. On a fresh clone, the command-line `predict` needs the reproduced models, so add `--work-dir runs/reproduction`:
+After building the models, check the reproduction explicitly:
 
 ```bash
-python -m src.inventory_tagging.cli --work-dir runs/reproduction predict assets/sample.png
+bash scripts/run_python.sh scripts/verify_results.py --work-dir runs/reproduction
+bash scripts/run_python.sh scripts/check_dashboard.py --work-dir runs/reproduction --require-models
 ```
 
-Without that flag a fresh clone stops with a `FileNotFoundError` for `models/hog_fine_rbf_svm.joblib`, because the fitted models are not in Git.
+An [additional saved-answer comparison](reports/additional_analysis/README.md)
+shows where the chosen RBF model and core Random Forest make different mistakes,
+with a paired 95% interval for their accuracy difference. It is descriptive analysis
+added after the experiment; it is not a new selection or test evaluation.
 
-When dependencies change, maintain them in `pyproject.toml`, update `uv.lock`, and refresh the pip export:
+## Open the teaching notebook
+
+Prepare the original training data without loading the final-test set:
 
 ```bash
+bash scripts/run_python.sh -m src.inventory_tagging.cli prepare
+bash scripts/run_python.sh -m jupyterlab notebooks/phase1.ipynb
+```
+
+Choose **Python (Inventory Tagging)** from the project environment. The notebook
+reads the original committed evidence and training images; it does not silently
+retrain the experiment. CNN training and results belong to Phase 2.
+
+## Report and presentation
+
+- [Teaching notebook](notebooks/phase1.ipynb)
+- [Original Phase 1 findings](reports/phase1_findings.md)
+- [IEEE report PDF](reports/phase1_report/main.pdf) and [LaTeX source](reports/phase1_report/main.tex)
+- [Presentation](reports/presentation/phase1.pptx)
+- [Viva guide](docs/viva_guide.md) and [requirements checklist](docs/phase1_checklist.md)
+- [Dashboard details](docs/DASHBOARD.md) and [verification record](docs/FRESH_CLONE_CHECK.md)
+
+The report has three pages and the presentation has 15 slides with speaker notes.
+[Team details](docs/team.md) still need the course section, formal affiliation and
+each member's actual contribution before submission.
+
+## Project structure and dependencies
+
+`src/inventory_tagging/` contains the frozen data, feature, model, training and
+evaluation code. `dashboard/` contains display code and read-only analysis.
+`scripts/` provides setup, startup, reproduction and verification commands.
+`reports/` holds saved evidence; `assets/examples/` holds ten documented training
+pictures. Generated `data/`, `models/` and `runs/` stay local.
+
+Python 3.11/3.12, uv or pip, Streamlit, Plotly, NumPy, pandas, SciPy, scikit-image,
+scikit-learn, matplotlib, Pillow, joblib, JupyterLab and pytest are used. No deep
+learning library is needed for Phase 1. Dependencies are pinned in `uv.lock` and
+exported to `requirements.txt`. When dependencies change, update both files:
+
+```bash
+uv lock
 uv export --locked --all-groups --no-hashes --no-emit-project --format requirements-txt --output-file requirements.txt
 ```
 
-## Mac setup
-
-The team uses Macs. The project instructions and upload scripts target macOS with Python 3.11 or 3.12. Saved results need no GPU; training and prediction run on the CPU. A phone or tablet can view the dashboard hosted by a Mac on the same network, but this repository does not provide a mobile app.
-
-Do not copy a `.venv` folder between computers. Recreate the environment from `requirements.txt` or `uv.lock`. Keep fitted models with their matching locked scikit-learn version, or reproduce the experiment on the new computer.
-
-Local checks have passed on the development Mac. GitHub Actions checks installation, the pipeline and the dashboard on macOS with Python 3.11 and 3.12 on every push, and the latest run passed.
-
-## Reproduce the complete experiment
-
-Git contains the report and saved predictions. Data, caches and fitted models stay local, so a fresh clone needs training before prediction. Run the complete experiment in a separate directory:
-
-```bash
-bash scripts/uv.sh run --locked python3 scripts/reproduce.py
-```
-
-This runs data preparation and EDA, trains the eight core combinations and additional RBF models, then freezes the choices before one official test evaluation under `runs/reproduction/`. It preserves the committed `reports/` evidence. Some SVM fits take several minutes. The full run can take much longer than the reference experiment because it uses more training images. The result tables record fit times.
-
-To reuse an already downloaded original Fashion-MNIST archive folder:
-
-```bash
-bash scripts/uv.sh run --locked python3 scripts/reproduce.py --source /absolute/path/to/archives
-```
-
-If you interrupt a fit, completed model/feature combinations are reused before the final freeze. If a final test run has started, inspect its outputs and use a new work directory for another experiment. Keep the final marker so the original evaluation remains traceable:
-
-```bash
-bash scripts/uv.sh run --locked python3 scripts/reproduce.py --work-dir runs/reproduction-2
-```
-
-The original author's checkout also holds the ignored data and model files from the first complete experiment; a fresh clone does not, so run this command once before using prediction. A later reproduction may differ across platforms/library environments; keep its results separate.
-
-## Step-by-step commands
-
-For a new, empty experiment directory, set the same `--work-dir` on every stage:
-
-```bash
-mkdir -p runs/my-study/reports      # the eda stage needs this folder to exist
-bash scripts/uv.sh run --locked python3 -m src.inventory_tagging.cli --work-dir runs/my-study prepare
-bash scripts/uv.sh run --locked python3 -m src.inventory_tagging.cli --work-dir runs/my-study eda
-bash scripts/uv.sh run --locked python3 -m src.inventory_tagging.cli --work-dir runs/my-study train
-bash scripts/uv.sh run --locked python3 -m src.inventory_tagging.cli --work-dir runs/my-study improve
-bash scripts/uv.sh run --locked python3 -m src.inventory_tagging.cli --work-dir runs/my-study evaluate
-```
-
-With pip, drop the `bash scripts/uv.sh run --locked python3` prefix and start each line with `python` (inside the activated environment). `scripts/reproduce.py` creates the `reports` folder itself, so the `mkdir` line is only for these manual steps.
-
-`prepare` and `evaluate` also accept `--source /path/to/original/archives`. `train` never reads test files. `improve` is optional for the eight-model core but included in our completed experiment. `evaluate` freezes choices and refuses repeat test runs. Once choices are frozen, further tuning in that work directory is refused.
-
-## Simple code structure
-
-```text
-app.py                Streamlit results dashboard and image prediction
-requirements.txt      locked dependencies for pip
-src/inventory_tagging/
-  data.py       original archives, checksums and saved shared split
-  features.py   normalized pixels, coarse HOG and fine HOG
-  models.py     textbook classifier builders and capacity measurements
-  train.py      explicit settings, validation selection and saved models
-  eda.py        training-only audit and exploratory figures
-  evaluate.py   frozen test evaluation, errors, recall and inference costs
-  cli.py        one command for each stage and a prediction command
-scripts/
-  uv.sh               uv launcher including the local-path workaround
-  reproduce.py        complete workflow into an isolated output directory
-  check_environment.py
-  make_notebook.py     regenerate the readable teaching notebook source
-notebooks/phase1.ipynb
-reports/              generated evidence, report source and slides
-models/               ignored local fitted models (regenerate on a fresh clone)
-data/                 ignored verified archives and saved split
-```
-
-## Experiment setup
-
-- Data: [Fashion-MNIST official source](https://github.com/zalandoresearch/fashion-mnist); 60,000 official training and 10,000 official test images. License retained in `docs/FASHION_MNIST_LICENSE.txt`.
-- Split: seed 42, stratified 48,000/12,000 from official training only; every model sees the same full training IDs.
-- Features: float32 pixels divided by 255; HOG with 9 bins, 7x7 cells and 2x2 blocks (324 values). Fine HOG uses 4x4 cells (1,296 values).
-- Learned preprocessing: StandardScaler is fitted only on training features for LR and saved in its pipeline. Linear SVM uses fixed normalized descriptors directly (tolerance 1e-3, max_iter 2,000).
-- Search: two settings per required combination; validation macro F1, then accuracy, chooses the best converged candidate. Three additional RBF feature combinations test two C values each.
-- Test: representative model and all compared configurations frozen before evaluation. The reference already used this public benchmark. Performance on a new image domain remains unmeasured.
-- Metrics: accuracy, macro F1, all-class precision/recall/F1/support, confusion matrices and upper-body errors.
-- Costs: common two-thread CPU, warm repetitions, preprocessing/HOG included, separate single-image latency and batch throughput. Trees, stored samples, linear weights and support vectors are documented as different capacity measures.
-
-## Prediction demonstration
-
-Use a benchmark-style 28x28 grayscale PNG, upright on a dark background:
-
-```bash
-bash scripts/uv.sh run --locked python3 -m src.inventory_tagging.cli predict assets/sample.png
-```
-
-After a fresh reproduction, point to its outputs:
-
-```bash
-bash scripts/uv.sh run --locked python3 -m src.inventory_tagging.cli --work-dir runs/reproduction predict assets/sample.png
-```
-
-We have not evaluated ordinary colour images or phone photos. The prediction command accepts only the expected image dimensions and grayscale mode.
-
-## Report, presentation and viva
-
-The report uses the official IEEEtran class, included with its original license notice. Open `reports/phase1_report/` in the built-in LaTeX editor or compile `main.tex` using an existing TeX setup. The report has three pages. The editable PowerPoint has 15 slides with speaker notes and source references. [Team details](docs/team.md) list the five supplied names and enrolment numbers. Add the course section, formal affiliation and each member's actual contribution before submission.
-
-The literature review and viva guide explain feature dimensions, classifier objectives, split isolation, macro F1, recall, capacity and latency. Each member should practise explaining the full workflow for the individual viva.
+The existing `scripts/uv.sh` remains available for direct uv commands and handles
+colon-containing project paths. Do not copy virtual environments between Macs.
 
 ## Optional Docker workflow
 
@@ -239,4 +184,6 @@ The literature review and viva guide explain feature dimensions, classifier obje
 docker compose run --build --rm phase1
 ```
 
-This uses the same lockfile and writes under `runs/reproduction/`. Docker configuration is provided, but the Docker daemon was unavailable during development, so the container path has not been executed. The native `uv` workflow is the verified path.
+This builds the Phase 1 experiment under `runs/reproduction/`. Native Mac setup is
+the supported team workflow. Docker is optional and has not been verified locally;
+the fresh-clone verification record states exactly which paths were exercised.

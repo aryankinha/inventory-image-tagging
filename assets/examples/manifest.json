@@ -1,0 +1,76 @@
+{
+  "source": "Official Fashion-MNIST training split only; first original index per category. No prediction-based selection.",
+  "split_sha256": "65975afc1edb0423e33ae8e6e732b9eef1e6dca4609c6c57561c1568d1d31718",
+  "samples": [
+    {
+      "filename": "00.png",
+      "category": "T-shirt/top",
+      "label": 0,
+      "original_training_index": 1,
+      "sha256": "6d9d8a565494e188e4b0227985e76f84ef92d001e22ca539f2e6ccdd85de122f"
+    },
+    {
+      "filename": "01.png",
+      "category": "Trouser",
+      "label": 1,
+      "original_training_index": 16,
+      "sha256": "ddaf95eb28f4214d7d415f8e2e00675c9720f8a6b17d56a4a116651944534639"
+    },
+    {
+      "filename": "02.png",
+      "category": "Pullover",
+      "label": 2,
+      "original_training_index": 5,
+      "sha256": "ec1602ad58ee79fd9672ba74736b55d9fce7735e602ba5519ca8ffe7b7644f0a"
+    },
+    {
+      "filename": "03.png",
+      "category": "Dress",
+      "label": 3,
+      "original_training_index": 3,
+      "sha256": "8e21d00c105e0bc567298c50eacd43321787c06e89cd8ec3c47fbd24a2468a5d"
+    },
+    {
+      "filename": "04.png",
+      "category": "Coat",
+      "label": 4,
+      "original_training_index": 19,
+      "sha256": "d98d7d45902ffe220ec66a022a4a6185ad76ca6a7b688bba2bd82289d4a90e03"
+    },
+    {
+      "filename": "05.png",
+      "category": "Sandal",
+      "label": 5,
+      "original_training_index": 8,
+      "sha256": "9925e57d6f26fed8106288166f06f10d9291d49f4d765f841d25bb68cab85f71"
+    },
+    {
+      "filename": "06.png",
+      "category": "Shirt",
+      "label": 6,
+      "original_training_index": 32,
+      "sha256": "34af0a1a3c4d4294aa363289befb7622c273e24755e7f279cfa027192b0af251"
+    },
+    {
+      "filename": "07.png",
+      "category": "Sneaker",
+      "label": 7,
+      "original_training_index": 6,
+      "sha256": "02c368587af2706c8c0ce5b61b17f7db8117c47f21513126cfacc036252b6fbb"
+    },
+    {
+      "filename": "08.png",
+      "category": "Bag",
+      "label": 8,
+      "original_training_index": 23,
+      "sha256": "ae8be81ca74ed777bef331c323c4b63ce5e16024a46cd79eeb4d7bf85b1ce2c2"
+    },
+    {
+      "filename": "09.png",
+      "category": "Ankle boot",
+      "label": 9,
+      "original_training_index": 0,
+      "sha256": "5abd1630c87db397207ea02521ff8e9e10b39631c4acc3c20921c1e9af94ecce"
+    }
+  ]
+}

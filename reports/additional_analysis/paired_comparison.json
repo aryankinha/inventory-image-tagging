@@ -1,0 +1,19 @@
+{
+  "first_model": "hog_fine_rbf_svm",
+  "second_model": "pixels_random_forest",
+  "frozen_sha256": "516575dc5e9da1ff4de80a9e983c80b987b28c0ab4090cd38710d9dce2aa0c56",
+  "predictions_sha256": "5ff225e03c0954fb45c02581e01eaed221ef2300677931d929321f4343a3ab00",
+  "images": 10000,
+  "both_right": 8462,
+  "first_only_right": 625,
+  "second_only_right": 299,
+  "both_wrong": 614,
+  "accuracy_difference": 0.0326,
+  "interval_95": [
+    0.0264,
+    0.038402499999999985
+  ],
+  "resamples": 2000,
+  "seed": 42,
+  "scope": "Descriptive analysis of saved predictions for fixed models; image sampling only, not training-seed variability. Not used for model selection."
+}

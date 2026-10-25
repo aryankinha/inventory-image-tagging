@@ -4,7 +4,7 @@ import json
 
 import joblib
 import numpy as np
-from PIL import Image
+from PIL import Image, ImageDraw
 import pytest
 from sklearn.dummy import DummyClassifier
 
@@ -32,7 +32,11 @@ def test_benchmark_input_is_unchanged_and_invalid_inputs_explained():
 
 
 def test_photo_preparation_is_deterministic_and_explicit():
-    content = image_bytes('RGB', (80, 40), 'JPEG')
+    source = Image.new('RGB', (80, 40), 'white')
+    ImageDraw.Draw(source).rectangle((20, 5, 60, 35), fill='black')
+    buffer = BytesIO()
+    source.save(buffer, format='JPEG')
+    content = buffer.getvalue()
     a, steps = prepare_image(content, True, 'Pad', True, 1., 1.)
     b, _ = prepare_image(content, True, 'Pad', True, 1., 1.)
     assert np.array_equal(a, b) and a.shape == (28, 28) and a.dtype == np.uint8
@@ -76,3 +80,61 @@ def test_dataset_adapter_does_not_mutate_shared_root_or_download(tmp_path):
         local_dataset(str(tmp_path), 'train', ())
     assert data.ROOT == original
     assert not (tmp_path / 'data').exists()
+
+
+def test_transparent_upload_uses_the_selected_background():
+    from PIL import ImageDraw
+    rgba = Image.new('RGBA', (28, 28), (255, 255, 255, 0))
+    ImageDraw.Draw(rgba).rectangle((7, 7, 20, 20), fill=(255, 255, 255, 255))
+    content = BytesIO()
+    rgba.save(content, format='PNG')
+    pixels, _ = prepare_image(content.getvalue(), experimental=True)
+    assert pixels[0, 0] == 0 and pixels[10, 10] == 255
+    light = Image.new('RGBA', (28, 28), (0, 0, 0, 0))
+    ImageDraw.Draw(light).rectangle((7, 7, 20, 20), fill=(0, 0, 0, 255))
+    content = BytesIO()
+    light.save(content, format='PNG')
+    inverted, _ = prepare_image(content.getvalue(), experimental=True, invert=True)
+    assert np.array_equal(pixels, inverted)
+
+
+@pytest.mark.parametrize('mode', ['L', 'RGB', 'RGBA'])
+def test_blank_photo_is_rejected_without_changing_exact_input_contract(mode):
+    with pytest.raises(ValueError, match='blank|visible detail'):
+        prepare_image(image_bytes(mode), experimental=True)
+    # Constant benchmark images still pass through unchanged, as the original contract requires.
+    pixels, _ = prepare_image(image_bytes('L'))
+    assert (pixels == 128).all()
+
+
+def test_gallery_has_ten_checked_grayscale_categories():
+    from dashboard.services import ROOT, sample_gallery
+    samples = sample_gallery()
+    assert len(samples) == 10
+    assert sorted(s['label'] for s in samples) == list(range(10))
+    for sample in samples:
+        with Image.open(ROOT / 'assets/examples' / sample['filename']) as image:
+            assert image.mode == 'L' and image.size == (28, 28)
+
+
+def test_very_narrow_photo_still_has_valid_dimensions():
+    image = Image.new('L', (1, 1000), 0)
+    ImageDraw.Draw(image).rectangle((0, 400, 0, 600), fill=255)
+    buffer = BytesIO()
+    image.save(buffer, format='PNG')
+    pixels, _ = prepare_image(buffer.getvalue(), experimental=True)
+    assert pixels.shape == (28, 28) and pixels.max() > 0
+
+
+def test_gallery_matches_original_training_ids_when_data_are_present():
+    from src.inventory_tagging import data
+    from dashboard.services import sample_gallery
+    if not (data.ROOT / 'data/split.npz').exists():
+        pytest.skip('Training archives are optional on a fresh clone.')
+    images, labels = data.load_images('train')
+    train, _ = data.split_indices(labels)
+    for sample in sample_gallery():
+        index = sample['original_training_index']
+        assert index in train and labels[index] == sample['label']
+        with Image.open(data.ROOT / 'assets/examples' / sample['filename']) as image:
+            assert np.array_equal(np.asarray(image), images[index])

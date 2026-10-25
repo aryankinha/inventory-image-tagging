@@ -1,83 +1,80 @@
-# Exploring the saved experiment
+# Using the dashboard
 
-Start from the repository root:
+After setup, start it from the project folder:
 
 ```bash
-uv sync --locked
-bash scripts/uv.sh run --locked python3 -m streamlit run app.py
+bash scripts/start_dashboard.sh
 ```
 
-For pip, install `requirements.txt` in your activated Python 3.11/3.12 environment,
-then run `python3 -m streamlit run app.py`. The sidebar's **Experiment folder**
-accepts the original `.` or another completed run such as `runs/reproduction`.
-Every selected folder uses the same `reports/`, `models/` and `data/` layout.
-The dashboard never trains models or downloads data.
+The app opens six pages. Its default **Results folder** is `.`: the original
+saved experiment. After building models on your Mac, change it to
+`runs/reproduction` to use that run's own scores and model files.
 
-## Sections
+## Try a picture
 
-- **Overview:** saved official test scores for the model selected on validation
-  data, dataset protocol and recorded feature/classifier combinations.
-- **Prediction Lab:** select any locally available frozen model, compare models
-  on one input, inspect actual inference latency and view the feature vector.
-- **Model Comparison:** filter features and classifiers, choose a recorded metric,
-  sort the table and inspect interactive score, latency and size comparisons.
-- **Error Analysis:** explore saved confusion counts, row-normalized fractions,
-  per-class recall and correct/incorrect predictions by true/predicted category.
-- **Dataset Explorer:** browse only IDs in the persisted 48,000-image training
-  split, with training-category counts, mean images and intensity distributions.
-- **How It Works:** follow the feature/classifier pipeline. CNN work is planned;
-  this dashboard contains no CNN results.
+Choose a known-category sample from the ten included training examples, or upload
+a PNG/JPEG. The samples work without the full dataset and record their original
+training-image indices in `assets/examples/manifest.json`. They are not a new
+accuracy test and were not chosen based on model predictions.
 
-## Image input and prediction
+**Dataset image (unchanged)** requires exactly 28×28 pixels in single-channel
+grayscale PNG format. It preserves every pixel, including constant images,
+matching the original benchmark contract.
 
-**Exact benchmark input** requires a 28×28 grayscale PNG in Pillow mode `L`.
-It passes the original uint8 values to the existing `extract()` function, which
-normalizes once. HOG settings come from the existing feature module, including
-its fine-cell representation. The saved model applies its own fitted scaler
-where the original pipeline includes one.
+**Prepare an ordinary picture** offers a preview of grayscale conversion,
+resizing, brightness, contrast and inversion. Transparent areas are filled with
+the explicitly selected dark/light background before grayscale conversion.
+Blank or fully transparent pictures are rejected in this preparation mode.
+Even extremely narrow images retain a valid one-pixel minimum side. Changing
+the mode keeps the uploaded file; changing the input or models hides stale answers.
+Photos are not benchmarked and busy backgrounds are not removed automatically.
 
-**Experimental photo preparation** accepts PNG/JPEG, corrects EXIF orientation,
-converts to grayscale and offers padding, centered cropping or stretching to
-28×28. Brightness, contrast and inversion are explicit controls. The preview
-shows each step before prediction. Photos have not been benchmarked; background,
-pose and subject scale can make their predictions unreliable. No changes are
-made to the original image or experiment data.
+After local models are built, choose one or more and click **Predict and compare**.
+Each uses its own recorded pixel/HOG representation and the existing `extract()`
+function. Any fitted scaler remains inside the original saved model pipeline.
 
-Models load lazily after SHA-256 verification against the corresponding frozen
-record. File size and modification time participate in the resource cache key;
-a replaced artifact is checked again. Up to four loaded models are cached.
-Use trusted experiment folders: checksums establish consistency with the chosen
-manifest, and joblib files remain Python serialized objects.
+Model files load only on prediction requests. Their SHA-256 hashes must match the
+corresponding frozen records, including after a file is replaced. Four loaded
+models are cached at most. Use trusted experiment folders; matching a manifest
+establishes consistency, and joblib files are still Python serialized objects.
 
-Live latency includes feature extraction and `predict()` with two CPU threads.
+Prediction time includes feature extraction and `predict()` using two CPU threads.
 It excludes decoding, model loading and the separate alternative-class call.
-It is a single measurement, separate from the saved repeated evaluation timing.
+The displayed live time is separate from the original repeated timing benchmark.
+Probability estimates appear only for models with `predict_proba()` and are not
+claimed to be calibrated. SVM decision values are labelled ranking scores,
+never probabilities. Values are not comparable across models.
 
-Probabilities appear only for estimators implementing `predict_proba()` and are
-labelled as model probabilities without an independent calibration study. SVM
-`decision_function()` values are labelled decision scores, never confidence
-percentages. Alternative-class values are not comparable across models.
+## Compare results and mistakes
 
-## Artifact availability and integrity
+Use plain-language filters to select image measurements and learning methods.
+The category balance score is Macro F1; the practice-set score is validation
+Macro F1. These terms are explained under **How It Works → Names used in the
+project report**. Saved CSV fields and scientific definitions are unchanged.
 
-`reports/test/results.csv` and `reports/frozen.json` are needed to open a run.
-The app handles missing optional files as follows:
+The paired comparison reads both models' saved answers for the same image IDs.
+It reports both right, first only right, second only right and both wrong. The
+95% interval uses a paired image bootstrap with 2,000 resamples and seed 42.
+It describes image-sampling variability for two fixed models, not variation from
+retraining. It is additional descriptive analysis, never a way to retune or choose
+models after looking at the test set. The documented default comparison uses the
+overall and core choices already recorded from validation.
 
-| Missing artifact | Available experience |
-|---|---|
-| `models/*.joblib` | All saved-result sections; prediction gives reproduction guidance |
-| `*_confusion.csv` | Selected model's saved confusion image when present |
-| `predictions.npz` | Confusion/per-class reports and saved illustrative errors when present |
-| Local test archives | Saved labels/indices, plus illustrative errors when present |
-| Training archives or `data/split.npz` | Saved class distribution and training figures when present |
+The error table uses actual categories in rows and predicted categories in
+columns. Percentages are normalized within each actual category. Image browsing
+requires matching local test archives; their saved indices and true labels must
+match the original verified loader. The app never repeats test prediction.
 
-Error-image browsing uses the original verified test loader and checks saved
-indices/true labels against the local archive. It only displays saved predictions,
-without running another test evaluation. Use it to describe frozen results, not
-for tuning. Dataset Explorer uses an isolated instance of the existing data
-loader and validates the saved split; it never changes the pipeline's shared
-root or creates a new split. No test images are used in Dataset Explorer.
+## Data and missing files
 
-Dataset/CSV operations use bounded data caches. Only the active section runs.
-Image preparation and prediction state persist in the current Streamlit session;
-results are hidden when the input, model selection, artifact or experiment changes.
+Dataset Explorer uses only the persisted training IDs. It uses an isolated
+instance of the existing verified loader, without changing the pipeline's shared
+root or creating a new split. It shows bundled category examples and saved figures
+when the full training files are absent. CSV/data caches are bounded and only the
+active page executes.
+
+`reports/test/results.csv` and `reports/frozen.json` are required to open a run.
+Missing model files disable new predictions while retaining previews. Missing
+confusion counts fall back to the chosen model's saved image when available.
+Missing per-image answers or raw images retain saved figures and useful guidance.
+The app does not download data, train models or change frozen evidence.

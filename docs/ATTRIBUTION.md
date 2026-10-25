@@ -8,3 +8,10 @@ Our experiment trains on all 48,000 images. It separates the four classifier bui
 Fashion-MNIST: Han Xiao, Kashif Rasul, Roland Vollgraf, Zalando Research (2017). Original repository: https://github.com/zalandoresearch/fashion-mnist . The publisher's MIT notice is retained in `docs/FASHION_MNIST_LICENSE.txt`.
 
 Methodology resources are listed in `literature_review.md` and the report. scikit-learn and scikit-image implement the established algorithms; this project does not implement those solvers from scratch.
+
+The updated reference also informed the Phase 1 additions: explicit alpha-background
+handling and blank-photo rejection, a training-only sample gallery, paired
+correctness/bootstrap analysis, broader artifact checking and a Mac setup helper.
+These ideas were adapted to our Streamlit app and existing model contracts. The
+gallery was generated from our own saved training IDs. No reference model weights,
+CNN results, Gradio interface or Phase 2 ablation code were imported.

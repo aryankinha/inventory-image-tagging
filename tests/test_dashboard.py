@@ -11,6 +11,7 @@ from streamlit.testing.v1 import AppTest
 
 from src.inventory_tagging.data import sha256
 from src.inventory_tagging.features import extract
+from dashboard.views import model_label
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -37,7 +38,7 @@ def test_dashboard_shows_saved_results_without_models(experiment_folder):
     assert app.metric[1].value == '0.9084'
     app.sidebar.radio[0].set_value('Prediction Lab').run()
     assert not app.exception
-    assert any('Prediction needs the fitted model' in item.value for item in app.info)
+    assert any('Prediction needs the saved model' in item.value for item in app.info)
 
 
 def test_dashboard_explains_missing_experiment(tmp_path):
@@ -63,7 +64,7 @@ def test_comparison_filters_update_table(experiment_folder):
     app.multiselect[1].set_value(['knn']).run()
     app.selectbox[0].set_value('model_bytes').run()
     assert not app.exception
-    assert list(app.dataframe[0].value.name) == ['hog_knn']
+    assert list(app.dataframe[0].value['Model']) == ['Edge directions + Closest examples']
     app.multiselect[0].set_value([]).run()
     assert not app.exception
     assert any('at least one matching' in item.value for item in app.info)
@@ -90,21 +91,21 @@ def test_prediction_selects_and_compares_saved_models(experiment_folder):
     app.button[0].click().run(timeout=30)
     assert not app.exception
     table = app.dataframe[0].value
-    assert list(table.Model) == names
-    assert list(table.Prediction) == ['T-shirt/top', 'Trouser']
-    assert (table['Inference ms'] > 0).all()
+    assert list(table.Model) == [model_label(n, {r['name']:r for r in frozen['models']}) for n in names]
+    assert list(table['Predicted category']) == ['T-shirt/top', 'Trouser']
+    assert (table['Prediction time (ms)'] > 0).all()
     app.selectbox(key='predictor').set_value(names[1]).run()
     app.multiselect(key='compare_predictors').set_value([]).run()
     app.button[0].click().run()
     assert not app.exception
-    assert app.dataframe[0].value.iloc[0].Prediction == 'Trouser'
-    app.radio(key='input_mode').set_value('Experimental photo preparation').run()
+    assert app.dataframe[0].value.iloc[0]['Predicted category'] == 'Trouser'
+    app.radio(key='input_mode').set_value('Prepare an ordinary picture').run()
     assert not app.exception
-    assert any('have not been benchmarked' in item.value for item in app.warning)
+    assert any('have not been tested for accuracy' in item.value for item in app.warning)
     app.sidebar.radio[0].set_value('How It Works').run()
     app.sidebar.radio[0].set_value('Prediction Lab').run()
     assert app.selectbox(key='predictor').value == names[1]
-    assert app.radio(key='input_mode').value == 'Experimental photo preparation'
+    assert app.radio(key='input_mode').value == 'Prepare an ordinary picture'
 
 
 def test_error_filters_use_saved_predictions(experiment_folder):
@@ -118,6 +119,6 @@ def test_error_filters_use_saved_predictions(experiment_folder):
     assert not app.exception
     matches = app.dataframe[-1].value
     assert len(matches) > 0
-    assert (matches['True category'] == 'Shirt').all()
-    assert (matches['Predicted category'] == 'T-shirt/top').all()
-    assert not matches.Correct.any()
+    assert (matches['Actual category'] == 'Shirt').all()
+    assert (matches['Model guessed'] == 'T-shirt/top').all()
+    assert not matches['Correct answer'].any()
