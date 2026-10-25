@@ -83,3 +83,9 @@ def test_no_models_still_allows_gallery_and_previews():
         assert not app.exception and not app.error
         assert len(app.selectbox(key='sample_category').options) == 10
         assert app.button[0].disabled
+
+
+def test_integrity_manifest_requires_only_git_versioned_files():
+    tracked = set(subprocess.check_output(['git', 'ls-files', '-z'], cwd=ROOT).decode().split('\0'))
+    manifest = json.loads((ROOT / 'reports/artifact_hashes.json').read_text())
+    assert set(manifest['files']).issubset(tracked)

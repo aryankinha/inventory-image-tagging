@@ -115,7 +115,7 @@ bash scripts/run_python.sh scripts/check_dashboard.py
 The result check independently recomputes scores from saved answers and checks
 recall, timing summaries, model sizes/capacity records, frozen source hashes and
 any local model/split/archive hashes. The artifact check additionally protects
-164 saved files, including reports, figures and documented training examples.
+the versioned reports, figures and documented training examples.
 The dashboard check opens all six sections and runs any locally available models;
 it reports zero fitted models on a clean clone instead of substituting another one.
 
