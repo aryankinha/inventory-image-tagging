@@ -1,0 +1,35 @@
+name: macOS compatibility
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: macOS / Python ${{ matrix.python-version }}
+    runs-on: macos-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.11', '3.12']
+    env:
+      MPLBACKEND: Agg
+      LOKY_MAX_CPU_COUNT: '2'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+      - name: Install locked pip dependencies
+        run: python3 -m pip install -r requirements.txt
+      - name: Check environment and feature extraction
+        run: python3 scripts/check_environment.py
+      - name: Run pipeline and dashboard checks
+        run: python3 -m pytest -q
+      - name: Verify saved experiment evidence
+        run: python3 scripts/verify_results.py

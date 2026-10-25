@@ -1,0 +1,6 @@
+{
+  "source": "Fashion-MNIST official training set",
+  "original_training_index": 50398,
+  "true_class": "Shirt",
+  "purpose": "training-image prediction demonstration only; not an accuracy estimate"
+}
