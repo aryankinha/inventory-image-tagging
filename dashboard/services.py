@@ -47,6 +47,8 @@ def experiment(work_dir):
     if not required.issubset(results.columns) or results.name.duplicated().any():
         raise ValueError('The results table is missing required columns or has duplicate model names.')
     records = {r['name']: r for r in frozen['models']}
+    if set(results.name) != set(records):
+        raise ValueError('This run has not saved all of its final scores yet. Wait for the model-building command to finish, or choose a completed results folder.')
     if frozen['selected'] not in records or frozen['selected'] not in set(results.name):
         raise ValueError('The validation-selected model is missing from the experiment records.')
     # Model names are filenames, never arbitrary paths from a manifest.

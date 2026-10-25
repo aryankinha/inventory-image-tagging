@@ -89,3 +89,16 @@ def test_integrity_manifest_requires_only_git_versioned_files():
     tracked = set(subprocess.check_output(['git', 'ls-files', '-z'], cwd=ROOT).decode().split('\0'))
     manifest = json.loads((ROOT / 'reports/artifact_hashes.json').read_text())
     assert set(manifest['files']).issubset(tracked)
+
+
+def test_reproduction_keeps_an_interrupted_final_evaluation(tmp_path):
+    folder = tmp_path / 'run'
+    marker = folder / 'reports/test/started.json'
+    marker.parent.mkdir(parents=True)
+    marker.write_text('{"started": true}\n')
+    before = marker.read_bytes()
+    result = subprocess.run([sys.executable, str(ROOT / 'scripts/reproduce.py'), '--work-dir', str(folder)], capture_output=True, text=True)
+    assert result.returncode != 0
+    assert 'already started' in result.stderr
+    assert marker.read_bytes() == before
+    assert list(folder.rglob('*')) == [folder / 'reports', folder / 'reports/test', marker]

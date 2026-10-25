@@ -187,7 +187,7 @@ def paired_view(work_dir, names, frozen, records):
     st.write(f"First model minus second model: **{report['accuracy_difference'] * 100:+.2f} percentage points** in final test accuracy.")
     st.caption('A positive difference favours the first model; a negative one favours the second.')
     with st.expander('How certain is this difference?'):
-        st.write(f'The 95% estimate ranges from {low * 100:+.2f} to {high * 100:+.2f} percentage points. We estimated this by resampling the same saved image pairs 2,000 times, keeping the models fixed.')
+        st.write(f'When we repeatedly sampled the saved image pairs, the middle 95% of the accuracy differences ranged from {low * 100:+.2f} to {high * 100:+.2f} percentage points. We repeated this 2,000 times without changing the models.')
         st.caption('This describes variation in which test pictures are sampled. It does not show how much retraining with another random seed would change the models. This is an additional description of saved results, not a new model-selection experiment.')
 
 
@@ -226,7 +226,10 @@ def comparison(work_dir, results, frozen, records):
             st.caption('Further up means more correct answers. Further left means faster predictions. The time axis uses uneven spacing to show both fast and slow models. Timings come from the original evaluation computer.')
     with st.expander('Saved model details'):
         if {'complexity_kind', 'complexity_count'}.issubset(filtered.columns):
-            st.dataframe(filtered[['Model', 'complexity_kind', 'complexity_count']].rename(columns={'complexity_kind': 'What is counted', 'complexity_count': 'Count'}), hide_index=True)
+            capacity = filtered[['Model', 'complexity_kind', 'complexity_count']].copy()
+            descriptions = {'tree nodes': 'Decision points in the trees', 'stored training images': 'Training pictures kept for comparison', 'support vectors': 'Examples kept to define the boundaries', 'linear coefficients and intercepts': 'Numbers learned for the scoring rules'}
+            capacity['complexity_kind'] = capacity.complexity_kind.map(descriptions).fillna(capacity.complexity_kind)
+            st.dataframe(capacity.rename(columns={'complexity_kind': 'What is counted', 'complexity_count': 'Count'}), hide_index=True)
             st.caption('These models store different things, so their counts do not mean the same thing. File size gives a common storage measurement.')
     paired_view(work_dir, list(results.name), frozen, records)
 

@@ -122,3 +122,13 @@ def test_error_filters_use_saved_predictions(experiment_folder):
     assert (matches['Actual category'] == 'Shirt').all()
     assert (matches['Model guessed'] == 'T-shirt/top').all()
     assert not matches['Correct answer'].any()
+
+
+def test_incomplete_final_results_are_explained(experiment_folder):
+    path = experiment_folder / 'reports/test/results.csv'
+    lines = path.read_text().splitlines()
+    path.write_text('\n'.join(lines[:2]) + '\n')
+    app = open_app(experiment_folder)
+    assert not app.exception
+    assert any('not saved all of its final scores' in item.value for item in app.error)
+    assert not app.metric
