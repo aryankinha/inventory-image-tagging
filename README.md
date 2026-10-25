@@ -21,7 +21,7 @@ Validation selects Fine HOG + RBF SVM. It achieves 90.87% accuracy and macro F1 
 
 ## Technology
 
-Python 3.12 (3.11 also allowed), pip or `uv`, Streamlit, NumPy, pandas, SciPy, scikit-image, scikit-learn, matplotlib, Pillow, joblib, JupyterLab and pytest. Exact dependencies are in `uv.lock`; `requirements.txt` exports the same locked versions for pip, including the notebook and test tools. PyTorch is reserved for Phase 2 and is not needed to reproduce this ML-only study.
+Python 3.12 (3.11 also allowed), pip or `uv`, Streamlit, Plotly, NumPy, pandas, SciPy, scikit-image, scikit-learn, matplotlib, Pillow, joblib, JupyterLab and pytest. Exact dependencies are in `uv.lock`; `requirements.txt` exports the same locked versions for pip, including the notebook and test tools. PyTorch is reserved for Phase 2 and is not needed to reproduce this ML-only study.
 
 ```bash
 uv sync --locked
@@ -32,6 +32,16 @@ bash scripts/uv.sh run --locked python3 -m jupyterlab notebooks/phase1.ipynb
 ```
 
 The launcher delegates to `uv`. It also handles the colon in the current parent folder (`Deep:ALML project`) by making a temporary alias to the local `.venv`; it does not move your source or environment. In an ordinary path without a colon, normal `uv run ...` commands work directly. If Jupyter opens a browser, select the project interpreter/kernel, not an unrelated global Python.
+
+## Interactive dashboard
+
+The sidebar opens six sections: **Overview**, **Prediction Lab**, **Model Comparison**, **Error Analysis**, **Dataset Explorer** and **How It Works**.
+
+Prediction Lab can compare any available frozen models on the same image, shows real inference latency, and visualizes the exact pixel/HOG representation. Exact 28×28 grayscale PNG input is preserved. A separate experimental PNG/JPEG preparation mode previews grayscale, sizing, brightness, contrast and inversion; ordinary-photo accuracy has not been measured.
+
+Plotly charts support filtered model comparisons and confusion-matrix exploration. Dataset Explorer uses only the persisted training split. Saved results remain useful without local models or downloaded images. Every loaded model still requires its recorded SHA-256 checksum; the dashboard never retrains or changes frozen evidence.
+
+See [dashboard usage and artifact fallbacks](docs/DASHBOARD.md) for details.
 
 ## Run the Streamlit dashboard
 
