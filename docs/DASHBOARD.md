@@ -6,7 +6,7 @@ After setup, start it from the project folder:
 bash scripts/start_dashboard.sh
 ```
 
-The app opens six pages. Its default **Results folder** is `.`: the original
+The app opens four pages: Predict, Results, Mistakes and About. Predict is the first page. Its default **Results folder**, under **Local setup** in the sidebar, is `.`: the original
 saved experiment. After building models on your Mac, change it to
 `runs/reproduction` to use that run's own scores and model files.
 
@@ -29,11 +29,11 @@ Even extremely narrow images retain a valid one-pixel minimum side. Changing
 the mode keeps the uploaded file; changing the input or models hides stale answers.
 Photos are not benchmarked and busy backgrounds are not removed automatically.
 
-After local models are built, choose one or more and click **Predict and compare**.
+Under **Picture and model settings**, optionally choose one or more models, then click **Predict**. Original published models are fetched on demand if they are not already on disk. Reproduction folders still need their own locally built models.
 Each uses its own recorded pixel/HOG representation and the existing `extract()`
 function. Any fitted scaler remains inside the original saved model pipeline.
 
-Model files load only on prediction requests. Their SHA-256 hashes must match the
+Model files download and load only on prediction requests. Downloads are limited to the fixed project release and must match their published size and original frozen SHA-256 before being saved. Their SHA-256 hashes must match the
 corresponding frozen records, including after a file is replaced. Four loaded
 models are cached at most. Use trusted experiment folders; matching a manifest
 establishes consistency, and joblib files are still Python serialized objects.
@@ -67,14 +67,14 @@ match the original verified loader. The app never repeats test prediction.
 
 ## Data and missing files
 
-Dataset Explorer uses only the persisted training IDs. It uses an isolated
+Optional training-picture browsing under About uses only the persisted training IDs. It uses an isolated
 instance of the existing verified loader, without changing the pipeline's shared
 root or creating a new split. It shows bundled category examples and saved figures
 when the full training files are absent. CSV/data caches are bounded and only the
 active page executes.
 
 `reports/test/results.csv` and `reports/frozen.json` are required to open a run.
-Missing model files disable new predictions while retaining previews. Missing
+For a reproduction folder, missing model files disable new predictions while retaining previews. The original results folder can fetch its published matching models. Missing
 confusion counts fall back to the chosen model's saved image when available.
 Missing per-image answers or raw images retain saved figures and useful guidance.
-The app does not download data, train models or change frozen evidence.
+The app does not download datasets, train models or change frozen evidence. Prediction details, picture preparation steps and additional charts are collapsed by default.

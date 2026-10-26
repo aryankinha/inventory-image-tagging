@@ -47,20 +47,20 @@ absolute environment path without a colon.
 
 ## What works immediately after cloning?
 
-All six pages open with the included saved reports and ten small training examples:
+The dashboard opens directly on **Predict**. Upload a picture or choose a sample,
+then click **Predict**. Model selection and photo adjustments are under
+**Picture and model settings**. Ordinary photos are experimental and have not been
+benchmarked. Exact 28×28 grayscale PNG inputs remain unchanged.
 
-| Page | What you can do |
-|---|---|
-| Overview | Read the project goal and the chosen model's saved scores |
-| Prediction Lab | Browse known-category examples and preview image preparation |
-| Model Comparison | Filter saved scores, speed and file sizes; compare mistakes made by two models |
-| Error Analysis | Explore saved answers, clothing mix-ups and scores for each category |
-| Dataset Explorer | View included training examples, category counts and saved training figures |
-| How It Works | Read a simple explanation of the methods |
+The other pages are **Results**, **Mistakes**, and **About**. Longer explanations,
+extra comparisons and training-picture browsing are optional.
 
-The full dataset and fitted model files are excluded from Git. They are not
-silently downloaded when the dashboard starts. Full training-image browsing
-requires local data. **Making new predictions requires locally built models.**
+Original model files are published in the [Phase 1 model release](https://github.com/aryankinha/inventory-image-tagging/releases/tag/phase1-models-v1).
+A new clone or hosted app downloads only a requested model on the first prediction,
+checks its size and frozen SHA-256 checksum, and reuses it locally. The first
+prediction therefore needs internet access and can take longer. It does not train
+models or download the dataset. Full image browsing still requires local data.
+
 
 ## Build the models once on your Mac
 
@@ -77,7 +77,7 @@ open until it finishes. Models and this run's own reports go under
 `runs/reproduction/`; the original committed reports stay untouched.
 
 When it finishes, enter **runs/reproduction** in the dashboard's **Results folder**
-box. The app then shows that run's scores and uses that run's matching model files.
+box under **Local setup** in the sidebar. The app then shows that run's scores and uses that run's matching model files.
 A reproduction can differ between computers; its results are not substituted into
 the original report. Running the build command again checks a completed run and
 exits without repeating its final test. An interrupted final test requires a new
@@ -116,8 +116,8 @@ The result check independently recomputes scores from saved answers and checks
 recall, timing summaries, model sizes/capacity records, frozen source hashes and
 any local model/split/archive hashes. The artifact check additionally protects
 the versioned reports, figures and documented training examples.
-The dashboard check opens all six sections and runs any locally available models;
-it reports zero fitted models on a clean clone instead of substituting another one.
+The dashboard check opens all four pages and runs any locally available models;
+it checks models already present on disk. Published model downloads are tested separately.
 
 After building the models, check the reproduction explicitly:
 
@@ -177,3 +177,10 @@ uv export --locked --all-groups --no-hashes --no-emit-project --format requireme
 
 The existing `scripts/uv.sh` remains available for direct uv commands and handles
 colon-containing project paths. Do not copy virtual environments between Macs.
+
+## Host on Streamlit Community Cloud
+
+Deploy this GitHub repository from branch `main`, with entrypoint `app.py` and
+Python **3.12**. The first prediction fetches its original verified model from the
+release above; no training or secrets are needed. The results-folder setting can
+stay at `.`. See [dashboard details](docs/DASHBOARD.md).

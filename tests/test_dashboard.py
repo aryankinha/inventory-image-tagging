@@ -34,6 +34,10 @@ def open_app(folder):
 def test_dashboard_shows_saved_results_without_models(experiment_folder):
     app = open_app(experiment_folder)
     assert not app.exception
+    assert app.sidebar.radio[0].value == 'Prediction Lab'
+    assert app.file_uploader[0].label == 'Upload a clothing picture'
+    assert app.button[0].label == 'Predict'
+    app.sidebar.radio[0].set_value('About').run()
     assert app.metric[0].value == '90.87%'
     assert app.metric[1].value == '0.9084'
     app.sidebar.radio[0].set_value('Prediction Lab').run()
@@ -49,12 +53,14 @@ def test_dashboard_explains_missing_experiment(tmp_path):
 
 def test_all_sections_and_missing_optional_artifacts(experiment_folder):
     app = open_app(experiment_folder)
-    for section in ('Model Comparison', 'Error Analysis', 'Dataset Explorer', 'How It Works', 'Overview'):
+    for section in ('Model Comparison', 'Error Analysis', 'About', 'Prediction Lab'):
         app.sidebar.radio[0].set_value(section).run(timeout=30)
         assert not app.exception, section
         assert not app.error, section
-    app.button[0].click().run()
     assert app.sidebar.radio[0].value == 'Prediction Lab'
+    app.sidebar.radio[0].set_value('About').run()
+    app.checkbox[0].check().run()
+    assert not app.exception
 
 
 def test_comparison_filters_update_table(experiment_folder):
@@ -102,7 +108,7 @@ def test_prediction_selects_and_compares_saved_models(experiment_folder):
     app.radio(key='input_mode').set_value('Prepare an ordinary picture').run()
     assert not app.exception
     assert any('have not been tested for accuracy' in item.value for item in app.warning)
-    app.sidebar.radio[0].set_value('How It Works').run()
+    app.sidebar.radio[0].set_value('About').run()
     app.sidebar.radio[0].set_value('Prediction Lab').run()
     assert app.selectbox(key='predictor').value == names[1]
     assert app.radio(key='input_mode').value == 'Prepare an ordinary picture'

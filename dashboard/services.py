@@ -15,6 +15,8 @@ from skimage.exposure import rescale_intensity
 import streamlit as st
 from threadpoolctl import threadpool_limits
 
+from .hosting import ensure_model, model_available
+
 from src.inventory_tagging import data
 from src.inventory_tagging.data import CLASSES, sha256
 from src.inventory_tagging.features import HOG, extract, normalized
@@ -147,8 +149,13 @@ def feature_view(pixels, representation):
     return values, rescale_intensity(drawing, in_range=(0, .1))
 
 
+def model_identity(work_dir, record):
+    path = work_dir / 'models' / (record['name'] + '.joblib')
+    return stamp(path) if path.is_file() else ('published', record['model_sha256'])
+
+
 def predict_one(work_dir, record, pixels):
-    model = load_model(work_dir / 'models' / (record['name'] + '.joblib'), record['model_sha256'])
+    model = load_model(ensure_model(work_dir, record), record['model_sha256'])
     with threadpool_limits(limits=2):
         start = time.perf_counter()
         values = extract(pixels[None], record['representation'])
