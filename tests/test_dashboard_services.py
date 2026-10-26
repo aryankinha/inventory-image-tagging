@@ -44,7 +44,7 @@ def test_photo_preparation_is_deterministic_and_explicit():
     assert a[0, 0] == 0  # light padding is inverted to the dark benchmark background
 
 
-@pytest.mark.parametrize('representation', ['pixels', 'hog', 'hog_fine'])
+@pytest.mark.parametrize('representation', ['pixels', 'hog'])
 def test_visualized_feature_vector_is_the_real_extractor(representation):
     pixels = np.random.default_rng(2).integers(0, 256, (28, 28), dtype=np.uint8)
     values, drawing = feature_view(pixels, representation)

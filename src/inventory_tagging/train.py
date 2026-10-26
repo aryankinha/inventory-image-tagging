@@ -36,7 +36,7 @@ def feature_cache(images, representation):
         print(f'Extracting {representation} for {len(images)} official training images...', flush=True)
         np.save(path, extract(images, representation), allow_pickle=False)
     values = np.load(path, allow_pickle=False, mmap_mode='r')
-    dimension = {'pixels': 784, 'hog': 324, 'hog_fine': 1296}[representation]
+    dimension = {'pixels': 784, 'hog': 324}[representation]
     if values.shape != (len(images), dimension) or values.dtype != np.float32:
         raise ValueError('Feature cache does not match the documented input contract')
     return values
@@ -89,7 +89,7 @@ def fit_one(representation, family, images, labels, train_ids, validation_ids):
     write_json(meta_path, best)
 
 
-def run(improve=False):
+def run():
     if (ROOT / 'reports/frozen.json').exists():
         raise FileExistsError('Final choices are frozen. Do not tune against the reported test results.')
     images, labels = load_images('train')
@@ -97,14 +97,9 @@ def run(improve=False):
     if len(train_ids) != 48000 or len(val_ids) != 12000:
         raise ValueError('The full 48k/12k protocol is required for this experiment')
     with threadpool_limits(limits=2):
-        if improve:
-            # Kernel nonlinearity and finer HOG are extra validation-only experiments.
-            for representation in ('pixels', 'hog', 'hog_fine'):
-                fit_one(representation, 'rbf_svm', images, labels, train_ids, val_ids)
-        else:
-            for representation in ('pixels', 'hog'):
-                for family in FAMILIES:
-                    fit_one(representation, family, images, labels, train_ids, val_ids)
+        for representation in ('pixels', 'hog'):
+            for family in FAMILIES:
+                fit_one(representation, family, images, labels, train_ids, val_ids)
     summarize()
 
 
@@ -124,8 +119,8 @@ def freeze():
         return json.loads(path.read_text())
     table = summarize()
     required = {f'{rep}_{family}' for rep in ('pixels', 'hog') for family in FAMILIES}
-    if not required.issubset(set(table.name)):
-        raise ValueError('Complete all eight required baselines before final evaluation')
+    if required != set(table.name):
+        raise ValueError('Use exactly the eight required combinations before final evaluation')
     records = table.to_dict('records')
     for record in records:
         if sha256(ROOT / 'models' / f"{record['name']}.joblib") != record['model_sha256']:

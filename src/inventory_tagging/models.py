@@ -4,7 +4,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
-from sklearn.svm import LinearSVC, SVC
+from sklearn.svm import LinearSVC
 
 
 def choices(family):
@@ -17,8 +17,6 @@ def choices(family):
                 {'n_estimators': 400, 'max_depth': None}]
     if family == 'linear_svm':
         return [{'C': 0.1}, {'C': 1.0}]
-    if family == 'rbf_svm':
-        return [{'C': 3.0, 'gamma': 'scale'}, {'C': 10.0, 'gamma': 'scale'}]
     raise ValueError(family)
 
 
@@ -34,9 +32,6 @@ def build(family, parameters):
         return KNeighborsClassifier(weights='distance', metric='euclidean', n_jobs=2, **parameters)
     if family == 'random_forest':
         return RandomForestClassifier(max_features='sqrt', random_state=42, n_jobs=2, **parameters)
-    if family == 'rbf_svm':
-        # Block-normalized HOG is already scaled. Kernel distances use those values directly.
-        return SVC(kernel='rbf', cache_size=512, **parameters)
     raise ValueError(family)
 
 
@@ -49,9 +44,5 @@ def complexity(model):
     if hasattr(estimator, '_fit_X'):
         return {'kind': 'stored training images', 'count': len(estimator._fit_X),
                 'stored_feature_bytes': estimator._fit_X.nbytes}
-    if hasattr(estimator, 'support_vectors_'):
-        return {'kind': 'support vectors', 'count': len(estimator.support_),
-                'dual_coefficients': estimator.dual_coef_.size,
-                'support_vector_bytes': estimator.support_vectors_.nbytes}
     return {'kind': 'linear coefficients and intercepts',
             'count': estimator.coef_.size + estimator.intercept_.size}

@@ -1,7 +1,7 @@
 {
   "status": "passed",
-  "models_recomputed": 11,
+  "models_recomputed": 8,
   "source_hashes_verified": 8,
-  "present_model_hashes_verified": 11,
-  "note": "Ignored model files may be absent on a fresh clone; generated evidence is still checked."
+  "present_model_hashes_verified": 8,
+  "note": "Data and fitted models may be absent on a fresh clone; saved scores, recall, timing and frozen evidence are still checked."
 }

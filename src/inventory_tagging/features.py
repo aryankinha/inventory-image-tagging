@@ -18,9 +18,7 @@ def extract(images, representation):
     values = normalized(images)
     if representation == 'pixels':
         return values.reshape(len(images), 784)
-    if representation not in ('hog', 'hog_fine'):
+    if representation != 'hog':
         raise ValueError(f'Unknown representation: {representation}')
     settings = dict(HOG)
-    if representation == 'hog_fine':
-        settings['pixels_per_cell'] = (4, 4)
     return np.asarray([hog(image, **settings) for image in values], dtype=np.float32)

@@ -10,15 +10,14 @@ import plotly.graph_objects as go
 import streamlit as st
 
 from src.inventory_tagging.data import CLASSES, sha256
-from .analysis import paired_outcomes
 from .services import (ROOT, confusion_table, dataset_identity, feature_view,
                        local_dataset, predict_one, prepare_image, read_csv,
                        sample_gallery, saved_predictions, stamp, model_available, model_identity)
 
 PAGES = ['Prediction Lab', 'Model Comparison', 'Error Analysis', 'About']
-FEATURE_NAMES = {'pixels': 'Brightness values', 'hog': 'Edge directions', 'hog_fine': 'Finer edge directions'}
+FEATURE_NAMES = {'pixels': 'Brightness values', 'hog': 'Edge directions'}
 FAMILY_NAMES = {'logistic_regression': 'Linear scoring', 'knn': 'Closest examples',
-                'random_forest': 'Many decision trees', 'linear_svm': 'Straight boundaries', 'rbf_svm': 'Curved boundaries'}
+                'random_forest': 'Many decision trees', 'linear_svm': 'Straight boundaries'}
 METRICS = {'test_accuracy': 'Final test accuracy', 'test_macro_f1': 'Category balance score',
            'validation_macro_f1': 'Practice-set balance score', 'single_ms_median': 'Typical prediction time (ms)',
            'batch_ms_per_image': 'Time per image when processed together (ms)', 'fit_seconds': 'Training time (seconds)',
@@ -28,10 +27,6 @@ METRICS = {'test_accuracy': 'Final test accuracy', 'test_macro_f1': 'Category ba
 def model_label(name, records):
     record = records[name]
     return FEATURE_NAMES[record['representation']] + ' + ' + FAMILY_NAMES[record['family']]
-
-
-def navigate(page):
-    st.session_state['section'] = page
 
 
 def figure_fallback(reports, name, caption=None):
@@ -118,7 +113,7 @@ def prediction_lab(work_dir, results, frozen, records):
         st.info('Prediction needs the saved model files for this results folder.')
         with st.expander('Enable local predictions'):
             st.code('bash scripts/build_models.sh', language='bash')
-            st.write('Then choose runs/reproduction under Local setup in the sidebar.')
+            st.write('Then choose runs/phase1 under Local setup in the sidebar.')
     chosen = [primary, *others]
     signature = (str(work_dir), hashlib.sha256(pixels.tobytes()).hexdigest(), tuple((n, model_identity(work_dir, records[n]), records[n]['model_sha256']) for n in chosen)) if available else None
     if st.button('Predict', type='primary', disabled=not available, width='stretch'):
@@ -159,40 +154,6 @@ def prediction_lab(work_dir, results, frozen, records):
         st.caption(f'{len(features):,} image measurements. This is a feature view, not an attention map.')
 
 
-@st.cache_data(max_entries=16, show_spinner=False)
-def compare_predictions(identity, first_name, second_name):
-    first = saved_predictions(identity, first_name)
-    second = saved_predictions(identity, second_name)
-    if not np.array_equal(first.test_index, second.test_index) or not np.array_equal(first.true_id, second.true_id):
-        raise ValueError('These results do not describe the same images.')
-    return paired_outcomes(first.true_id, first.predicted_id, second.predicted_id)
-
-
-def paired_view(work_dir, names, frozen, records):
-    if len(names) < 2:
-        return
-    st.subheader('Which mistakes does each model make?')
-    st.caption('This compares answers already saved for the same images. It does not run another test or change which model was chosen.')
-    a, b = st.columns(2)
-    first = a.selectbox('First model', names, index=names.index(frozen['selected']) if frozen['selected'] in names else 0, format_func=lambda n: model_label(n, records), key='pair_first')
-    alternatives = [n for n in names if n != first]
-    core = [r for r in records.values() if r['family'] != 'rbf_svm' and r['name'] in alternatives]
-    default = max(core, key=lambda r: (r['macro_f1'], r['accuracy']))['name'] if core else alternatives[0]
-    second = b.selectbox('Second model', alternatives, index=alternatives.index(default), format_func=lambda n: model_label(n, records), key='pair_second')
-    try:
-        report = compare_predictions(stamp(work_dir / 'reports/test/predictions.npz'), first, second)
-    except (OSError, ValueError, KeyError) as error:
-        st.info(f'The saved answers needed for this comparison are unavailable: {error}')
-        return
-    st.dataframe(pd.DataFrame({'Outcome': ['Both were right', 'Only the first was right', 'Only the second was right', 'Both were wrong'], 'Images': [report[k] for k in ('both_right', 'first_only_right', 'second_only_right', 'both_wrong')]}), hide_index=True)
-    low, high = report['interval_95']
-    st.write(f"First model minus second model: **{report['accuracy_difference'] * 100:+.2f} percentage points** in final test accuracy.")
-    st.caption('A positive difference favours the first model; a negative one favours the second.')
-    with st.expander('How certain is this difference?'):
-        st.write(f'When we repeatedly sampled the saved image pairs, the middle 95% of the accuracy differences ranged from {low * 100:+.2f} to {high * 100:+.2f} percentage points. We repeated this 2,000 times without changing the models.')
-        st.caption('This describes variation in which test pictures are sampled. It does not show how much retraining with another random seed would change the models. This is an additional description of saved results, not a new model-selection experiment.')
-
-
 def comparison(work_dir, results, frozen, records):
     st.header('Saved results')
     st.write('Choose what you want to compare. The chosen model was picked using separate practice images before the final test.')
@@ -230,11 +191,10 @@ def comparison(work_dir, results, frozen, records):
         with st.expander('Saved model details'):
             if {'complexity_kind', 'complexity_count'}.issubset(filtered.columns):
                 capacity = filtered[['Model', 'complexity_kind', 'complexity_count']].copy()
-                descriptions = {'tree nodes': 'Decision points in the trees', 'stored training images': 'Training pictures kept for comparison', 'support vectors': 'Examples kept to define the boundaries', 'linear coefficients and intercepts': 'Numbers learned for the scoring rules'}
+                descriptions = {'tree nodes': 'Decision points in the trees', 'stored training images': 'Training pictures kept for comparison', 'linear coefficients and intercepts': 'Numbers learned for the scoring rules'}
                 capacity['complexity_kind'] = capacity.complexity_kind.map(descriptions).fillna(capacity.complexity_kind)
                 st.dataframe(capacity.rename(columns={'complexity_kind': 'What is counted', 'complexity_count': 'Count'}), hide_index=True)
                 st.caption('These models store different things, so their counts do not mean the same thing. File size gives a common storage measurement.')
-        paired_view(work_dir, list(results.name), frozen, records)
 
 def error_analysis(work_dir, results, frozen, records):
     st.header('Where models make mistakes')
@@ -344,6 +304,6 @@ def dataset_explorer(work_dir, results, frozen, records):
     a.plotly_chart(px.imshow(images[class_ids].mean(axis=0), zmin=0, zmax=255, color_continuous_scale='gray', labels={'color': 'Average brightness'}, title='Average training image'), width='stretch')
     counts = np.bincount(images[class_ids].ravel(), minlength=256)
     b.plotly_chart(px.line(x=np.arange(256), y=counts, labels={'x': 'Pixel brightness', 'y': 'Number of pixels'}, title='How bright are these pictures?'), width='stretch')
-    representation = st.selectbox('Show image measurements', ['pixels', 'hog', 'hog_fine'], format_func=FEATURE_NAMES.get)
+    representation = st.selectbox('Show image measurements', ['pixels', 'hog'], format_func=FEATURE_NAMES.get)
     vector, drawing = feature_view(images[ids[0]], representation)
     st.image(drawing, clamp=True, width=168, caption=f'{FEATURE_NAMES[representation]} · {len(vector)} measurements')

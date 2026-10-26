@@ -6,7 +6,7 @@ import tempfile
 from urllib.request import urlopen
 
 ROOT = Path(__file__).resolve().parents[1]
-RELEASE_URL = 'https://github.com/aryankinha/inventory-image-tagging/releases/download/phase1-models-v1/'
+RELEASE_URL = 'https://github.com/aryankinha/inventory-image-tagging/releases/download/phase1-models-v2/'
 MAX_BYTES = 120_000_000
 
 

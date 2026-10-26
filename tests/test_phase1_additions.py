@@ -6,10 +6,7 @@ import shutil
 import subprocess
 import sys
 
-import numpy as np
-import pytest
 
-from dashboard.analysis import paired_outcomes
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -19,28 +16,6 @@ def script(name):
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module
-
-
-def test_paired_comparison_is_reproducible_and_directional():
-    truth = np.array([0, 1, 2, 3])
-    a, b = np.array([0, 1, 0, 0]), np.array([0, 0, 2, 0])
-    report = paired_outcomes(truth, a, b)
-    assert [report[k] for k in ('both_right', 'first_only_right', 'second_only_right', 'both_wrong')] == [1, 1, 1, 1]
-    assert report == paired_outcomes(truth, a, b)
-    same = paired_outcomes(truth, a, a)
-    assert same['accuracy_difference'] == 0 and same['interval_95'] == [0, 0]
-    winner = paired_outcomes(truth, truth, np.array([1, 2, 3, 4]))
-    assert winner['accuracy_difference'] == 1 and winner['interval_95'] == [1, 1]
-    with pytest.raises(ValueError):
-        paired_outcomes(truth, a[:2], b)
-
-
-def test_recorded_extra_analysis_matches_its_saved_input():
-    comparison = script('compare_saved_models').compare(ROOT)
-    recorded = json.loads((ROOT / 'reports/additional_analysis/paired_comparison.json').read_text())
-    assert recorded == comparison
-    assert comparison['images'] == 10000
-    assert sum(comparison[k] for k in ('both_right', 'first_only_right', 'second_only_right', 'both_wrong')) == 10000
 
 
 def test_integrity_verifier_rejects_a_changed_or_missing_sample(tmp_path):

@@ -20,7 +20,7 @@ Before submission, record what each member actually did. Evidence can include re
 |---|---|
 | Aryan | Lead the core implementation: pixels/HOG, classifier builders, training, reproducibility and integration. Own the major modelling work. |
 | Divyanshu Singh | Review the dataset loader, shared split, data quality checks and EDA. |
-| Jatin Verma | Review linear/RBF SVM settings, validation trials and the solver adjustment. |
+| Jatin Verma | Review linear SVM settings, validation trials and the solver adjustment. |
 | Kushagra Bhardwaj | Review evaluation metrics, error analysis, literature, report and presentation. |
 | Jatin Kumar Singh | Review the Streamlit dashboard, notebook, installation instructions and compatibility checks. |
 

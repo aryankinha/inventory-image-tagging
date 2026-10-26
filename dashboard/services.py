@@ -57,7 +57,7 @@ def experiment(work_dir):
     for name, record in records.items():
         if Path(name).name != name or '/' in name or '\\' in name or name in ('.', '..'):
             raise ValueError('Invalid model name in the frozen records.')
-        if record['representation'] not in ('pixels', 'hog', 'hog_fine'):
+        if record['representation'] not in ('pixels', 'hog'):
             raise ValueError('Unsupported feature representation: ' + record['representation'])
         row = results[results.name == name]
         if not row.empty and (row.iloc[0].representation != record['representation'] or row.iloc[0].family != record['family']):
@@ -143,8 +143,6 @@ def feature_view(pixels, representation):
     if representation == 'pixels':
         return values, normalized(pixels)
     settings = dict(HOG)
-    if representation == 'hog_fine':
-        settings['pixels_per_cell'] = (4, 4)
     _, drawing = hog(normalized(pixels), visualize=True, **settings)
     return values, rescale_intensity(drawing, in_range=(0, .1))
 

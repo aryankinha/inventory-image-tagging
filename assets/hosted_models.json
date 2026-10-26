@@ -1,21 +1,9 @@
 {
-  "release": "phase1-models-v1",
+  "release": "phase1-models-v2",
   "models": {
-    "hog_fine_rbf_svm": {
-      "sha256": "46c27a545460e1fe6124df71a37a58c98e7a15ddbf0ebc5c87e3135c71c2d173",
-      "bytes": 55305234
-    },
-    "pixels_rbf_svm": {
-      "sha256": "51423b3d0b9e422d621006f9294eff6c46eb838b0c9e702ee239b225314c8e7d",
-      "bytes": 16318516
-    },
     "pixels_random_forest": {
       "sha256": "581989e661354d527a16d679dac2c96880a858db08ce9e563c4da03d12113892",
       "bytes": 73356923
-    },
-    "hog_rbf_svm": {
-      "sha256": "b9c30bbebef759435f5044aeff5073cc5b767e5ca94668bb7d322a1573ee178d",
-      "bytes": 19468113
     },
     "pixels_knn": {
       "sha256": "0774c7bc6f241692ea848819fa1c94c7ac7b43e7a99b7eab912add311bdefe9a",

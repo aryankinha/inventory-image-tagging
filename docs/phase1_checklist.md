@@ -7,7 +7,7 @@ The requirements come from the supplied project description (Project Ideas p.12)
 | Literature review | `docs/literature_review.md`; report references |
 | Dataset quality and EDA | `reports/data_audit.json`, `reports/class_counts.csv`, five training EDA figures, notebook |
 | Normalize 28x28 images, preserve labels/orientation | `features.py`, `data.py`, normalization/orientation tests |
-| Pixel and HOG feature engineering | `features.py`; 324- and 1296-dimensional descriptor explanation/visualization |
+| Pixel and HOG feature engineering | `features.py`; 784 pixel values and a 324-dimensional HOG descriptor |
 | LR, k-NN, RF, SVM for both representations | Eight core experiments; `reports/validation_results.csv` and per-model trial files |
 | Theory and model justification | `docs/viva_guide.md`, report methods, notebook |
 | Official test split; validation only from training | `data.py`; persisted seed-42 IDs; `reports/frozen.json` |
@@ -18,7 +18,7 @@ The requirements come from the supplied project description (Project Ideas p.12)
 | Concise error analysis | `reports/phase1_findings.md`, notebook, report |
 | GitHub/code quality | Main linked checkout, `uv.lock`, tests, source modules, README, attribution, reproducibility instructions |
 | LaTeX/IEEE report | `reports/phase1_report/main.tex`, compiled three-page `main.pdf`, and successful native compilation |
-| Presentation | `reports/presentation/phase1.pptx`: 15 slides with speaker notes |
+| Presentation | `reports/presentation/phase1.pptx`: 13 slides with speaker notes |
 | Individual viva | `docs/viva_guide.md` and each member's own practice |
 | Exactly five same-section members; contribution evidence | Five identities are in `docs/team.md`; add section/formal affiliation and truthful roles/commit contributions before submission |
 

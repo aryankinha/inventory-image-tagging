@@ -43,5 +43,5 @@ def test_bad_download_never_becomes_a_loadable_model(tmp_path, monkeypatch, cont
 
 def test_reproduction_cannot_substitute_published_weights(tmp_path, monkeypatch):
     record = publication(tmp_path, monkeypatch)
-    assert hosting.published_model(tmp_path / 'runs/reproduction', record) is None
+    assert hosting.published_model(tmp_path / 'runs/phase1', record) is None
     assert hosting.published_model(tmp_path, dict(record, model_sha256='0' * 64)) is None

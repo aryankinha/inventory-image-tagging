@@ -17,7 +17,7 @@ for key in ('predictor', 'compare_predictors', 'input_mode'):
         st.session_state[key] = st.session_state[key]
 section = st.sidebar.radio('Open', PAGES, key='section', format_func={'Prediction Lab': 'Predict', 'Model Comparison': 'Results', 'Error Analysis': 'Mistakes', 'About': 'About'}.get)
 with st.sidebar.expander('Local setup'):
-    folder = st.text_input('Results folder', value='.', help='Use . for the included results, or runs/reproduction for your own completed run.')
+    folder = st.text_input('Results folder', value='.', help='Use . for the included results, or runs/phase1 for your own completed run.')
 work_dir = Path(folder).expanduser()
 if not work_dir.is_absolute():
     work_dir = ROOT / work_dir

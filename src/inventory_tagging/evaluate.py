@@ -119,13 +119,10 @@ def run(source_dir=None):
 def figures(images, truth, predictions, table, selected):
     chosen = predictions[selected]
     # Both required representations, across all four core families.
-    core = table[table.family != 'rbf_svm'].copy()
+    core = table.copy()
     ax = core.set_index('name')[['test_accuracy', 'test_macro_f1']].plot.barh(figsize=(10, 5), xlim=(0, 1))
     ax.set(xlabel='Official test score', ylabel='', title='Eight required classical comparisons')
     save(ax.figure, 'core_comparison.png')
-    ax = table.set_index('name').test_accuracy.plot.barh(figsize=(10, 6), xlim=(0, 1))
-    ax.set(xlabel='Test accuracy (choice already frozen)', title='Core models and validation-only improvements')
-    save(ax.figure, 'all_models.png')
     matrix = confusion_matrix(truth, chosen, labels=range(10))
     fig, ax = plt.subplots(figsize=(9, 8))
     proportions = matrix / matrix.sum(axis=1, keepdims=True)

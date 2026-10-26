@@ -7,7 +7,7 @@
   },
   "accuracy": 0.8596666666666667,
   "macro_f1": 0.8590772125494045,
-  "fit_seconds": 16.950966000003973,
+  "fit_seconds": 17.368247374994098,
   "convergence_warnings": [],
   "training_images": 48000,
   "validation_images": 12000,

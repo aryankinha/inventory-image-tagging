@@ -41,7 +41,7 @@ def test_pixel_values_and_orientation_survive_round_trip():
         normalized(pixels)
 
 
-@pytest.mark.parametrize('representation,dimension', [('hog', 324), ('hog_fine', 1296)])
+@pytest.mark.parametrize('representation,dimension', [('hog', 324)])
 def test_hog_detects_a_real_edge(representation, dimension):
     images = np.zeros((2, 28, 28), dtype=np.uint8)
     images[1, :, 14:] = 255
@@ -129,3 +129,17 @@ def test_training_uses_all_shared_ids_and_never_requests_test_data(monkeypatch, 
     monkeypatch.setattr(train, 'summarize', lambda: None)
     train.run()
     assert len(calls) == 8 and len(set(calls)) == 8
+
+
+def test_phase1_contains_exactly_the_required_eight_combinations():
+    from src.inventory_tagging.train import FAMILIES
+    root = Path(__file__).resolve().parents[1]
+    frozen = json.loads((root / 'reports/frozen.json').read_text())
+    required = {f'{rep}_{family}' for rep in ('pixels', 'hog') for family in FAMILIES}
+    assert {r['name'] for r in frozen['models']} == required
+    assert len(frozen['models']) == 8
+    validation = pd.read_csv(root / 'reports/validation_results.csv')
+    assert frozen['selected'] == validation.sort_values(['macro_f1', 'accuracy'], ascending=False).iloc[0]['name']
+    for representation in ('unknown',):
+        with pytest.raises(ValueError):
+            extract(np.zeros((1, 28, 28), dtype=np.uint8), representation)

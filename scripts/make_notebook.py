@@ -6,7 +6,7 @@ root = Path(__file__).resolve().parents[1]
 nb = nbf.v4.new_notebook()
 md, code = nbf.v4.new_markdown_cell, nbf.v4.new_code_cell
 nb.cells = [
-md('''# Project 11 - Inventory Image Tagging\n## Phase 1: pixels, HOG, and classical ML\n\nWe predict one of ten clothing categories from a 28x28 grayscale image. The notebook follows the saved Phase 1 experiment and checks its results. We will test CNNs in Phase 2.\n\n**Run stages first:** `uv sync --locked`, then `uv run python3 -m src.inventory_tagging.cli prepare`, `eda`, `train`, `improve`, and `evaluate`. Evaluation freezes choices and refuses a second run. `improve` is a separate, explicitly labeled classical extension.'''),
+md('''# Project 11 - Inventory Image Tagging\n## Phase 1: pixels, HOG, and classical ML\n\nWe predict one of ten clothing categories from a 28x28 grayscale image. The notebook follows the saved Phase 1 experiment and checks its results. We will test CNNs in Phase 2.\n\nThis notebook reads the saved results. Prepare its training images with `bash scripts/run_python.sh -m src.inventory_tagging.cli prepare`. To reproduce all eight models in a separate folder, use `bash scripts/build_models.sh`. The original reports stay protected.'''),
 code('''from pathlib import Path
 import sys, json
 import numpy as np
@@ -33,14 +33,14 @@ assert len(train_ids) == 48000
 code('''display(Image(filename=str(ROOT / "reports/figures/training_samples.png")))
 display(Image(filename=str(ROOT / "reports/figures/class_means.png")))
 display(Image(filename=str(ROOT / "reports/figures/intensity_distribution.png")))'''),
-md('''## 2. Feature engineering\nPixels become float32 values in [0,1], then flatten to 784 entries. Reshaping the vector recovers every pixel in the original image.\n\nHOG measures edge directions and groups them into histograms within small cells. It normalizes overlapping blocks of cells, then joins the values into one vector. Nine bins with 7x7-pixel cells and 2x2-cell blocks give 324 values. The extra fine-HOG experiment uses 4x4 cells and 1,296 values. We keep image orientation fixed.\n\nStandardScaler is fitted on training data only for Logistic Regression. Linear SVM uses the already normalized descriptors directly with solver tolerance 1e-3 and max_iter 2,000. k-NN, RF and RBF SVM also use the fixed pixel/HOG values directly.'''),
+md('''## 2. Feature engineering\nPixels become float32 values in [0,1], then flatten to 784 entries. Reshaping the vector recovers every pixel in the original image.\n\nHOG measures edge directions and groups them into histograms within small cells. It normalizes overlapping blocks of cells, then joins the values into one vector. Nine bins with 7x7-pixel cells and 2x2-cell blocks give 324 values. We keep image orientation fixed.\n\nStandardScaler is fitted on training data only for Logistic Regression. Linear SVM uses the already normalized descriptors directly with solver tolerance 1e-3 and max_iter 2,000. k-NN and RF also use the fixed pixel/HOG values directly.'''),
 code('''sample = images[train_ids[:3]]
-for representation in ("pixels", "hog", "hog_fine"):
+for representation in ("pixels", "hog"):
     values = extract(sample, representation)
     print(representation, values.shape, values.dtype)
 assert np.allclose(extract(sample, "pixels").reshape(3,28,28), sample / 255)
 display(Image(filename=str(ROOT / "reports/figures/hog_visualization.png")))'''),
-md('''## 3. Four classical decision rules\n- Logistic Regression learns linear class scores using log loss and regularization.\n- k-NN uses nearby training examples to vote, giving closer examples more weight.\n- Random Forest combines randomized decision trees.\n- Linear SVM learns class boundaries by balancing margins and training errors.\n\nEight required combinations = two representations x four classifiers. Each has two candidate settings. Additional RBF SVM trials test nonlinear boundaries on pixels, HOG and fine HOG. We keep these extra runs separate from the eight core comparisons. RBF uses exp(-gamma ||x-z||^2); C controls regularization.\n\nThe next cell displays the library model and its scaler. It loads the saved validation results without fitting a model.'''),
+md('''## 3. Four classical decision rules\n- Logistic Regression learns linear class scores using log loss and regularization.\n- k-NN uses nearby training examples to vote, giving closer examples more weight.\n- Random Forest combines randomized decision trees.\n- Linear SVM learns class boundaries by balancing margins and training errors.\n\nEight required combinations = two representations x four classifiers. Each has two candidate settings.\n\nThe next cell displays the library model and its scaler. It loads the saved validation results without fitting a model.'''),
 code('''print(build("logistic_regression", {"C": 1.0}))
 validation = pd.read_csv(ROOT / "reports/validation_results.csv")
 display(validation[["name","feature_count","parameters","training_images","accuracy","macro_f1","fit_seconds"]])
@@ -60,14 +60,14 @@ display(per_class[per_class.name == selected].drop(columns="name"))
 display(pd.read_csv(ROOT / "reports/test/upper_body_confusions.csv"))
 display(Image(filename=str(ROOT / "reports/figures/selected_confusion.png")))
 display(Image(filename=str(ROOT / "reports/figures/error_examples.png")))'''),
-md('''## 6. Accuracy versus computational cost\nTimings include descriptor extraction and learned pipeline scaling on the same CPU. Single-image latency is separate from throughput over batches of 128. Timing excludes file decoding and model loading. Model capacity takes different forms: forests store nodes, k-NN stores images, and kernel SVMs store support vectors. These counts cannot be treated as equivalent parameter counts.'''),
+md('''## 6. Accuracy versus computational cost\nTimings include descriptor extraction and learned pipeline scaling on the same CPU. Single-image latency is separate from throughput over batches of 128. Timing excludes file decoding and model loading. Model capacity takes different forms: forests store nodes, k-NN stores images, and linear models store weights. These counts cannot be treated as equivalent parameter counts.'''),
 code('''display(test[["name","fit_seconds","single_ms_median","single_ms_p95","batch_ms_per_image","batch_images_per_second","model_bytes"]])
 display(Image(filename=str(ROOT / "reports/figures/accuracy_cost.png")))'''),
-md('''## 7. Reusable prediction\nThis example loads a saved model and predicts one training image. It demonstrates prediction only and provides no additional accuracy estimate. For a command-line demonstration use `uv run python3 -m src.inventory_tagging.cli predict path/to/image.png` with a 28x28 grayscale image on a dark background. Arbitrary phone-photo performance has not been measured.'''),
+md('''## 7. Reusable prediction\nThis example loads a saved model and predicts one training image. It demonstrates prediction only and provides no additional accuracy estimate. For a command-line demonstration use `bash scripts/run_python.sh -m src.inventory_tagging.cli predict path/to/image.png` with a 28x28 grayscale image on a dark background. Arbitrary phone-photo performance has not been measured.'''),
 code('''import joblib
 from src.inventory_tagging.data import sha256
-# A new clone builds into runs/reproduction; the original reports stay separate.
-demo_root = ROOT if (ROOT / "models" / f"{selected}.joblib").exists() else ROOT / "runs/reproduction"
+# A new clone builds into runs/phase1; the original reports stay separate.
+demo_root = ROOT if (ROOT / "models" / f"{selected}.joblib").exists() else ROOT / "runs/phase1"
 demo_manifest = demo_root / "reports/frozen.json"
 if demo_manifest.exists():
     demo_frozen = json.loads(demo_manifest.read_text())
@@ -90,7 +90,7 @@ else:
     print("Saved results are available. To enable prediction, run: bash scripts/build_models.sh")'''),
 md('''## 8. Conclusions, limitations, and viva\nRead `reports/phase1_findings.md` for result-specific conclusions, `docs/literature_review.md` for primary sources, and `docs/viva_guide.md` for explanations. The findings apply to one split and a limited search. Full catalogue photos, unseen classes, near-duplicates and calibration need separate evaluation.\n\nThe reference is acknowledged in `docs/ATTRIBUTION.md`. All result tables use our new experiment with 48k training images. Phase 2 will use this same split for a small CNN with pooling, dropout and early stopping, then compare errors and compute cost.''')
 ]
-nb.metadata.kernelspec = {'display_name': 'Python 3 (project uv environment)', 'language': 'python', 'name': 'python3'}
+nb.metadata.kernelspec = {'display_name': 'Python (Inventory Tagging)', 'language': 'python', 'name': 'inventory-tagging'}
 nb.metadata.language_info = {'name': 'python', 'version': '3.12'}
 nbf.write(nb, root / 'notebooks/phase1.ipynb')
 print('Notebook source generated.')

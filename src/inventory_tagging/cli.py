@@ -12,7 +12,6 @@ def main():
     prepare.add_argument('--source', type=Path, help='Optional folder containing the original archives')
     sub.add_parser('eda', help='Audit and visualize training data only')
     sub.add_parser('train', help='Train the eight required model/feature combinations')
-    sub.add_parser('improve', help='Compare extra RBF SVM candidates using validation only')
     evaluate = sub.add_parser('evaluate', help='Freeze choices, then evaluate the official test set once')
     evaluate.add_argument('--source', type=Path, help='Optional original-archive cache')
     predict = sub.add_parser('predict', help='Predict one 28x28 grayscale benchmark-style image')
@@ -31,9 +30,9 @@ def main():
     elif args.step == 'eda':
         from .eda import run
         run()
-    elif args.step in ('train', 'improve'):
+    elif args.step == 'train':
         from .train import run
-        run(improve=args.step == 'improve')
+        run()
     elif args.step == 'evaluate':
         from .evaluate import run
         run(args.source)

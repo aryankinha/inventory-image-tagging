@@ -8,7 +8,7 @@ bash scripts/start_dashboard.sh
 
 The app opens four pages: Predict, Results, Mistakes and About. Predict is the first page. Its default **Results folder**, under **Local setup** in the sidebar, is `.`: the original
 saved experiment. After building models on your Mac, change it to
-`runs/reproduction` to use that run's own scores and model files.
+`runs/phase1` to use that run's own scores and model files.
 
 ## Try a picture
 
@@ -52,14 +52,6 @@ The category balance score is Macro F1; the practice-set score is validation
 Macro F1. These terms are explained under **How It Works → Names used in the
 project report**. Saved CSV fields and scientific definitions are unchanged.
 
-The paired comparison reads both models' saved answers for the same image IDs.
-It reports both right, first only right, second only right and both wrong. The
-95% interval uses a paired image bootstrap with 2,000 resamples and seed 42.
-It describes image-sampling variability for two fixed models, not variation from
-retraining. It is additional descriptive analysis, never a way to retune or choose
-models after looking at the test set. The documented default comparison uses the
-overall and core choices already recorded from validation.
-
 The error table uses actual categories in rows and predicted categories in
 columns. Percentages are normalized within each actual category. Image browsing
 requires matching local test archives; their saved indices and true labels must
@@ -87,9 +79,4 @@ published file; later predictions reuse it. An idle free-hosted app may take tim
 to wake up.
 
 The deployment uses Python 3.12 and the committed `uv.lock`. The server binds
-explicitly to `0.0.0.0`. All 11 release asset digests were checked against the
-original frozen records. A separate folder without models or datasets successfully
-downloaded two original models and predicted after checksum verification.
-The local suite passed 44 tests; the clean-folder suite passed 43 with one expected
-skip for optional training data. A public, signed-out browser successfully made a
-prediction with the selected model. Original experiment evidence remains unchanged.
+explicitly to `0.0.0.0`. All eight active model downloads must match their frozen records. The hosted app uses the validation-selected pixel Random Forest by default.

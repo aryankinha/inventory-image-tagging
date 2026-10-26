@@ -8,7 +8,7 @@
     },
     "accuracy": 0.8480833333333333,
     "macro_f1": 0.8470328415515056,
-    "fit_seconds": 10.189163333008764,
+    "fit_seconds": 11.343301417000475,
     "convergence_warnings": []
   },
   {
@@ -20,7 +20,7 @@
     },
     "accuracy": 0.8531666666666666,
     "macro_f1": 0.8521470327896704,
-    "fit_seconds": 12.909097875002772,
+    "fit_seconds": 13.968496250003227,
     "convergence_warnings": []
   }
 ]

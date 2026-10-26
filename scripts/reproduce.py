@@ -10,7 +10,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--work-dir', type=Path, default=ROOT / 'runs/reproduction')
+    parser.add_argument('--work-dir', type=Path, default=ROOT / 'runs/phase1')
     parser.add_argument('--source', type=Path, help='Optional original Fashion-MNIST archive cache')
     args = parser.parse_args()
     target = args.work_dir.resolve()
@@ -29,7 +29,7 @@ def main():
     if (target / 'reports/test/started.json').exists():
         raise SystemExit('A final test was already started here. Keep its evidence and choose a new work folder for another run.')
     (target / 'reports').mkdir(parents=True, exist_ok=True)
-    steps = ('evaluate',) if (target / 'reports/frozen.json').exists() else ('prepare', 'eda', 'train', 'improve', 'evaluate')
+    steps = ('evaluate',) if (target / 'reports/frozen.json').exists() else ('prepare', 'eda', 'train', 'evaluate')
     for step in steps:
         command = [sys.executable, '-m', 'src.inventory_tagging.cli', '--work-dir', str(target), step]
         if args.source and step in ('prepare', 'evaluate'):

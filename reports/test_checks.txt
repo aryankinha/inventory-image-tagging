@@ -1,2 +1,10 @@
-..........                                                               [100%]
-10 passed in 1.45s
+Python 3.12
+.........................................                                [100%]
+41 passed in 4.03s
+
+Python 3.11
+.........................................                                [100%]
+41 passed in 6.94s
+
+Dashboard: 4 pages, 10 sample categories, 8 verified real models, and two-model prediction passed on both versions.
+Notebook: all 18 cells executed successfully in memory.
