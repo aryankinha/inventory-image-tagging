@@ -145,10 +145,12 @@ retrain the experiment. CNN training and results belong to Phase 2.
 - [Phase 1 findings](reports/phase1_findings.md)
 - [IEEE report PDF](reports/phase1_report/main.pdf) and [LaTeX source](reports/phase1_report/main.tex)
 - [Presentation](reports/presentation/phase1.pptx)
+- [Presentation PDF](reports/presentation/phase1.pdf)
+- [Prediction flow (Mermaid)](reports/presentation/prediction_flow.mmd)
 - [Viva guide](docs/viva_guide.md) and [requirements checklist](docs/phase1_checklist.md)
 - [Dashboard details](docs/DASHBOARD.md) and [verification record](docs/FRESH_CLONE_CHECK.md)
 
-The report has three pages and the presentation has 13 slides with speaker notes.
+The report has three pages and the presentation has five slides with speaker notes, including the dashboard prediction flow.
 [Team details](docs/team.md) still need the course section, formal affiliation and
 each member's actual contribution before submission.
 
