@@ -1,5 +1,4 @@
 flowchart LR
-    user[User] --> image[Choose an image]
-    image --> model[Choose a saved model]
-    model --> predict[Get prediction]
-    predict --> category[Clothing category]
+    image[Pick an image] --> model[Choose a model]
+    model --> preview[Preview the 28 x 28 image]
+    preview --> prediction[Get the category and prediction time]

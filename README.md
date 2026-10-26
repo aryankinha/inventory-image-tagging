@@ -150,7 +150,7 @@ retrain the experiment. CNN training and results belong to Phase 2.
 - [Viva guide](docs/viva_guide.md) and [requirements checklist](docs/phase1_checklist.md)
 - [Dashboard details](docs/DASHBOARD.md) and [verification record](docs/FRESH_CLONE_CHECK.md)
 
-The report has three pages and the presentation has five slides with speaker notes, including the dashboard prediction flow.
+The report has three pages and the presentation has nine slides with speaker notes, including the dashboard prediction flow.
 [Team details](docs/team.md) still need the course section, formal affiliation and
 each member's actual contribution before submission.
 

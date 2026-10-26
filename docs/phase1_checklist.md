@@ -18,7 +18,7 @@ The requirements come from the supplied project description (Project Ideas p.12)
 | Concise error analysis | `reports/phase1_findings.md`, notebook, report |
 | GitHub/code quality | Main linked checkout, `uv.lock`, tests, source modules, README, attribution, reproducibility instructions |
 | LaTeX/IEEE report | `reports/phase1_report/main.tex`, compiled three-page `main.pdf`, and successful native compilation |
-| Presentation | `reports/presentation/phase1.pptx`: five slides with speaker notes and a Mermaid prediction flow |
+| Presentation | `reports/presentation/phase1.pptx`: nine slides with speaker notes, editable charts, and a dashboard prediction flow |
 | Individual viva | `docs/viva_guide.md` and each member's own practice |
 | Exactly five same-section members; contribution evidence | Five identities are in `docs/team.md`; add section/formal affiliation and truthful roles/commit contributions before submission |
 

@@ -33,7 +33,7 @@ models yourself, use `bash scripts/build_models.sh`; the default output folder i
 - Dashboard: all four pages and all eight saved predictors passed on both versions.
 - Notebook: all 18 cells executed successfully in memory.
 - Report: three PDF pages compiled and visually checked.
-- Presentation: the simplified five-slide deck was visually checked; editable tables and flow connectors passed package checks. A matching five-page PDF is included.
+- Presentation: the supplied nine-slide presentation was checked against the frozen results and visually reviewed. Editable charts retain their original workbook data. A matching nine-page PDF is included.
 
 A clean GitHub clone in a folder containing spaces and a colon passed the documented
 Mac setup with its own new environment. Before any dataset or model download, its
