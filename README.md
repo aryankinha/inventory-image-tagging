@@ -1,5 +1,7 @@
 # Inventory Image Tagging
 
+[Open the dashboard](https://inventory-image-tagging.streamlit.app/)
+
 Project 11, Phase 1: recognise ten Fashion-MNIST clothing categories using image
 brightness, edge measurements and classical machine learning.
 

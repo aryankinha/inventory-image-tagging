@@ -78,3 +78,18 @@ For a reproduction folder, missing model files disable new predictions while ret
 confusion counts fall back to the chosen model's saved image when available.
 Missing per-image answers or raw images retain saved figures and useful guidance.
 The app does not download datasets, train models or change frozen evidence. Prediction details, picture preparation steps and additional charts are collapsed by default.
+
+## Hosted app
+
+Open https://inventory-image-tagging.streamlit.app/ . Visitors can predict without
+signing in or installing Python. The first prediction for a model downloads its
+published file; later predictions reuse it. An idle free-hosted app may take time
+to wake up.
+
+The deployment uses Python 3.12 and the committed `uv.lock`. The server binds
+explicitly to `0.0.0.0`. All 11 release asset digests were checked against the
+original frozen records. A separate folder without models or datasets successfully
+downloaded two original models and predicted after checksum verification.
+The local suite passed 44 tests; the clean-folder suite passed 43 with one expected
+skip for optional training data. A public, signed-out browser successfully made a
+prediction with the selected model. Original experiment evidence remains unchanged.
