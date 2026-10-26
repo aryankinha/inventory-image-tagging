@@ -34,3 +34,13 @@ models yourself, use `bash scripts/build_models.sh`; the default output folder i
 - Notebook: all 18 cells executed successfully in memory.
 - Report: three PDF pages compiled and visually checked.
 - Presentation: all 13 slides visually checked; editable tables and chart passed package checks.
+
+A clean GitHub clone in a folder containing spaces and a colon passed the documented
+Mac setup with its own new environment. Before any dataset or model download, its
+suite passed 40 tests with one expected skip for optional training archives, and
+all four dashboard pages opened. Its first prediction then downloaded only pixel
+Random Forest from the eight-file release, checked the frozen checksum and
+predicted successfully. The public dashboard was also checked: exactly eight
+model choices, a working Random Forest prediction, and summary scores of 87.61%
+and 0.8747 matching the report. GitHub's macOS compatibility checks passed for the
+eight-model implementation.

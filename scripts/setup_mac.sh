@@ -48,4 +48,4 @@ fi
 "$runtime" -m ipykernel install --sys-prefix --name inventory-tagging --display-name 'Python (Inventory Tagging)'
 printf '%s\n' "$runtime" > .runtime-cache/python-path
 printf '\nSetup passed. Open the dashboard with:\n  bash scripts/start_dashboard.sh\n'
-echo 'Saved charts and sample pictures work immediately. Creating local models for prediction is a separate, longer step described in README.md.'
+echo 'Predictions fetch a verified published model on first use. Training your own models is optional; see README.md.'
