@@ -1,9 +1,0 @@
-name: inventory-image-tagging
-services:
-  phase1:
-    build: .
-    environment:
-      MPLCONFIGDIR: /tmp/matplotlib
-      LOKY_MAX_CPU_COUNT: 2
-    volumes:
-      - ./runs:/app/runs

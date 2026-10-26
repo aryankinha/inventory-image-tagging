@@ -114,7 +114,7 @@ descriptive analysis, not model selection or a new evaluation.
 ## Limits of this verification
 
 This establishes the tested Apple silicon Mac paths and the two Python versions
-above. An Intel Mac, other macOS releases and Docker were not executed locally.
+above. An Intel Mac and other macOS releases were not executed locally.
 GitHub's fresh-run checks cover its configured macOS runners separately. Model
 files and full datasets remain excluded from Git: a new clone needs the documented
 model-building step for new predictions. No CNN or other Phase 2 implementation

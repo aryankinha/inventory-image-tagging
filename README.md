@@ -177,13 +177,3 @@ uv export --locked --all-groups --no-hashes --no-emit-project --format requireme
 
 The existing `scripts/uv.sh` remains available for direct uv commands and handles
 colon-containing project paths. Do not copy virtual environments between Macs.
-
-## Optional Docker workflow
-
-```bash
-docker compose run --build --rm phase1
-```
-
-This builds the Phase 1 experiment under `runs/reproduction/`. Native Mac setup is
-the supported team workflow. Docker is optional and has not been verified locally;
-the fresh-clone verification record states exactly which paths were exercised.
