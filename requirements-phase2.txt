@@ -1,0 +1,10 @@
+# Phase 2 adds PyTorch to the Phase 1 environment. Install with:
+#   python -m pip install -r requirements-phase2.txt
+# Phase 1 and the hosted dashboard do not need it, so it stays out of requirements.txt and uv.lock.
+-r requirements.txt
+filelock==4.2.4
+fsspec==2026.9.0
+mpmath==1.3.0
+setuptools==84.2.1
+sympy==1.14.0
+torch==2.14.1
