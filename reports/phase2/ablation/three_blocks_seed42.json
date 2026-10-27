@@ -1,0 +1,16 @@
+{
+  "config": "three_blocks",
+  "seed": 42,
+  "blocks": 3,
+  "batch_norm": true,
+  "dropout": 0.4,
+  "augment": true,
+  "best_epoch": 11,
+  "epochs_run": 16,
+  "early_stopped": true,
+  "validation_loss": 0.22639912366867065,
+  "validation_accuracy": 0.91925,
+  "validation_macro_f1": 0.9193152073243611,
+  "parameters": 249610,
+  "seconds": 79.91992320799909
+}

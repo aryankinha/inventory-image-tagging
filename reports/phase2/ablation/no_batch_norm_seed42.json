@@ -1,0 +1,16 @@
+{
+  "config": "no_batch_norm",
+  "seed": 42,
+  "blocks": 2,
+  "batch_norm": false,
+  "dropout": 0.4,
+  "augment": true,
+  "best_epoch": 28,
+  "epochs_run": 30,
+  "early_stopped": false,
+  "validation_loss": 0.21818888187408447,
+  "validation_accuracy": 0.9215833333333333,
+  "validation_macro_f1": 0.9215228685579252,
+  "parameters": 429258,
+  "seconds": 97.56809450000583
+}

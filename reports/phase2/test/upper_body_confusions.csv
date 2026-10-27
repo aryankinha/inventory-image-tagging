@@ -1,0 +1,13 @@
+true,predicted,phase1,cnn,hybrid
+T-shirt/top,Pullover,12,13,15
+T-shirt/top,Coat,4,2,2
+T-shirt/top,Shirt,83,59,81
+Pullover,T-shirt/top,11,14,14
+Pullover,Coat,116,33,37
+Pullover,Shirt,58,30,48
+Coat,T-shirt/top,1,1,1
+Coat,Pullover,91,60,44
+Coat,Shirt,49,40,45
+Shirt,T-shirt/top,149,128,95
+Shirt,Pullover,124,80,51
+Shirt,Coat,85,78,71

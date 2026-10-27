@@ -1,0 +1,11 @@
+{
+  "family": "random_forest",
+  "parameters": {
+    "n_estimators": 400,
+    "max_depth": null
+  },
+  "rule": "highest mean validation macro F1; all seeds converged",
+  "validation_macro_f1_mean": 0.9323942589433799,
+  "cnn_own_head_validation_macro_f1_mean": 0.9263974683066104,
+  "untrained_cnn_features_validation_macro_f1_mean": 0.7944220692896847
+}

@@ -1,0 +1,35 @@
+{
+  "cnn_config": "light_dropout",
+  "cnn_settings": {
+    "blocks": 2,
+    "batch_norm": true,
+    "dropout": 0.2,
+    "augment": true
+  },
+  "training": {
+    "batch_size": 128,
+    "max_epochs": 30,
+    "patience": 5,
+    "lr": 0.001,
+    "weight_decay": 0.0001,
+    "shift_pixels": 2
+  },
+  "seeds": [
+    42,
+    1,
+    2
+  ],
+  "hybrid_family": "random_forest",
+  "hybrid_parameters": {
+    "n_estimators": 400,
+    "max_depth": null
+  },
+  "phase1_selected": "pixels_random_forest",
+  "checkpoint_sha256": {
+    "light_dropout_seed42": "a13c1313fa23f261f5916172c2f591bc07cd0c113c1ce92dd8a210f6c9c067c9",
+    "light_dropout_seed1": "bd2fbcb13e981ee69352fc45804883eaeb611f7a6517a6363550a32069116b73",
+    "light_dropout_seed2": "aeb59f9fe87224bd9eb308e432e70d4c2e8aa0c08aab9112292aeefc5f21c7e7"
+  },
+  "split_sha256": "65975afc1edb0423e33ae8e6e732b9eef1e6dca4609c6c57561c1568d1d31718",
+  "phase1_frozen_sha256": "ec126559b706b20948a34ee3ee22092d84bed4d2eaa1c9bf6582945ca0b85a39"
+}

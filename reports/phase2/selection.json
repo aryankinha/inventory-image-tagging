@@ -1,0 +1,8 @@
+{
+  "config": "light_dropout",
+  "validation_macro_f1_mean": 0.9263974683066104,
+  "rule": "highest mean validation macro F1 over 3 seeds among configurations that use dropout (the brief asks for it)",
+  "best_overall_config": "no_dropout",
+  "best_overall_validation_macro_f1_mean": 0.9282275682022196,
+  "seed_std_of_selected": 0.0033177231820557
+}

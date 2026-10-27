@@ -1,0 +1,46 @@
+{
+  "phase1_selected": "pixels_random_forest",
+  "phase1_test_accuracy": 0.8761,
+  "phase1_test_macro_f1": 0.874729334929437,
+  "cnn_test_accuracy_mean": 0.9197666666666667,
+  "cnn_test_accuracy_std": 0.002362907813126275,
+  "cnn_test_macro_f1_mean": 0.9193899582560744,
+  "cnn_test_macro_f1_std": 0.0031578262385294686,
+  "hybrid_test_accuracy_mean": 0.9248666666666666,
+  "hybrid_test_accuracy_std": 0.0018556220879622017,
+  "hybrid_test_macro_f1_mean": 0.9246238974398402,
+  "hybrid_test_macro_f1_std": 0.0019603947696827544,
+  "cnn_vs_phase1_seed42": {
+    "difference": 0.041000000000000036,
+    "low": 0.0351974999999999,
+    "high": 0.046702500000000056
+  },
+  "hybrid_vs_cnn_seed42": {
+    "difference": 0.006000000000000005,
+    "low": 0.002800000000000022,
+    "high": 0.009399999999999964
+  },
+  "costs": {
+    "cnn": {
+      "single_ms_median": 0.16687500101397745,
+      "single_ms_p95": 0.2027065511356341,
+      "batch_ms_per_image": 0.08838708495773062,
+      "batch_images_per_second": 11313.870125688954,
+      "parameters": 429450,
+      "file_bytes": 1726009
+    },
+    "hybrid": {
+      "single_ms_median": 25.878853502945276,
+      "single_ms_p95": 29.981570546442583,
+      "batch_ms_per_image": 0.29063614941549076,
+      "batch_images_per_second": 3440.728216400945,
+      "cnn_parameters_without_head": 428800,
+      "classifier": {
+        "kind": "tree nodes",
+        "count": 1721070,
+        "trees": 400
+      }
+    }
+  },
+  "test_images": 10000
+}

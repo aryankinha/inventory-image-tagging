@@ -1,0 +1,19 @@
+seed,family,parameters,converged,validation_accuracy,validation_macro_f1
+42,logistic_regression,"{""C"": 0.1}",True,0.9294166666666667,0.92931019454773
+42,logistic_regression,"{""C"": 1.0}",True,0.9290833333333334,0.9289293877456757
+42,linear_svm,"{""C"": 0.1}",True,0.9300833333333334,0.9298913938303324
+42,linear_svm,"{""C"": 1.0}",True,0.9300833333333334,0.9298637677052597
+42,random_forest,"{""n_estimators"": 200, ""max_depth"": 25}",True,0.9306666666666666,0.9306388324786944
+42,random_forest,"{""n_estimators"": 400, ""max_depth"": null}",True,0.9306666666666666,0.9306257723412956
+1,logistic_regression,"{""C"": 0.1}",True,0.93525,0.9352586856717059
+1,logistic_regression,"{""C"": 1.0}",True,0.9349166666666666,0.9349139437256696
+1,linear_svm,"{""C"": 0.1}",True,0.9346666666666666,0.9346305930455587
+1,linear_svm,"{""C"": 1.0}",True,0.9346666666666666,0.9346255620190064
+1,random_forest,"{""n_estimators"": 200, ""max_depth"": 25}",True,0.9345833333333333,0.9346191351112214
+1,random_forest,"{""n_estimators"": 400, ""max_depth"": null}",True,0.9351666666666667,0.9351699047542121
+2,logistic_regression,"{""C"": 0.1}",True,0.9303333333333333,0.9302411478983647
+2,logistic_regression,"{""C"": 1.0}",True,0.93,0.9298891929364359
+2,linear_svm,"{""C"": 0.1}",True,0.93025,0.9301178996605804
+2,linear_svm,"{""C"": 1.0}",True,0.92925,0.9291216582372244
+2,random_forest,"{""n_estimators"": 200, ""max_depth"": 25}",True,0.9318333333333333,0.931791196189085
+2,random_forest,"{""n_estimators"": 400, ""max_depth"": null}",True,0.9314166666666667,0.9313870997346317

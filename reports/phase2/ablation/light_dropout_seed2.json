@@ -1,0 +1,16 @@
+{
+  "config": "light_dropout",
+  "seed": 2,
+  "blocks": 2,
+  "batch_norm": true,
+  "dropout": 0.2,
+  "augment": true,
+  "best_epoch": 28,
+  "epochs_run": 30,
+  "early_stopped": false,
+  "validation_loss": 0.19850721955299377,
+  "validation_accuracy": 0.9280833333333334,
+  "validation_macro_f1": 0.9281108119856164,
+  "parameters": 429450,
+  "seconds": 121.09840833300404
+}
