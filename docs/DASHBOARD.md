@@ -21,13 +21,16 @@ accuracy test and were not chosen based on model predictions.
 grayscale PNG format. It preserves every pixel, including constant images,
 matching the original benchmark contract.
 
-**Prepare an ordinary picture** offers a preview of grayscale conversion,
-resizing, brightness, contrast and inversion. Transparent areas are filled with
-the explicitly selected dark/light background before grayscale conversion.
-Blank or fully transparent pictures are rejected in this preparation mode.
-Even extremely narrow images retain a valid one-pixel minimum side. Changing
-the mode keeps the uploaded file; changing the input or models hides stale answers.
-Photos are not benchmarked and busy backgrounds are not removed automatically.
+**Prepare an ordinary picture** removes a plain background, crops one item and
+centres it on a black 28 × 28 input. Picture settings include a manual crop,
+rotation and an optional setting for shadows. Inspect the prepared picture before
+predicting. Unclear or multiple foreground regions may require a better picture.
+Turn off **Remove a plain background** to use the previous grayscale, resize,
+brightness, contrast and inversion controls. For background removal, transparent areas receive a contrasting fill based on
+visible pixels. Resize-only mode uses the explicitly selected background colour. Exact benchmark mode preserves every pixel.
+Changing the input or models hides stale answers. Ordinary-photo accuracy is
+unmeasured; some photographs still produce wrong answers. See
+[photo preparation and actual checks](PHOTO_INPUTS.md).
 
 Under **Picture and model settings**, optionally choose one or more models, then click **Predict**. Original published models are fetched on demand if they are not already on disk. Reproduction folders still need their own locally built models.
 Each uses its own recorded pixel/HOG representation and the existing `extract()`
@@ -80,3 +83,7 @@ to wake up.
 
 The deployment uses Python 3.12 and the committed `uv.lock`. The server binds
 explicitly to `0.0.0.0`. All eight active model downloads must match their frozen records. The hosted app uses the validation-selected pixel Random Forest by default.
+
+## Local Phase 2 page
+
+Both phases are on main. Set up with `bash scripts/setup_mac.sh --phase2` and open **Phase 2** in the sidebar. The page shows the three-seed scores and predicts an uploaded image or the included sample using a checksum-verified CNN checkpoint. Build the frozen hybrid classifier once with `cli export` to enable that option locally. If PyTorch or optional model files are absent, the page explains how to enable them. Ordinary photos use the existing labelled preparation mode and have no measured accuracy. The hosted installation uses the smaller Phase 1 dependency set; local Phase 2 prediction requires PyTorch.

@@ -13,14 +13,14 @@ Requirements come from the Project 11 description (Project Ideas p.12: two or th
 | Accuracy, macro F1, per-class recall | `reports/phase2/test/results.csv`, `per_class_recall.csv`, `comparison.csv` |
 | Parameter count and inference time | `reports/phase2/test/summary.json` (`costs`): 429,450 weights; CPU timing with two threads like Phase 1 |
 | Shirts, T-shirts, pullovers confusion; error analysis | `test/upper_body_confusions.csv`, `figures/error_examples.png`, `figures/confusion_cnn.png`, `reports/phase2_findings.md` |
-| Technical validation | Three seeds per setting; `tests/test_phase2.py` (model, augmentation, early stopping, split); `tests/test_phase2_evidence.py` (scores recomputed from saved predictions, checkpoint hashes, frozen choices) |
+| Technical validation | Three seeds per setting; `tests/test_phase2.py` (model, augmentation, early stopping, split); `tests/test_phase2_evidence.py` (scores recomputed from saved predictions, checkpoint hashes, frozen choices), and `test_phase2_completion.py` (verified inference and UI) |
 | Theoretical rigor | Report sections IV and V (convolution, pooling, batch norm, dropout, loss, early stopping); `docs/phase2_viva_guide.md` |
 | Classifier notebook | `notebooks/phase2.ipynb`, executed; reads saved results, no retraining |
 | LaTeX/IEEE report | `reports/phase2_report/main.tex` and compiled `main.pdf` (4 pages) |
 | Presentation | `reports/presentation/phase2.pptx` (7 slides with speaker notes) and `phase2.pdf` |
-| GitHub and code quality | New package `src/inventory_tagging_dl/` (3 small files); PyTorch kept in `requirements-phase2.txt` so Phase 1 and the hosted dashboard are unchanged; one command to rebuild: `bash scripts/build_phase2.sh` |
+| GitHub and code quality | `src/inventory_tagging_dl/` contains the CNN, experiments, commands and verified inference; PyTorch uses the optional `phase2` uv group and exported `requirements-phase2.txt`; both phases are included on main; hosted prediction depends on installed optional dependencies; one command to rebuild: `bash scripts/build_phase2.sh` |
 | Individual viva | `docs/phase2_viva_guide.md` and each member's own practice |
-| Five same-section members; contribution record | Names in `docs/team.md`. Course section, formal affiliation and each member's actual contribution are still to be added before submission |
+| Five same-section members; contribution record | Names in `docs/team.md`. Section B is recorded; formal affiliation and each member's actual contribution still need confirmation before submission |
 
 ## Choices made after seeing validation results
 
@@ -30,4 +30,13 @@ Requirements come from the Project 11 description (Project Ideas p.12: two or th
 
 ## Not done on purpose
 
-CNN in the live dashboard, pretrained or residual networks, learning-rate schedules, other augmentations, and a search beyond the seven versions. Each adds machinery beyond what the brief needs.
+Installing PyTorch on the free hosted deployment, pretrained or residual networks, learning-rate schedules, other augmentations, and a search beyond the seven versions. Each adds machinery beyond what the brief needs.
+
+## Completion checks added on 9 November 2026
+
+- Verified CNN and hybrid image prediction: `src/inventory_tagging_dl/predict.py`, CLI `predict`, and the local dashboard's Phase 2 page. Checksums are checked before deserialization. Photo preparation reuses the Phase 1 interface and is labelled experimental.
+- `export` saves the frozen hybrid classifiers for repeated predictions. Large forest files stay local. It never chooses settings from test scores.
+- `scripts/verify_phase2.py` independently checks histories, selection, test scores, recall, confusions and checkpoints. `--replay` compares live CPU predictions with recorded test predictions.
+- Frozen experiment folders reject further ablation, selection and hybrid training. An interrupted final test cannot be restarted in place.
+- Both setup methods support `--phase2`; CI installs PyTorch and exercises the deep-learning tests.
+- The original results are preserved. Local CPU hybrid exports agree with the recorded GPU-feature run on 99.94% to 99.98% of test predictions. This replay is separate from the official reported experiment.

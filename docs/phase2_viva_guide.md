@@ -11,7 +11,8 @@ Phase 1 turned each picture into a fixed list of numbers (pixels or HOG edges) a
 1. `src/inventory_tagging_dl/cnn.py`: the model, the augmentation, the training loop with early stopping.
 2. `src/inventory_tagging_dl/experiments.py`: ablation, selection, hybrid, final test, figures.
 3. `src/inventory_tagging_dl/cli.py`: one command per stage.
-4. `tests/test_phase2.py`: what we check automatically.
+4. `src/inventory_tagging_dl/predict.py`: checksum verification and reusable CNN/hybrid predictions.
+5. `tests/test_phase2.py` and `test_phase2_completion.py`: training contracts, inference and UI checks.
 
 ## Questions to practise
 
@@ -19,13 +20,13 @@ Phase 1 turned each picture into a fixed list of numbers (pixels or HOG edges) a
 
 **What does max pooling do?** It keeps the strongest response in each 2x2 patch, halving width and height (28 to 14 to 7). The network becomes less sensitive to a small shift of the pattern, and later layers see a wider part of the picture.
 
-**Why does Phase 1 flattening lose something?** Flattening keeps every pixel but gives the classifier no idea which pixels are neighbours. A convolution uses the neighbourhood directly.
+**Why does Phase 1 flattening lose something?** Flattening retains every pixel and its position, so it can be reshaped exactly. The vector classifiers have no built-in local filters or weight sharing. A convolution uses neighbourhoods directly.
 
 **Why ReLU?** `max(0, x)` is cheap, does not squash large values, and gives gradients that do not vanish for positive inputs.
 
 **What is batch normalisation?** After each convolution it rescales the numbers in the current batch to mean 0 and spread 1, then lets the network learn a scale and shift. It makes training steadier. It acts differently in training (batch statistics) and evaluation (stored averages), which is why we call `model.eval()` before predicting.
 
-**What is dropout?** During training each unit in a layer is switched off with probability 0.4, so the network cannot depend on any single unit. At test time all units are on. It reduces overfitting.
+**What is dropout?** During training, dropout switches off units randomly. The full ablation model uses probability 0.4 and the selected CNN uses 0.2. At prediction time all units are on. Dropout can limit overfitting, but our ablation shows that stronger dropout can also reduce accuracy.
 
 **What is overfitting and how do we see it?** Training loss keeps falling while validation loss rises. Our learning-curve figure shows both.
 
@@ -60,4 +61,10 @@ Phase 1 turned each picture into a fixed list of numbers (pixels or HOG edges) a
 - Fashion-MNIST is a familiar, small, centred benchmark. Results say little about real store photos.
 - Three seeds, one split, a small settings search.
 - Training on the Apple GPU is not bit-for-bit repeatable, so a rerun can differ slightly.
-- The CNN is not in the live dashboard.
+- CNN and hybrid inference work in the local Phase 2 page. The hosted main-branch dashboard remains Phase 1.
+
+## Demonstration
+
+Run `bash scripts/start_dashboard.sh`, open **Phase 2**, keep the included sample and click **Predict image**. The sample is a training image of a Shirt; this is a demonstration, not a new accuracy measurement. Both CNN and hybrid predict Shirt. Their displayed request times include image measurements and prediction but exclude loading and decoding. For command-line prediction use `bash scripts/run_python.sh -m src.inventory_tagging_dl.cli predict --image assets/sample.png`.
+
+Hybrid forests can be rebuilt once with `cli export`, using the frozen CNN and training images. The CPU reconstruction can differ slightly from the original GPU-feature experiment. Keep the recorded scores separate from this demonstration.

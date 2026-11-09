@@ -1,6 +1,6 @@
 # Inventory Image Tagging
 
-### 👉 [Try it live: inventory-image-tagging.streamlit.app](https://inventory-image-tagging.streamlit.app/)
+### [Try it live: inventory-image-tagging.streamlit.app](https://inventory-image-tagging.streamlit.app/)
 
 Upload a picture of a clothing item and the app tells you which of ten categories it is. No install and no sign-in. The first prediction can be slow because a free-hosted app may need a moment to wake up. The live app uses the Phase 1 models.
 
@@ -70,21 +70,46 @@ Open <http://localhost:8501>. Press Control+C to stop. Next time, run only the l
 - Prefer [uv](https://docs.astral.sh/uv/getting-started/installation/)? Use `bash scripts/setup_mac.sh` without `--pip`.
 - The first prediction needs internet. The app downloads the model it needs from the [model release](https://github.com/aryankinha/inventory-image-tagging/releases/tag/phase1-models-v2), checks its checksum and keeps a copy.
 
-The dashboard opens on **Predict**: upload a picture or pick a sample, then click **Predict**. **Results** shows the scores of the 8 Phase 1 models, **Mistakes** shows which categories get confused, and **About** explains how it works. The models were trained on small benchmark pictures. Ordinary photos work best when the item is upright, alone and on a plain background. We have not measured accuracy on photos.
+The dashboard opens on **Predict**: upload a picture or pick a sample, then click **Predict**. **Results** shows the scores of the 8 Phase 1 models, **Mistakes** shows which categories get confused, and **About** explains how it works. The models were trained on small benchmark pictures. Ordinary photos work best when the item is upright, alone and on a plain background. We have not measured accuracy on photos. The ordinary-photo option now removes plain backgrounds and offers cropping and rotation; inspect the preview before predicting. See [photo input checks and limitations](docs/PHOTO_INPUTS.md).
 
 ## Run Phase 2
 
-Phase 2 needs PyTorch. It is kept out of the Phase 1 setup so the live dashboard stays small. After the setup above:
+Both phases are included on `main`. Install the optional PyTorch group for Phase 2:
 
 ```bash
-bash scripts/run_python.sh -m pip install -r requirements-phase2.txt
-bash scripts/run_python.sh -m pytest -q
-bash scripts/run_python.sh -m jupyterlab notebooks/phase2.ipynb
+bash scripts/setup_mac.sh --phase2
+# Or use installed Python 3.11/3.12 and pip:
+bash scripts/setup_mac.sh --pip --phase2
 ```
 
-If you set up with uv, use `uv pip install --python .venv/bin/python3 -r requirements-phase2.txt` for the first line. Re-running `uv sync` removes PyTorch again.
+For later environment updates, use `uv sync --locked --group phase2`. Plain `uv sync` installs the smaller Phase 1 environment. The same locked packages are exported to `requirements-phase2.txt` for pip.
 
-The notebook reads the saved results and checkpoints, so it needs no download and no training. Choose the kernel **Python (Inventory Tagging)**.
+Predict the included benchmark image without downloading a dataset or retraining:
+
+```bash
+bash scripts/run_python.sh -m src.inventory_tagging_dl.cli predict --image assets/sample.png
+bash scripts/start_dashboard.sh
+```
+
+In the local dashboard, select **Phase 2**, choose an image and click **Predict image**. The saved CNN predicts one of ten categories. Ordinary PNG/JPEG photos need the explicitly labelled experimental preparation mode. Command-line photo mode uses `--photo --isolate` for background removal, or `--photo --invert` for the resize-only alternative. Its accuracy is unmeasured.
+
+The frozen CNN checkpoints are included in Git. Hybrid classifier files are rebuilt locally from the frozen CNNs and training data, and are excluded from Git because of their size:
+
+```bash
+bash scripts/run_python.sh -m src.inventory_tagging.cli prepare
+bash scripts/run_python.sh -m src.inventory_tagging_dl.cli export
+bash scripts/run_python.sh -m src.inventory_tagging_dl.cli predict --image assets/sample.png --model hybrid
+```
+
+This export fits only the already selected classifier on training-image features. It does not tune settings or repeat the official test evaluation. Its checksum is recorded in `reports/phase2/inference.json`. CPU rebuilding can produce a few different predictions from the original GPU-feature run; the original reported scores remain the recorded experiment.
+
+```bash
+bash scripts/run_python.sh -m jupyterlab notebooks/phase2.ipynb
+bash scripts/run_python.sh scripts/check_notebooks.py
+bash scripts/run_python.sh scripts/verify_phase2.py
+```
+
+The notebook reads saved results and verified checkpoints. It needs no download and no training. Choose **Python (Inventory Tagging)**. To replay predictions on already downloaded official test archives without fitting, use `scripts/verify_phase2.py --replay`.
 
 To retrain everything yourself (about 40 minutes on an Apple M-series Mac; it downloads the dataset if needed):
 
@@ -100,6 +125,10 @@ Output goes to `runs/phase2/` and never overwrites the saved results. The stages
 bash scripts/run_python.sh -m pytest -q
 bash scripts/run_python.sh scripts/verify_results.py
 bash scripts/run_python.sh scripts/check_dashboard.py
+bash scripts/run_python.sh scripts/verify_artifacts.py
+# With Phase 2 installed:
+bash scripts/run_python.sh scripts/verify_phase2.py
+bash scripts/run_python.sh scripts/check_notebooks.py
 ```
 
 Tests for Phase 2 run only when PyTorch is installed. A few more are skipped on a fresh clone because they need the dataset.
@@ -161,7 +190,7 @@ Folders `data/`, `models/` and `runs/` are created on your computer and are not 
 
 - One split, a small settings search, and three random seeds for Phase 2 (one for Phase 1).
 - Fashion-MNIST is a well-known, small, centred benchmark, so these numbers say little about a real store catalogue or phone photos.
-- The CNN is not in the live dashboard.
+- Phase 2 predictions are available locally. The hosted installation uses Phase 1 dependencies; Phase 2 prediction requires the optional PyTorch setup.
 
 ## Credits
 

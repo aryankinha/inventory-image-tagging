@@ -7,7 +7,15 @@ mkdir -p .runtime-cache/ipython
 export MPLCONFIGDIR="$project_dir/.mpl-cache"
 export IPYTHONDIR="$project_dir/.runtime-cache/ipython"
 export UV_CACHE_DIR="${UV_CACHE_DIR:-$project_dir/.uv-cache}"
-method="${1:-uv}"
+method="uv"
+phase2=false
+for option in "$@"; do
+  case "$option" in
+    --pip) method="--pip" ;;
+    --phase2) phase2=true ;;
+    *) echo "Use: bash scripts/setup_mac.sh [--pip] [--phase2]" >&2; exit 1 ;;
+  esac
+done
 if [[ "$method" == "--pip" ]]; then
   runner=""
   for candidate in python3.12 python3.11 python3; do
@@ -29,14 +37,22 @@ if [[ "$method" == "--pip" ]]; then
   fi
   "$runner" -m venv "$pip_env"
   runtime="$pip_env/bin/python3"
-  "$runtime" -m pip install -r requirements.txt
+  if [[ "$phase2" == true ]]; then
+    "$runtime" -m pip install -r requirements-phase2.txt
+  else
+    "$runtime" -m pip install -r requirements.txt
+  fi
 elif [[ "$method" == "uv" ]]; then
   if ! command -v uv >/dev/null 2>&1; then
     echo 'Install uv from https://docs.astral.sh/uv/getting-started/installation/ then retry.' >&2
     echo 'Or use your installed Python 3.11/3.12: bash scripts/setup_mac.sh --pip' >&2
     exit 1
   fi
-  uv sync --locked
+  if [[ "$phase2" == true ]]; then
+    uv sync --locked --group phase2
+  else
+    uv sync --locked
+  fi
   runtime="$project_dir/.venv/bin/python3"
 else
   echo 'Use: bash scripts/setup_mac.sh [--pip]' >&2
@@ -45,6 +61,9 @@ fi
 "$runtime" scripts/check_environment.py
 "$runtime" scripts/verify_results.py
 "$runtime" scripts/verify_artifacts.py
+if [[ "$phase2" == true ]]; then
+  "$runtime" scripts/verify_phase2.py
+fi
 "$runtime" -m ipykernel install --sys-prefix --name inventory-tagging --display-name 'Python (Inventory Tagging)'
 printf '%s\n' "$runtime" > .runtime-cache/python-path
 printf '\nSetup passed. Open the dashboard with:\n  bash scripts/start_dashboard.sh\n'

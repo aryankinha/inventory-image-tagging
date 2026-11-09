@@ -107,7 +107,7 @@ def test_prediction_selects_and_compares_saved_models(experiment_folder):
     assert app.dataframe[0].value.iloc[0]['Predicted category'] == 'Trouser'
     app.radio(key='input_mode').set_value('Prepare an ordinary picture').run()
     assert not app.exception
-    assert any('have not been tested for accuracy' in item.value for item in app.warning)
+    assert any('Photo predictions are experimental' in item.value for item in app.warning)
     app.sidebar.radio[0].set_value('About').run()
     app.sidebar.radio[0].set_value('Prediction Lab').run()
     assert app.selectbox(key='predictor').value == names[1]
@@ -138,3 +138,22 @@ def test_incomplete_final_results_are_explained(experiment_folder):
     assert not app.exception
     assert any('not saved all of its final scores' in item.value for item in app.error)
     assert not app.metric
+
+
+def test_new_picture_resets_crop_rotation_and_old_answer(experiment_folder):
+    app=open_app(experiment_folder)
+    samples=app.selectbox(key='sample_category').options
+    app.session_state['p1_photo_crop_enabled']=True
+    app.session_state['p1_photo_crop_x']=(25,75)
+    app.session_state['p1_photo_crop_y']=(15,85)
+    app.session_state['p1_photo_rotation']=90
+    app.session_state['p1_photo_shadows']=True
+    app.session_state['prediction_run']=('old input',[],[])
+    # The new sample has a different content identity, just like a new upload.
+    from dashboard.services import sample_gallery
+    sample=next(s for s in sample_gallery() if s['category']==samples[1])
+    app.selectbox(key='sample_category').set_value(sample).run()
+    assert not app.exception
+    for key in ('p1_photo_crop_enabled','p1_photo_crop_x','p1_photo_crop_y',
+                'p1_photo_rotation','p1_photo_shadows','prediction_run'):
+        assert key not in app.session_state

@@ -80,7 +80,7 @@ def load_model(path, expected_hash):
     return _verified_model(stamp(path), expected_hash)
 
 
-def prepare_image(content, experimental=False, sizing='Pad', invert=False, brightness=1., contrast=1.):
+def prepare_image(content, experimental=False, sizing='Pad', invert=False, brightness=1., contrast=1., *, isolate=False, crop=None, rotation=0, shadow_background=False):
     """Benchmark pixels pass through exactly. Photo preparation is explicit and deterministic."""
     with Image.open(BytesIO(content)) as opened:
         if opened.format not in ('PNG', 'JPEG'):
@@ -96,9 +96,22 @@ def prepare_image(content, experimental=False, sizing='Pad', invert=False, brigh
         has_alpha = oriented.mode in ('RGBA', 'LA') or (oriented.mode == 'P' and 'transparency' in oriented.info)
         if has_alpha:
             fill = 255 if invert else 0
+            if isolate:
+                # Choose contrast from visible pixels, never hidden RGB values.
+                rgba = oriented.convert('RGBA')
+                alpha = np.asarray(rgba.getchannel('A'))
+                if not np.any(alpha):
+                    raise ValueError('This picture is fully transparent and has no visible item.')
+                visible = alpha >= max(1, int(alpha.max()) // 2)
+                gray = np.asarray(ImageOps.grayscale(rgba))
+                fill = 255 if np.median(gray[visible]) < 128 else 0
             background = Image.new('RGBA', oriented.size, (fill, fill, fill, 255))
             oriented = Image.alpha_composite(background, oriented.convert('RGBA'))
         original = oriented.convert('RGB')
+    if isolate:
+        from .photo import isolate_item
+        prepared, steps = isolate_item(original, crop=crop, rotation=rotation, shadow_background=shadow_background)
+        return np.asarray(prepared, dtype=np.uint8).copy(), [('Original', original), *steps]
     gray = ImageOps.grayscale(original)
     if gray.getextrema()[0] == gray.getextrema()[1]:
         raise ValueError('This picture is blank or has no visible detail. Choose a picture with a visible clothing item.')

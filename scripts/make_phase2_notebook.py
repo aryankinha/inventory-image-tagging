@@ -109,8 +109,8 @@ print("Hybrid classifier size:", costs["hybrid"]["classifier"])'''),
 md('''## 9. Predict a picture with the saved CNN
 
 Loads the committed checkpoint (seed 42) and predicts the included sample, a training picture used only to show how prediction works.'''),
-code('''saved = cnn.SmallCNN(**frozen["cnn_settings"])
-saved.load_state_dict(torch.load(OUT / f"checkpoints/{frozen['cnn_config']}_seed42.pt", map_location="cpu", weights_only=True))
+code('''from src.inventory_tagging_dl.predict import load_predictor
+saved, _ = load_predictor(OUT, "cnn", 42)
 picture = np.asarray(Image.open(ROOT / "assets/sample.png").convert("L"))[None]
 logits, _ = cnn.forward_all(saved, cnn.to_tensor(picture), torch.device("cpu"))
 scores = logits.softmax(1)[0]
@@ -124,7 +124,7 @@ recall = pd.read_csv(OUT / "test/per_class_recall.csv").set_index("category")
 print("Shirt recall: Phase 1", f"{recall.loc['Shirt'].iloc[0]:.1%}", "-> CNN", f"{recall.loc['Shirt','cnn_mean']:.1%}", "-> hybrid", f"{recall.loc['Shirt','hybrid_mean']:.1%}")
 print("Limits: Fashion-MNIST is a small, centred, familiar benchmark; three seeds; one split; a small settings search; GPU training is not exactly repeatable.")''')
 ]
-client = NotebookClient(nb, timeout=300, kernel_name='python3', resources={'metadata': {'path': str(root / 'notebooks')}})
+client = NotebookClient(nb, timeout=300, kernel_name='inventory-tagging', resources={'metadata': {'path': str(root / 'notebooks')}})
 client.execute()
 nbf.write(nb, root / 'notebooks/phase2.ipynb')
 print('Phase 2 notebook built and every cell ran.')

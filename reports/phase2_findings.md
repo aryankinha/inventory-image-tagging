@@ -96,4 +96,8 @@ Timed on the same Mac CPU with two threads, from a 28×28 picture to a label. Ph
 - The CNN training used an Apple GPU, which is not bit-for-bit repeatable. A rerun can differ slightly; the saved predictions and checkpoints are the record.
 - In the hybrid, the Random Forest is fitted on training-picture features from a CNN that already saw those pictures. That can make those features look cleaner than features of new pictures. Neither part used validation or test pictures to fit.
 - Light dropout was added after seeing results, and the final-model rule (best version with dropout) was set after seeing the ablation. Both used validation data only. Test data was not involved in either decision.
-- The CNN is not in the live dashboard.
+- The CNN is available in the local Phase 2 dashboard. The hosted main-branch dashboard remains Phase 1.
+
+## Using the saved models
+
+`cli predict --image assets/sample.png` loads a verified CNN checkpoint and predicts the included training example. Hybrid `export` rebuilds only the frozen classifier on training-image features and records its checksum for later prediction. Neither action changes the reported scores. CPU reconstruction agrees with the recorded hybrid predictions on 99.94% to 99.98% of the test images. The original CNN checkpoints reproduce every recorded test prediction on the CPU.

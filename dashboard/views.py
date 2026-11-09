@@ -78,6 +78,10 @@ def prediction_lab(work_dir, results, frozen, records):
         is_dataset_image = True
     identity = hashlib.sha256(content).hexdigest()
     if st.session_state.get('picture_identity') != identity:
+        # A crop belongs to its picture, not the next upload or sample.
+        for key in ('p1_photo_crop_enabled', 'p1_photo_crop_x', 'p1_photo_crop_y',
+                    'p1_photo_rotation', 'p1_photo_shadows', 'prediction_run'):
+            st.session_state.pop(key, None)
         st.session_state['input_mode'] = 'Dataset image (unchanged)' if is_dataset_image else 'Prepare an ordinary picture'
         st.session_state['picture_identity'] = identity
     with st.expander('Picture and model settings'):
@@ -92,17 +96,22 @@ def prediction_lab(work_dir, results, frozen, records):
         mode = st.radio('Picture type', ['Dataset image (unchanged)', 'Prepare an ordinary picture'], key='input_mode')
         experimental = mode == 'Prepare an ordinary picture'
         sizing, invert, brightness, contrast = 'Pad', False, 1., 1.
+        photo_options = {}
         if experimental:
-            fit = st.selectbox('Fit the picture', ['Keep the whole picture', 'Crop the centre', 'Stretch to a square'])
-            sizing = {'Keep the whole picture': 'Pad', 'Crop the centre': 'Crop', 'Stretch to a square': 'Stretch'}[fit]
-            invert = st.checkbox('The original background is light', value=False)
-            brightness = st.slider('Brightness', 0.2, 2.0, 1., 0.1)
-            contrast = st.slider('Contrast', 0.2, 2.0, 1., 0.1)
-            st.caption('Aim for light clothing on a dark background.')
+            from .photo import photo_controls
+            photo_options = photo_controls('p1_photo')
+            if not photo_options['isolate']:
+                fit = st.selectbox('Fit the picture', ['Keep the whole picture', 'Crop the centre', 'Stretch to a square'])
+                sizing = {'Keep the whole picture': 'Pad', 'Crop the centre': 'Crop', 'Stretch to a square': 'Stretch'}[fit]
+                invert = st.checkbox('The original background is light', value=False)
+                brightness = st.slider('Brightness', 0.2, 2.0, 1., 0.1)
+                contrast = st.slider('Contrast', 0.2, 2.0, 1., 0.1)
+                st.caption('Aim for light clothing on a dark background.')
     if experimental:
-        st.warning('Ordinary photos have not been tested for accuracy. For best results, use a small clothing image on a plain dark background.')
+        st.warning('Photo predictions are experimental. Check that the prepared picture shows one complete item; a benchmark score does not measure photo accuracy.')
+        st.caption('The model always chooses one of its ten clothing categories. It cannot reliably recognise unrelated objects or say “unknown”.')
     try:
-        pixels, steps = prepare_image(content, experimental, sizing, invert, brightness, contrast)
+        pixels, steps = prepare_image(content, experimental, sizing, invert, brightness, contrast, **photo_options)
     except (UnidentifiedImageError, OSError, ValueError, Image.DecompressionBombError) as error:
         st.error(f'Could not prepare this picture: {error}')
         return

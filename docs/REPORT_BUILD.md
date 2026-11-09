@@ -6,6 +6,12 @@
 
 `reports/presentation/phase1.pptx` contains nine editable slides with speaker notes. `phase1.pdf` is the matching reading copy. Its figures and result values are derived from the same experiment tables. PowerPoint can edit the delivered file directly. The deck authoring tools run separately from the Python classifier environment.
 
-Team identities are in `docs/team.md`. Add the course section, formal affiliation and actual member contributions before submission. Each member should also practise explaining the work.
+Team identities are in `docs/team.md`. Section B is recorded. Add the formal affiliation and actual member contributions before submission. Each member should also practise explaining the work.
 
 The prediction flow is kept in `reports/presentation/prediction_flow.mmd` and `prediction_flow.svg`. The slide uses editable boxes and arrows. The Mermaid companion shows the same four prediction steps. If the dashboard steps change, update the diagram source and the slide together. The presentation follows the supplied version 2 design and covers the task, challenges, data and methods, all eight accuracy results, category recall, mistakes, the dashboard workflow and Phase 2 plans. Detailed formulas and settings remain in the report.
+
+## Phase 2
+
+`reports/phase2_report/main.tex` and its compiled `main.pdf` contain the four-page IEEE report. Compile from that directory so relative image paths resolve. `reports/presentation/phase2.pptx` and `phase2.pdf` contain seven slides. The existing study results are unchanged. Wording about flattening, convolution weights, local prediction and setup was checked against the implementation.
+
+`reports/phase2/artifact_hashes.json` records the audited evidence and current implementation after the original experiment. It is separate from the original frozen model choices and makes no claim about historical source hashes. Run `scripts/verify_phase2.py` in the project environment after intentional changes. Generated local hybrid forests and `inference.json` are excluded from that evidence snapshot.

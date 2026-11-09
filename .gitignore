@@ -31,3 +31,6 @@ reports/.presentation-build/
 .chart-data-*/
 
 .venv-pip/
+
+reports/phase2/checkpoints/hybrid_*.joblib
+reports/phase2/inference.json

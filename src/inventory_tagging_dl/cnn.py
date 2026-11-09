@@ -32,6 +32,8 @@ def pick_device():
 
 def to_tensor(images):
     """uint8 (N,28,28) -> float32 (N,1,28,28) in [0,1], the same scaling as Phase 1."""
+    if not isinstance(images, np.ndarray) or images.dtype != np.uint8 or images.ndim != 3 or images.shape[1:] != (28, 28):
+        raise ValueError("Expected original uint8 images shaped (N, 28, 28).")
     return torch.from_numpy(images.astype(np.float32) / 255).unsqueeze(1)
 
 

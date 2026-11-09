@@ -14,3 +14,10 @@ handling and blank-photo rejection, a training-only sample gallery, broader arti
 These ideas were adapted to our Streamlit app and existing model contracts. The
 gallery was generated from our own saved training IDs. No reference model weights,
 CNN results, Gradio interface or Phase 2 ablation code were imported.
+
+The reference repository's current `src/predict.py` was reviewed again for ordinary
+photo preparation. It explicitly leaves background removal out. The new local
+foreground preparation was written for our existing dashboard, using conventional
+border-colour estimation, thresholding and connected regions. The reference's
+model files and prediction results were not used for this change. See
+`docs/PHOTO_INPUTS.md` for the actual photo checks and remaining failures.

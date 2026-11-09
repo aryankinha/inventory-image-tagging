@@ -24,3 +24,8 @@ Phase 1 used fixed descriptions of a picture (pixels, HOG) with classical classi
 ## Not used, on purpose
 
 Residual networks, pretrained models, learning-rate schedules, attention and generative augmentation. They add moving parts we could not explain in a viva, and a 28x28 grayscale problem does not need them.
+
+## Implementation references
+
+- [PyTorch model loading](https://docs.pytorch.org/tutorials/beginner/basics/saveloadrun_tutorial.html): restore a state dictionary with `weights_only=True` and use evaluation mode for prediction. Our loader also verifies the checkpoint checksum.
+- [uv dependency groups](https://docs.astral.sh/uv/concepts/dependencies/): the optional `phase2` group keeps PyTorch reproducible without adding it to the smaller hosted Phase 1 environment.

@@ -15,7 +15,7 @@ st.caption('Choose a clothing picture and find its category.')
 for key in ('predictor', 'compare_predictors', 'input_mode'):
     if key in st.session_state:
         st.session_state[key] = st.session_state[key]
-section = st.sidebar.radio('Open', PAGES, key='section', format_func={'Prediction Lab': 'Predict', 'Model Comparison': 'Results', 'Error Analysis': 'Mistakes', 'About': 'About'}.get)
+section = st.sidebar.radio('Open', [*PAGES, 'Phase 2'], key='section', format_func={'Prediction Lab': 'Predict', 'Model Comparison': 'Results', 'Error Analysis': 'Mistakes', 'About': 'About', 'Phase 2': 'Phase 2'}.get)
 with st.sidebar.expander('Local setup'):
     folder = st.text_input('Results folder', value='.', help='Use . for the included results, or runs/phase1 for your own completed run.')
 work_dir = Path(folder).expanduser()
@@ -23,6 +23,14 @@ if not work_dir.is_absolute():
     work_dir = ROOT / work_dir
 work_dir = work_dir.resolve()
 
+
+if section == 'Phase 2':
+    from dashboard.phase2 import show
+    try:
+        show(work_dir)
+    except (OSError, ValueError, KeyError, RuntimeError, pd.errors.ParserError) as error:
+        st.error(f'Could not open Phase 2: {error}')
+    st.stop()
 
 try:
     results, frozen, records = experiment(work_dir)

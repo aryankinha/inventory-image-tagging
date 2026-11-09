@@ -56,8 +56,14 @@ def load_cnn(config_name, seed, folder=None):
 
 # ---- 1. Ablation -------------------------------------------------------------------------
 
+def require_unfrozen():
+    if (OUT / 'test/started.json').exists() or (OUT / 'frozen.json').exists():
+        raise FileExistsError('Choices are frozen here. Use a new work folder for training or selection.')
+
+
 def ablation():
     """Train every configuration with three seeds. Finished runs are skipped, so it can resume."""
+    require_unfrozen()
     (OUT / 'ablation').mkdir(parents=True, exist_ok=True)
     CHECKPOINTS.mkdir(parents=True, exist_ok=True)
     prepare()           # downloads and checks the training archives only if they are missing
@@ -68,11 +74,16 @@ def ablation():
         for seed in cnn.SEEDS:
             tag = f'{name}_seed{seed}'
             if (OUT / 'ablation' / f'{tag}.json').exists():
+                completed = json.loads((OUT / 'ablation' / f'{tag}.json').read_text())
+                if 'checkpoint_sha256' in completed and sha256(CHECKPOINTS / f'{tag}.pt') != completed['checkpoint_sha256']:
+                    raise ValueError(f'{tag}: checkpoint differs from the completed training record')
+                if not (CHECKPOINTS / f'{tag}.pt').exists() or not (OUT / 'ablation' / f'{tag}_history.csv').exists():
+                    raise FileNotFoundError(f'{tag}: completed record has no checkpoint/history; restore them or use a new folder')
                 continue
             model, history, summary = cnn.train_cnn(config, seed, x_train, y_train, x_val, y_val, device)
             torch.save(model.state_dict(), CHECKPOINTS / f'{tag}.pt')
             history.to_csv(OUT / 'ablation' / f'{tag}_history.csv', index=False)
-            write_json(OUT / 'ablation' / f'{tag}.json', {'config': name, 'seed': seed, **config, **summary})
+            write_json(OUT / 'ablation' / f'{tag}.json', {'config': name, 'seed': seed, **config, **summary, 'checkpoint_sha256': sha256(CHECKPOINTS / f'{tag}.pt')})
             print(f"{tag}: val macro F1 {summary['validation_macro_f1']:.4f}, best epoch {summary['best_epoch']}/"
                   f"{summary['epochs_run']}, {summary['seconds']:.0f}s", flush=True)
     summarize_ablation()
@@ -104,6 +115,7 @@ def summarize_ablation():
 # ---- 2. Choose the CNN configuration -----------------------------------------------------
 
 def select():
+    require_unfrozen()
     table = pd.read_csv(OUT / 'ablation_summary.csv')
     if len(table) != len(cnn.CONFIGS) or not (table.runs == len(cnn.SEEDS)).all():
         raise RuntimeError('Run the ablation to completion before selecting.')
@@ -136,6 +148,7 @@ def fit_classifier(family, parameters, features, labels):
 
 
 def hybrid():
+    require_unfrozen()
     config = json.loads((OUT / 'selection.json').read_text())['config']
     x_train, y_train, x_val, y_val = training_data()
     device = cnn.pick_device()
@@ -218,12 +231,12 @@ def test(source=None):
     frozen = {'cnn_config': config, 'cnn_settings': cnn.CONFIGS[config], 'training': cnn.TRAIN, 'seeds': list(cnn.SEEDS),
               'hybrid_family': family, 'hybrid_parameters': parameters, 'phase1_selected': phase1,
               'checkpoint_sha256': {f'{config}_seed{s}': sha256(CHECKPOINTS / f'{config}_seed{s}.pt') for s in cnn.SEEDS},
+              'source_sha256': {p.name: sha256(p) for p in Path(__file__).parent.glob('*.py')},
+              'environment': {'torch': torch.__version__, 'numpy': np.__version__, 'device': str(cnn.pick_device())},
               'split_sha256': sha256(ROOT / 'data/split.npz'), 'phase1_frozen_sha256': sha256(ROOT / 'reports/frozen.json')}
     started = OUT / 'test/started.json'
     if started.exists():
-        # A run that crashed before writing results may be retried, but only with identical choices.
-        if json.loads((OUT / 'frozen.json').read_text()) != frozen:
-            raise FileExistsError('Choices changed after the test started; start a new Phase 2 folder.')
+        raise FileExistsError('Final test already started here. Preserve the evidence and use a new work folder.')
     else:
         write_json(OUT / 'frozen.json', frozen)
         write_json(started, {'started_at_utc': datetime.now(timezone.utc).isoformat(),
@@ -254,6 +267,14 @@ def test(source=None):
     results.to_csv(OUT / 'test/results.csv', index=False)
 
     # Costs, measured on the CPU with two threads like Phase 1 (seed 42).
+    import joblib
+    (OUT / 'checkpoints').mkdir(exist_ok=True)
+    inference = {'frozen_sha256': sha256(OUT / 'frozen.json'), 'hybrids': {}}
+    for seed, (_, head) in fitted.items():
+        path = OUT / 'checkpoints' / f'hybrid_seed{seed}.joblib'
+        joblib.dump(head, path, compress=3)
+        inference['hybrids'][str(seed)] = {'file': path.name, 'sha256': sha256(path), 'bytes': path.stat().st_size}
+    write_json(OUT / 'inference.json', inference)
     torch.set_num_threads(2)
     model, classical = fitted[42]
     model = model.cpu().eval()      # the scoring above may have left it on the GPU
