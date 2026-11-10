@@ -37,7 +37,7 @@ def figure_fallback(reports, name, caption=None):
 
 def about(work_dir, results, frozen, records):
     st.header('About this project')
-    st.write('Phase 1 compares ways to recognise ten clothing categories from small black-and-white pictures.')
+    st.write('Recognise ten types of clothing from small grayscale images. Phase 1 compares classical models; Phase 2 adds a small CNN and a hybrid model.')
     chosen = results.set_index('name').loc[frozen['selected']]
     a, b = st.columns(2)
     a.metric('Saved test accuracy', f'{chosen.test_accuracy:.2%}')
@@ -46,78 +46,82 @@ def about(work_dir, results, frozen, records):
     with st.expander('How predictions work'):
         st.write('Picture → brightness or edge measurements → model → clothing category.')
         st.write('Brightness describes each pixel. Edge measurements describe outlines. The model connects these numbers to clothing names. Shirts, coats and pullovers can be hard to tell apart at 28×28 pixels.')
-        st.caption('This app contains Phase 1 models only. A small CNN is planned for Phase 2.')
+        st.caption('Phase 2 is complete: a small CNN learns image features, and a hybrid uses those features with Random Forest. Neural-model prediction is available when its optional dependencies are installed.')
+    with st.expander('Project links'):
+        st.markdown('[Hosted dashboard](https://inventory-image-tagging.streamlit.app/?view=predict) · [Source code and reports](https://github.com/aryankinha/inventory-image-tagging)')
     if st.checkbox('Browse training pictures'):
         dataset_explorer(work_dir, results, frozen, records)
 
 
 def prediction_lab(work_dir, results, frozen, records):
     st.header('Try a picture')
+    inputs, preview = st.columns([1.2, 1], gap='large')
     available = [n for n in records if model_available(work_dir, records[n])]
-    uploaded = st.file_uploader('Upload a clothing picture', type=['png', 'jpg', 'jpeg'], key='prediction_upload')
-    sample = None
-    if uploaded is None:
-        try:
-            samples = sample_gallery()
-            sample = st.selectbox('Or choose a sample', samples, format_func=lambda s: s['category'], key='sample_category')
-            content = (ROOT / 'assets/examples' / sample['filename']).read_bytes()
-        except (OSError, ValueError, KeyError) as error:
-            st.info(f'Samples are unavailable. Upload a picture instead. {error}')
-            return
-    else:
-        content = uploaded.getvalue()
-    # Keep exact dataset inputs unchanged. Other uploads explicitly use photo preparation.
-    if uploaded is not None:
-        try:
-            with Image.open(BytesIO(content)) as image:
-                is_dataset_image = image.format == 'PNG' and image.mode == 'L' and image.size == (28, 28)
-        except (UnidentifiedImageError, OSError, ValueError, Image.DecompressionBombError):
-            st.error('Could not open this picture. Choose a valid PNG or JPEG image.')
-            return
-    else:
-        is_dataset_image = True
-    identity = hashlib.sha256(content).hexdigest()
-    if st.session_state.get('picture_identity') != identity:
-        # A crop belongs to its picture, not the next upload or sample.
-        for key in ('p1_photo_crop_enabled', 'p1_photo_crop_x', 'p1_photo_crop_y',
-                    'p1_photo_rotation', 'p1_photo_shadows', 'prediction_run'):
-            st.session_state.pop(key, None)
-        st.session_state['input_mode'] = 'Dataset image (unchanged)' if is_dataset_image else 'Prepare an ordinary picture'
-        st.session_state['picture_identity'] = identity
-    with st.expander('Picture and model settings'):
+    with inputs:
+        uploaded = st.file_uploader('Upload a clothing picture', type=['png', 'jpg', 'jpeg'], key='prediction_upload')
+        sample = None
+        if uploaded is None:
+            try:
+                samples = sample_gallery()
+                sample = st.selectbox('Or choose a sample', samples, format_func=lambda s: s['category'], key='sample_category')
+                content = (ROOT / 'assets/examples' / sample['filename']).read_bytes()
+            except (OSError, ValueError, KeyError) as error:
+                st.info(f'Samples are unavailable. Upload a picture instead. {error}')
+                return
+        else:
+            content = uploaded.getvalue()
+        # Keep exact dataset inputs unchanged. Other uploads explicitly use photo preparation.
+        if uploaded is not None:
+            try:
+                with Image.open(BytesIO(content)) as image:
+                    is_dataset_image = image.format == 'PNG' and image.mode == 'L' and image.size == (28, 28)
+            except (UnidentifiedImageError, OSError, ValueError, Image.DecompressionBombError):
+                st.error('Could not open this picture. Choose a valid PNG or JPEG image.')
+                return
+        else:
+            is_dataset_image = True
+        identity = hashlib.sha256(content).hexdigest()
+        if st.session_state.get('picture_identity') != identity:
+            # A crop belongs to its picture, not the next upload or sample.
+            for key in ('p1_photo_crop_enabled', 'p1_photo_crop_x', 'p1_photo_crop_y',
+                        'p1_photo_rotation', 'p1_photo_shadows', 'prediction_run'):
+                st.session_state.pop(key, None)
+            st.session_state['input_mode'] = 'Dataset image (unchanged)' if is_dataset_image else 'Prepare an ordinary picture'
+            st.session_state['picture_identity'] = identity
         if available:
             if st.session_state.get('predictor') not in available:
                 st.session_state.predictor = frozen['selected'] if frozen['selected'] in available else available[0]
-            primary = st.selectbox('Choose a model', available, key='predictor', format_func=lambda n: model_label(n, records))
-            st.session_state['compare_predictors'] = [n for n in st.session_state.get('compare_predictors', []) if n in available and n != primary]
-            others = st.multiselect('Compare with another model', [n for n in available if n != primary], key='compare_predictors', format_func=lambda n: model_label(n, records))
+            primary = st.selectbox('Prediction model', available, key='predictor',
+                                   format_func=lambda n: model_label(n, records) + (' · Recommended' if n == frozen['selected'] else ''))
+            with st.expander('Compare models'):
+                st.session_state['compare_predictors'] = [n for n in st.session_state.get('compare_predictors', []) if n in available and n != primary]
+                others = st.multiselect('Compare with another model', [n for n in available if n != primary], key='compare_predictors', format_func=lambda n: model_label(n, records))
         else:
             primary, others = frozen['selected'], []
-        mode = st.radio('Picture type', ['Dataset image (unchanged)', 'Prepare an ordinary picture'], key='input_mode')
-        experimental = mode == 'Prepare an ordinary picture'
-        sizing, invert, brightness, contrast = 'Pad', False, 1., 1.
-        photo_options = {}
-        if experimental:
-            from .photo import photo_controls
-            photo_options = photo_controls('p1_photo')
-            if not photo_options['isolate']:
-                fit = st.selectbox('Fit the picture', ['Keep the whole picture', 'Crop the centre', 'Stretch to a square'])
-                sizing = {'Keep the whole picture': 'Pad', 'Crop the centre': 'Crop', 'Stretch to a square': 'Stretch'}[fit]
-                invert = st.checkbox('The original background is light', value=False)
-                brightness = st.slider('Brightness', 0.2, 2.0, 1., 0.1)
-                contrast = st.slider('Contrast', 0.2, 2.0, 1., 0.1)
-                st.caption('Aim for light clothing on a dark background.')
+        with st.expander('Picture settings'):
+            mode = st.radio('Picture type', ['Dataset image (unchanged)', 'Prepare an ordinary picture'], key='input_mode')
+            experimental = mode == 'Prepare an ordinary picture'
+            sizing, invert, brightness, contrast = 'Pad', False, 1., 1.
+            photo_options = {}
+            if experimental:
+                from .photo import photo_controls
+                photo_options = photo_controls('p1_photo')
+                if not photo_options['isolate']:
+                    fit = st.selectbox('Fit the picture', ['Keep the whole picture', 'Crop the centre', 'Stretch to a square'])
+                    sizing = {'Keep the whole picture': 'Pad', 'Crop the centre': 'Crop', 'Stretch to a square': 'Stretch'}[fit]
+                    invert = st.checkbox('The original background is light', value=False)
+                    brightness = st.slider('Brightness', 0.2, 2.0, 1., 0.1)
+                    contrast = st.slider('Contrast', 0.2, 2.0, 1., 0.1)
+                    st.caption('Aim for light clothing on a dark background.')
     if experimental:
-        st.warning('Photo predictions are experimental. Check that the prepared picture shows one complete item; a benchmark score does not measure photo accuracy.')
-        st.caption('The model always chooses one of its ten clothing categories. It cannot reliably recognise unrelated objects or say “unknown”.')
+        inputs.warning('Photo predictions are experimental. Use one complete item on a plain background.')
     try:
         pixels, steps = prepare_image(content, experimental, sizing, invert, brightness, contrast, **photo_options)
     except (UnidentifiedImageError, OSError, ValueError, Image.DecompressionBombError) as error:
         st.error(f'Could not prepare this picture: {error}')
         return
-    st.image(steps[-1][1], caption='Picture used for prediction', width=180)
-    if sample is not None:
-        st.caption('Training sample · Known category: ' + sample['category'])
+    preview_image = steps[0][1] if experimental else steps[-1][1]
+    preview.image(preview_image, caption='Your picture' if uploaded is not None else 'Sample · ' + sample['category'], width=280 if experimental else 180)
     if not available:
         st.info('Prediction needs the saved model files for this results folder.')
         with st.expander('Enable local predictions'):
@@ -125,7 +129,7 @@ def prediction_lab(work_dir, results, frozen, records):
             st.write('Then choose runs/phase1 under Local setup in the sidebar.')
     chosen = [primary, *others]
     signature = (str(work_dir), hashlib.sha256(pixels.tobytes()).hexdigest(), tuple((n, model_identity(work_dir, records[n]), records[n]['model_sha256']) for n in chosen)) if available else None
-    if st.button('Predict', type='primary', disabled=not available, width='stretch'):
+    if inputs.button('Predict', type='primary', disabled=not available, width='stretch'):
         runs, failures = [], []
         with st.spinner('Making a prediction…'):
             for name in chosen:
@@ -143,8 +147,11 @@ def prediction_lab(work_dir, results, frozen, records):
             st.error('Could not predict: ' + error)
         runs = previous[1]
         if runs:
-            st.success(f"Predicted category: {runs[0]['Prediction']}")
-            st.caption(f"Prediction time: {runs[0]['Inference ms']:.1f} ms")
+            if runs[0]['Model'] == primary:
+                preview.success(f"Predicted category: {runs[0]['Prediction']}")
+                preview.caption(f"Prediction time: {runs[0]['Inference ms']:.1f} ms")
+            else:
+                preview.info('The selected model could not predict. See the comparison results under Prediction details.')
             with st.expander('Prediction details'):
                 table = pd.DataFrame([{'Model': model_label(r['Model'], records), 'Predicted category': r['Prediction'], 'Prediction time (ms)': r['Inference ms']} for r in runs])
                 st.dataframe(table, hide_index=True, width='stretch')
@@ -156,8 +163,11 @@ def prediction_lab(work_dir, results, frozen, records):
                         st.caption('Model probability estimates; not independently calibrated.' if is_probability else 'Ranking scores, not probabilities. Higher means the model favours that category.')
                         st.dataframe(run['alternatives'].rename(columns={'Value': 'Probability estimate' if is_probability else 'Ranking score'}), hide_index=True)
     with st.expander('See how the picture is prepared'):
-        for column, (label, image) in zip(st.columns(len(steps)), steps):
-            column.image(image, caption=label, width=112)
+        st.caption('This is the exact 28 × 28 picture passed to the model. Photo preparation does not change the official dataset or saved test scores.')
+        if experimental:
+            st.caption('Photo accuracy is unmeasured. The model always chooses a clothing category and cannot reliably identify unrelated objects.')
+        for label, image in steps:
+            st.image(image, caption=label, width=160)
         features, drawing = feature_view(pixels, records[primary]['representation'])
         st.image(drawing, clamp=True, caption=FEATURE_NAMES[records[primary]['representation']], width=168)
         st.caption(f'{len(features):,} image measurements. This is a feature view, not an attention map.')
@@ -166,10 +176,11 @@ def prediction_lab(work_dir, results, frozen, records):
 def comparison(work_dir, results, frozen, records):
     st.header('Saved results')
     st.write('Choose what you want to compare. The chosen model was picked using separate practice images before the final test.')
-    a, b, c = st.columns(3)
-    reps = a.multiselect('What the model measures', list(results.representation.unique()), default=list(results.representation.unique()), format_func=FEATURE_NAMES.get)
-    families = b.multiselect('Learning method', list(results.family.unique()), default=list(results.family.unique()), format_func=FAMILY_NAMES.get)
-    metric = c.selectbox('What to compare', [k for k in METRICS if k in results and results[k].notna().any()], format_func=METRICS.get)
+    with st.expander('Filter and compare', expanded=False):
+        a, b, c = st.columns(3)
+        reps = a.multiselect('What the model measures', list(results.representation.unique()), default=list(results.representation.unique()), format_func=FEATURE_NAMES.get)
+        families = b.multiselect('Learning method', list(results.family.unique()), default=list(results.family.unique()), format_func=FAMILY_NAMES.get)
+        metric = c.selectbox('What to compare', [k for k in METRICS if k in results and results[k].notna().any()], format_func=METRICS.get)
     filtered = results[results.representation.isin(reps) & results.family.isin(families)].copy()
     if filtered.empty:
         st.info('Choose at least one matching measurement and learning method.')
@@ -181,7 +192,7 @@ def comparison(work_dir, results, frozen, records):
     if 'model_bytes' in display_table:
         display_table['model_bytes'] = display_table.model_bytes / 1_000_000
     measured = display_table.dropna(subset=[metric])
-    chart = px.bar(measured, x=metric, y='Model', color='Choice', orientation='h', labels={metric: METRICS[metric]}, color_discrete_map={'Chosen before final test': '#167d9a', 'Other saved model': '#b3c8d0'})
+    chart = px.bar(measured, x=metric, y='Model', color='Choice', orientation='h', labels={metric: METRICS[metric]}, color_discrete_map={'Chosen before final test': '#2563eb', 'Other saved model': '#cbd5e1'})
     st.plotly_chart(chart, width='stretch')
     if len(measured) != len(filtered):
         st.caption('Models with no saved value for this measurement are left out of the chart.')
@@ -204,6 +215,17 @@ def comparison(work_dir, results, frozen, records):
                 capacity['complexity_kind'] = capacity.complexity_kind.map(descriptions).fillna(capacity.complexity_kind)
                 st.dataframe(capacity.rename(columns={'complexity_kind': 'What is counted', 'complexity_count': 'Count'}), hide_index=True)
                 st.caption('These models store different things, so their counts do not mean the same thing. File size gives a common storage measurement.')
+    phase2 = work_dir / 'reports/phase2/test/results.csv'
+    if phase2.is_file():
+        with st.expander('CNN and hybrid results'):
+            try:
+                scores = read_csv(stamp(phase2)).groupby('model')[['test_accuracy', 'test_macro_f1']].mean()
+                scores = scores.rename(index={'cnn': 'CNN', 'hybrid': 'CNN + Random Forest'})
+                st.dataframe(scores.rename(columns={'test_accuracy': 'Test accuracy', 'test_macro_f1': 'Macro F1'}), width='stretch')
+                st.caption('Saved Fashion-MNIST test scores, averaged over three runs. Choices used validation data; these are not photo accuracy scores.')
+            except (OSError, ValueError, KeyError):
+                st.info('The optional Phase 2 scores are unavailable.')
+
 
 def error_analysis(work_dir, results, frozen, records):
     st.header('Where models make mistakes')

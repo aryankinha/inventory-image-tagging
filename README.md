@@ -1,8 +1,10 @@
 # Inventory Image Tagging
 
-### [Try it live: inventory-image-tagging.streamlit.app](https://inventory-image-tagging.streamlit.app/)
+### [Try it live: inventory-image-tagging.streamlit.app](https://inventory-image-tagging.streamlit.app/?view=predict)
 
 Upload a picture of a clothing item and the app tells you which of ten categories it is. No install and no sign-in. The first prediction can be slow because a free-hosted app may need a moment to wake up. The live app uses the Phase 1 models.
+
+[Predict an image](https://inventory-image-tagging.streamlit.app/?view=predict) · [Compare results](https://inventory-image-tagging.streamlit.app/?view=results) · [Explore mistakes](https://inventory-image-tagging.streamlit.app/?view=mistakes)
 
 Project 11. We classify Fashion-MNIST, 70,000 small grayscale pictures of clothes in ten categories (T-shirt, Trouser, Pullover, Dress, Coat, Sandal, Shirt, Sneaker, Bag, Ankle boot). **Phase 1** uses classical machine learning. **Phase 2** adds a small neural network (a CNN) and compares it with Phase 1.
 
@@ -70,7 +72,7 @@ Open <http://localhost:8501>. Press Control+C to stop. Next time, run only the l
 - Prefer [uv](https://docs.astral.sh/uv/getting-started/installation/)? Use `bash scripts/setup_mac.sh` without `--pip`.
 - The first prediction needs internet. The app downloads the model it needs from the [model release](https://github.com/aryankinha/inventory-image-tagging/releases/tag/phase1-models-v2), checks its checksum and keeps a copy.
 
-The dashboard opens on **Predict**: upload a picture or pick a sample, then click **Predict**. **Results** shows the scores of the 8 Phase 1 models, **Mistakes** shows which categories get confused, and **About** explains how it works. The models were trained on small benchmark pictures. Ordinary photos work best when the item is upright, alone and on a plain background. We have not measured accuracy on photos. The ordinary-photo option now removes plain backgrounds and offers cropping and rotation; inspect the preview before predicting. See [photo input checks and limitations](docs/PHOTO_INPUTS.md).
+The dashboard opens on **Predict**: upload a picture or pick a sample, choose a model, then click **Predict**. The preview and answer appear alongside the controls. Picture adjustments and comparisons are collapsed until needed. **Results** shows the scores of the 8 Phase 1 models, **Mistakes** shows which categories get confused, and **About** explains how it works. The models were trained on small benchmark pictures. Ordinary photos work best when the item is upright, alone and on a plain background. We have not measured accuracy on photos. The ordinary-photo option now removes plain backgrounds and offers cropping and rotation; inspect the preview before predicting. See [photo input checks and limitations](docs/PHOTO_INPUTS.md).
 
 ## Run Phase 2
 
@@ -91,7 +93,7 @@ bash scripts/run_python.sh -m src.inventory_tagging_dl.cli predict --image asset
 bash scripts/start_dashboard.sh
 ```
 
-In the local dashboard, select **Phase 2**, choose an image and click **Predict image**. The saved CNN predicts one of ten categories. Ordinary PNG/JPEG photos need the explicitly labelled experimental preparation mode. Command-line photo mode uses `--photo --isolate` for background removal, or `--photo --invert` for the resize-only alternative. Its accuracy is unmeasured.
+In the local dashboard, select **Neural model**, choose an image and click **Predict image**. The saved CNN predicts one of ten categories. Ordinary PNG/JPEG photos need the explicitly labelled experimental preparation mode. Command-line photo mode uses `--photo --isolate` for background removal, or `--photo --invert` for the resize-only alternative. Its accuracy is unmeasured.
 
 The frozen CNN checkpoints are included in Git. Hybrid classifier files are rebuilt locally from the frozen CNNs and training data, and are excluded from Git because of their size:
 

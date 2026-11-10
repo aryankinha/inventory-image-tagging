@@ -95,3 +95,59 @@ def test_photo_preparation_is_explicit_and_keeps_benchmark_input_unchanged():
     prepared,_=prepare_image(buf.getvalue(),experimental=True)
     assert prepared.dtype==np.uint8 and prepared.shape==(28,28)
     assert len(predict(prepared[None],load_predictor())['categories'])==1
+
+
+def test_neural_answer_survives_a_rerun():
+    app=AppTest.from_file(str(ROOT/'app.py')).run(timeout=40)
+    app.sidebar.radio[0].set_value('Phase 2').run()
+    app.button(key='p2_predict').click().run()
+    assert app.success[0].value=='Predicted category: Shirt'
+    app.run()
+    assert not app.exception
+    assert app.success[0].value=='Predicted category: Shirt'
+
+
+def test_neural_upload_detects_photo_and_clears_previous_answer(monkeypatch):
+    from io import BytesIO
+    from types import SimpleNamespace
+    from PIL import Image, ImageDraw
+    import streamlit as st
+    image=Image.new('RGB',(100,140),'white')
+    ImageDraw.Draw(image).rectangle((25,25,75,115),fill='black')
+    output=BytesIO();image.save(output,format='JPEG')
+    selected=[output.getvalue()]
+    monkeypatch.setattr(st,'file_uploader',lambda *a,**k: SimpleNamespace(getvalue=lambda:selected[0]) if k.get('key')=='p2_image' else None)
+    app=AppTest.from_file(str(ROOT/'app.py')).run(timeout=40)
+    app.sidebar.radio[0].set_value('Phase 2').run()
+    assert not app.exception and not app.error
+    assert app.checkbox(key='p2_photo').value is True
+    app.button(key='p2_predict').click().run()
+    assert not app.exception and len(app.success)==1
+    selected[0]=(ROOT/'assets/sample.png').read_bytes()
+    app.run()
+    assert not app.exception and not app.error
+    assert app.checkbox(key='p2_photo').value is False
+    assert len(app.success)==0
+    selected[0]=b'broken JPEG'
+    app.run()
+    assert not app.exception
+    assert any('valid PNG or JPEG' in e.value for e in app.error)
+
+
+def test_missing_optional_scores_do_not_block_neural_prediction(tmp_path):
+    (tmp_path/'reports/test').mkdir(parents=True)
+    for name in ('frozen.json','test/results.csv'):
+        shutil.copyfile(ROOT/'reports'/name,tmp_path/'reports'/name)
+    folder=tmp_path/'reports/phase2'
+    (folder/'checkpoints').mkdir(parents=True)
+    frozen=json.loads((ROOT/'reports/phase2/frozen.json').read_text())
+    shutil.copyfile(ROOT/'reports/phase2/frozen.json',folder/'frozen.json')
+    name=f"{frozen['cnn_config']}_seed42.pt"
+    shutil.copyfile(ROOT/'reports/phase2/checkpoints'/name,folder/'checkpoints'/name)
+    app=AppTest.from_file(str(ROOT/'app.py')).run(timeout=40)
+    app.sidebar.text_input[0].set_value(str(tmp_path)).run()
+    app.sidebar.radio[0].set_value('Phase 2').run()
+    app.button(key='p2_predict').click().run()
+    assert not app.exception and not app.error
+    assert app.success[0].value=='Predicted category: Shirt'
+    assert any('optional saved scores' in item.value for item in app.info)

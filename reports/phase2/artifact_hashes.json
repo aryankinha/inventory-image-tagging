@@ -1,7 +1,7 @@
 {
   "purpose": "Integrity snapshot of the audited Phase 2 evidence and current implementation, made after the original experiment. Original frozen test choices are preserved separately. Generated local hybrid files are excluded.",
   "files": {
-    "dashboard/phase2.py": "2193def7c772ee8f3785fd6b0c34fa9f299800d8f1796e75df10e0e2bded19fb",
+    "dashboard/phase2.py": "a5cc77c4c259e0260a1b7b40a4ee2d805d4a22e38ccecd454ce927cab0853d0e",
     "notebooks/phase2.ipynb": "c237b8fda721b10a80a792d2cfbd1f070824b498fc7437031bd23a9372363116",
     "reports/phase2/ablation/full_seed1.json": "2bcf6366078a9b21aff1a3f8a1f1cc3485fef63cb3d67b9049e2230e7dc48052",
     "reports/phase2/ablation/full_seed1_history.csv": "0a19360e42dd91ae8864d785a51675100f31142bebbebdd0f1f9d032b4945a0e",
@@ -88,7 +88,7 @@
     "src/inventory_tagging_dl/experiments.py": "ba2ec5aff032dd60184ba23c51f24ad1588fdf928e3efe5860211474b64cf866",
     "src/inventory_tagging_dl/predict.py": "e40a8a7353f67218b0399141d8ff3c6ce23a951756dde29f310087a0ee7519a5",
     "tests/test_phase2.py": "19a38e87395323a3b3289eda25a17b02f105a84a2e2ad7a944a845720df71236",
-    "tests/test_phase2_completion.py": "3ea89a9902de80675b96be0ac13d23b87a2313310475d67e5a4a8dec020970fb",
+    "tests/test_phase2_completion.py": "36bd836f6b1d6379d1a514fd1e9323f0b38fdf9e7e08151aafcdb3e3ca0e9492",
     "tests/test_phase2_evidence.py": "387489901e5973b385bc64e93716cf2aadcb6e276ef0c21139bc63f995139994",
     "dashboard/photo.py": "49a892ba4cb06d4eb61c7e9fd9d2d6efd51420172d4048ce3228c966f0230d41",
     "scripts/predict_photo.py": "48a200106993da72b4b514d3f429980bdc0991a458baec5b5b492c830a963c1f",

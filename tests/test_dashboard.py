@@ -157,3 +157,66 @@ def test_new_picture_resets_crop_rotation_and_old_answer(experiment_folder):
     for key in ('p1_photo_crop_enabled','p1_photo_crop_x','p1_photo_crop_y',
                 'p1_photo_rotation','p1_photo_shadows','prediction_run'):
         assert key not in app.session_state
+
+
+def test_shared_links_open_the_requested_page(experiment_folder):
+    app=open_app(experiment_folder)
+    app.query_params['view']='about'
+    app.run()
+    assert not app.exception
+    assert app.sidebar.radio[0].value=='About'
+    assert not any('planned' in item.value.lower() for item in app.caption)
+    app.sidebar.radio[0].set_value('Model Comparison').run()
+    assert app.query_params['view']=='results'
+    app.query_params['view']='not-a-page'
+    app.run()
+    assert not app.exception
+    assert app.sidebar.radio[0].value=='Prediction Lab'
+
+
+def test_photo_settings_survive_navigation(experiment_folder):
+    app=open_app(experiment_folder)
+    app.radio(key='input_mode').set_value('Prepare an ordinary picture').run()
+    app.checkbox(key='p1_photo_shadows').check().run()
+    app.sidebar.radio[0].set_value('About').run()
+    app.sidebar.radio[0].set_value('Prediction Lab').run()
+    assert not app.exception
+    assert app.checkbox(key='p1_photo_shadows').value is True
+
+
+def test_unavailable_neural_runtime_is_not_offered(experiment_folder,monkeypatch):
+    import importlib.util
+    original=importlib.util.find_spec
+    monkeypatch.setattr(importlib.util,'find_spec',lambda name,*a,**k: None if name=='torch' else original(name,*a,**k))
+    app=open_app(experiment_folder)
+    assert not app.exception
+    assert 'Neural model' not in app.sidebar.radio[0].options
+    app.query_params['view']='neural'
+    app.run()
+    assert not app.exception
+    assert app.sidebar.radio[0].value=='Prediction Lab'
+
+
+def test_failed_primary_is_not_silently_replaced_by_comparison(experiment_folder):
+    path=experiment_folder/'reports/frozen.json'
+    frozen=json.loads(path.read_text())
+    names=['pixels_logistic_regression','hog_linear_svm']
+    images=np.zeros((10,28,28),dtype=np.uint8)
+    (experiment_folder/'models').mkdir()
+    for label,name in enumerate(names):
+        record=next(r for r in frozen['models'] if r['name']==name)
+        model=DummyClassifier(strategy='constant',constant=label).fit(extract(images,record['representation']),np.arange(10))
+        artifact=experiment_folder/'models'/f'{name}.joblib'
+        joblib.dump(model,artifact)
+        record['model_sha256']=sha256(artifact)
+    path.write_text(json.dumps(frozen))
+    (experiment_folder/'models'/f'{names[0]}.joblib').write_bytes(b'damaged model')
+    app=open_app(experiment_folder)
+    app.selectbox(key='predictor').set_value(names[0]).run()
+    app.multiselect(key='compare_predictors').set_value([names[1]]).run()
+    app.button[0].click().run()
+    assert not app.exception
+    assert len(app.success)==0
+    assert any('selected model could not predict' in item.value for item in app.info)
+    assert any('Restore the matching file' in item.value for item in app.error)
+    assert app.dataframe[0].value.iloc[0]['Predicted category']=='Trouser'

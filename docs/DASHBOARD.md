@@ -32,7 +32,7 @@ Changing the input or models hides stale answers. Ordinary-photo accuracy is
 unmeasured; some photographs still produce wrong answers. See
 [photo preparation and actual checks](PHOTO_INPUTS.md).
 
-Under **Picture and model settings**, optionally choose one or more models, then click **Predict**. Original published models are fetched on demand if they are not already on disk. Reproduction folders still need their own locally built models.
+The **Prediction model** selector is visible on the main page. The validation-selected model is marked **Recommended**. Open **Compare models** to add alternatives or **Picture settings** to adjust an ordinary photo, then click **Predict**. Original published models are fetched on demand if they are not already on disk. Reproduction folders still need their own locally built models.
 Each uses its own recorded pixel/HOG representation and the existing `extract()`
 function. Any fitted scaler remains inside the original saved model pipeline.
 
@@ -76,7 +76,9 @@ The app does not download datasets, train models or change frozen evidence. Pred
 
 ## Hosted app
 
-Open https://inventory-image-tagging.streamlit.app/ . Visitors can predict without
+Open [Predict](https://inventory-image-tagging.streamlit.app/?view=predict),
+[Results](https://inventory-image-tagging.streamlit.app/?view=results) or
+[Mistakes](https://inventory-image-tagging.streamlit.app/?view=mistakes). Visitors can predict without
 signing in or installing Python. The first prediction for a model downloads its
 published file; later predictions reuse it. An idle free-hosted app may take time
 to wake up.
@@ -86,4 +88,16 @@ explicitly to `0.0.0.0`. All eight active model downloads must match their froze
 
 ## Local Phase 2 page
 
-Both phases are on main. Set up with `bash scripts/setup_mac.sh --phase2` and open **Phase 2** in the sidebar. The page shows the three-seed scores and predicts an uploaded image or the included sample using a checksum-verified CNN checkpoint. Build the frozen hybrid classifier once with `cli export` to enable that option locally. If PyTorch or optional model files are absent, the page explains how to enable them. Ordinary photos use the existing labelled preparation mode and have no measured accuracy. The hosted installation uses the smaller Phase 1 dependency set; local Phase 2 prediction requires PyTorch.
+Both phases are on main. Set up with `bash scripts/setup_mac.sh --phase2` and open **Neural model** in the sidebar. The page predicts first, with three-seed scores collapsed under **Saved evaluation results**. It predicts an uploaded image or the included sample using a checksum-verified CNN checkpoint. Build the frozen hybrid classifier once with `cli export` to enable that option locally. If PyTorch or optional model files are absent, the page explains how to enable them. Ordinary photos use the existing labelled preparation mode and have no measured accuracy. The hosted installation uses the smaller Phase 1 dependency set; local Phase 2 prediction requires PyTorch.
+
+## Interface check, 10 November 2026
+
+The first page keeps image selection, the model and Predict visible, with the
+preview and answer alongside. The layout stacks on small screens. Optional
+comparisons, photo settings, feature views and detailed scores stay collapsed.
+Shareable `view` links open the requested page; invalid links fall back to Predict.
+The neural page appears only when PyTorch is installed. Its photo mode detects
+ordinary uploads, clears stale answers on a new image and keeps results across
+reruns. Photo settings also survive navigation. CNN and hybrid scores can still
+be read under Results without installing PyTorch. No trained artifacts or official
+scores were changed.
