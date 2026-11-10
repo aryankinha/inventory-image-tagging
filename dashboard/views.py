@@ -120,6 +120,7 @@ def prediction_lab(work_dir, results, frozen, records):
     except (UnidentifiedImageError, OSError, ValueError, Image.DecompressionBombError) as error:
         st.error(f'Could not prepare this picture: {error}')
         return
+    answer = preview.container()
     preview_image = steps[0][1] if experimental else steps[-1][1]
     preview.image(preview_image, caption='Your picture' if uploaded is not None else 'Sample · ' + sample['category'], width=280 if experimental else 180)
     if not available:
@@ -148,10 +149,10 @@ def prediction_lab(work_dir, results, frozen, records):
         runs = previous[1]
         if runs:
             if runs[0]['Model'] == primary:
-                preview.success(f"Predicted category: {runs[0]['Prediction']}")
-                preview.caption(f"Prediction time: {runs[0]['Inference ms']:.1f} ms")
+                answer.success(f"Predicted category: {runs[0]['Prediction']}")
+                answer.caption(f"Prediction time: {runs[0]['Inference ms']:.1f} ms")
             else:
-                preview.info('The selected model could not predict. See the comparison results under Prediction details.')
+                answer.info('The selected model could not predict. See the comparison results under Prediction details.')
             with st.expander('Prediction details'):
                 table = pd.DataFrame([{'Model': model_label(r['Model'], records), 'Predicted category': r['Prediction'], 'Prediction time (ms)': r['Inference ms']} for r in runs])
                 st.dataframe(table, hide_index=True, width='stretch')

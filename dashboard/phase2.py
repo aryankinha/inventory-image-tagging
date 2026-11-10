@@ -71,6 +71,7 @@ def show(work_dir):
 
     try:
         pixels, steps = prepare_image(content, experimental=photo, invert=invert, **photo_options)
+        answer = preview.container()
         preview.image(steps[0][1] if photo else pixels, caption='Your picture' if uploaded else 'Included sample · Shirt', width=280 if photo else 180)
         frozen = read_json(stamp(folder / 'frozen.json'))
         files = [folder / 'frozen.json', folder / 'checkpoints' / f"{frozen['cnn_config']}_seed42.pt"]
@@ -88,8 +89,8 @@ def show(work_dir):
         previous = st.session_state.get('p2_prediction_run')
         if previous and previous[0] == signature:
             result = previous[1]
-            preview.success('Predicted category: ' + result['categories'][0])
-            preview.caption(f"Prediction time: {result['elapsed_ms']:.1f} ms")
+            answer.success('Predicted category: ' + result['categories'][0])
+            answer.caption(f"Prediction time: {result['elapsed_ms']:.1f} ms")
         with st.expander('See how the picture is prepared'):
             for name, image in steps:
                 st.image(image, caption=name, width=160)
