@@ -147,6 +147,7 @@ In the local dashboard, select **Neural model**, choose an image and click **Pre
 
 The frozen CNN checkpoints are included in Git. Hybrid classifier files are rebuilt locally from the frozen CNNs and training data, and are excluded from Git because of their size:
 
+<!-- readme: hybrid-export -->
 ```bash
 bash scripts/run_python.sh -m src.inventory_tagging.cli prepare
 bash scripts/run_python.sh -m src.inventory_tagging_dl.cli export
@@ -203,7 +204,7 @@ bash scripts/run_python.sh scripts/verify_phase2.py --replay
 
 This downloads the official test archives for verification only. It does not train, tune or overwrite the reported experiment.
 
-The [**README reproducibility** GitHub workflow](https://github.com/aryankinha/inventory-image-tagging/actions/workflows/compatibility.yml) makes a complete, separate clone of the exact commit being checked, in a path containing spaces and a colon. It executes the setup and check blocks above for uv and pip on Python 3.11 and 3.12. It also checks the first published-model download, the saved CNN prediction and actual dashboard startup. Each job starts without local datasets, models or environments, then follows the documented archive downloads for the notebook and full-data checks. Pip's direct commands above are checked inside its new virtual environment too.
+The [**README reproducibility** GitHub workflow](https://github.com/aryankinha/inventory-image-tagging/actions/workflows/compatibility.yml) makes a complete, separate clone of the exact commit being checked, in a path containing spaces and a colon. It executes the setup and check blocks above for uv and pip on Python 3.11 and 3.12. It also checks the first published-model download, the saved CNN prediction, rebuilding the frozen hybrid classifiers, and actual dashboard startup. Each job starts without local datasets, models or environments, then follows the documented archive downloads for the notebook and full-data checks. Pip's direct commands above are checked inside its new virtual environment too.
 
 Phase 1 deliberately skips deep-learning tests until Phase 2 is installed. A fresh clone also skips three tests that need optional local dataset archives. Those skips are shown in the initial logs, not counted as passes; the final full-data check must run without skips. The workflow verifies the saved experiment and runs inference; it does not retrain the 21-run study or promise identical GPU training results. The optional retraining commands below remain separate.
 

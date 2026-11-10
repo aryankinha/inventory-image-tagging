@@ -77,6 +77,7 @@ jobs:
           python3 scripts/readme_steps.py checks
           python3 scripts/readme_steps.py cnn-predict
           python3 scripts/readme_steps.py phase2-checks
+          python3 scripts/readme_steps.py hybrid-export
           python3 scripts/readme_steps.py full-data-checks
           bash scripts/run_python.sh scripts/check_test_report.py .runtime-cache/full-data-tests.xml
           bash scripts/run_python.sh scripts/check_readme_dashboard.py
