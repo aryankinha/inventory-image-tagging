@@ -157,8 +157,6 @@ This export fits only the already selected classifier on training-image features
 
 ```bash
 bash scripts/run_python.sh -m jupyterlab notebooks/phase2.ipynb
-bash scripts/run_python.sh scripts/check_notebooks.py
-bash scripts/run_python.sh scripts/verify_phase2.py
 ```
 
 The notebook reads saved results and verified checkpoints. It needs no download and no training. Choose **Python (Inventory Tagging)**. To replay predictions on already downloaded official test archives without fitting, use `scripts/verify_phase2.py --replay`.

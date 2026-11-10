@@ -25,8 +25,6 @@ jobs:
         python-version: ['3.11', '3.12']
         installer: [uv, pip]
     env:
-      REPLICA_DIR: '${{ runner.temp }}/inventory clone: ${{ matrix.installer }}-${{ matrix.python-version }}'
-      INVENTORY_PIP_ENV: '${{ runner.temp }}/inventory-pip-${{ matrix.python-version }}'
       MPLBACKEND: Agg
       LOKY_MAX_CPU_COUNT: '2'
       EXPECTED_PYTHON: '${{ matrix.python-version }}'
@@ -46,6 +44,9 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          REPLICA_DIR="$RUNNER_TEMP/inventory clone: ${{ matrix.installer }}-${{ matrix.python-version }}"
+          INVENTORY_PIP_ENV="$RUNNER_TEMP/inventory-pip-${{ matrix.python-version }}"
+          printf 'REPLICA_DIR=%s\nINVENTORY_PIP_ENV=%s\n' "$REPLICA_DIR" "$INVENTORY_PIP_ENV" >> "$GITHUB_ENV"
           git clone --no-local "$GITHUB_WORKSPACE/source" "$REPLICA_DIR"
           git -C "$REPLICA_DIR" checkout --detach "$GITHUB_SHA"
           test "$(git -C "$REPLICA_DIR" rev-parse HEAD)" = "$GITHUB_SHA"
