@@ -18,7 +18,7 @@ for option in "$@"; do
 done
 if [[ "$method" == "--pip" ]]; then
   runner=""
-  for candidate in python3.12 python3.11 python3; do
+  for candidate in python3 python3.12 python3.11; do
     if command -v "$candidate" >/dev/null 2>&1 && "$candidate" -c 'import sys; sys.exit(not (3,11) <= sys.version_info[:2] < (3,13))'; then
       runner="$candidate"
       break

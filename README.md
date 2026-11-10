@@ -58,39 +58,89 @@ Details: [Phase 1 findings](reports/phase1_findings.md) and [Phase 2 findings](r
 
 You need a Mac with Python 3.11 or 3.12 (check with `python3.12 --version` or `python3.11 --version`) and about 2 GB of free space (about 3 GB with Phase 2).
 
+Clone the complete project first:
+
 ```bash
 git clone https://github.com/aryankinha/inventory-image-tagging.git
 cd inventory-image-tagging
+```
+
+Choose **one** setup method. Both install the same locked packages and create an isolated environment.
+
+### Option A: uv
+
+Install [uv](https://docs.astral.sh/uv/getting-started/installation/) first, then run:
+
+<!-- readme: setup-uv -->
+```bash
+bash scripts/setup_mac.sh
+```
+
+### Option B: pip
+
+Use your installed Python 3.11 or 3.12. Check it with `python3 --version`, then run:
+
+<!-- readme: setup-pip -->
+```bash
 bash scripts/setup_mac.sh --pip
+```
+
+The pip helper creates a virtual environment under `~/venvs/` and installs `requirements.txt` with `python3 -m pip`. The uv helper uses `.venv/` in the clone. You never need to activate either environment; the run scripts select the right one. Spaces and a colon in the project path are supported.
+
+### Open the dashboard
+
+<!-- readme: dashboard -->
+```bash
 bash scripts/start_dashboard.sh
 ```
 
-Open <http://localhost:8501>. Press Control+C to stop. Next time, run only the last command.
+Open <http://localhost:8501>. Press Control+C to stop. Next time, run only that command.
 
-- Setup creates its own environment, so you never activate anything by hand. It lives under `~/venvs/`, so folder names with spaces or a colon are fine.
-- No Python 3.11 or 3.12? Install one from [python.org](https://www.python.org/downloads/).
-- Prefer [uv](https://docs.astral.sh/uv/getting-started/installation/)? Use `bash scripts/setup_mac.sh` without `--pip`.
-- The first prediction needs internet. The app downloads the model it needs from the [model release](https://github.com/aryankinha/inventory-image-tagging/releases/tag/phase1-models-v2), checks its checksum and keeps a copy.
+- No suitable Python installed? Get Python 3.12 or 3.11 from [python.org](https://www.python.org/downloads/).
+- The first Phase 1 prediction needs internet. The app downloads the requested model from the [model release](https://github.com/aryankinha/inventory-image-tagging/releases/tag/phase1-models-v2), verifies its checksum and keeps a local copy.
 
 The dashboard opens on **Predict**: upload a picture or pick a sample, choose a model, then click **Predict**. The preview and answer appear alongside the controls. Picture adjustments and comparisons are collapsed until needed. **Results** shows the scores of the 8 Phase 1 models, **Mistakes** shows which categories get confused, and **About** explains how it works. The models were trained on small benchmark pictures. Ordinary photos work best when the item is upright, alone and on a plain background. We have not measured accuracy on photos. The ordinary-photo option now removes plain backgrounds and offers cropping and rotation; inspect the preview before predicting. See [photo input checks and limitations](docs/PHOTO_INPUTS.md).
 
 ## Run Phase 2
 
-Both phases are included on `main`. Install the optional PyTorch group for Phase 2:
+Both phases are included on `main`. After the setup above, add Phase 2 using the **same method**:
 
+With uv:
+
+<!-- readme: phase2-uv -->
 ```bash
 bash scripts/setup_mac.sh --phase2
-# Or use installed Python 3.11/3.12 and pip:
+```
+
+With pip:
+
+<!-- readme: phase2-pip -->
+```bash
 bash scripts/setup_mac.sh --pip --phase2
 ```
 
-For later environment updates, use `uv sync --locked --group phase2`. Plain `uv sync` installs the smaller Phase 1 environment. The same locked packages are exported to `requirements-phase2.txt` for pip.
+These commands also work directly on a new clone if you want both phases from the start. uv uses the locked `phase2` group; pip installs its exported `requirements-phase2.txt`.
 
-Predict the included benchmark image without downloading a dataset or retraining:
+Already using your own activated Python 3.11/3.12 virtual environment? The direct pip commands are:
 
+<!-- readme: manual-pip -->
+```bash
+python3 -m pip install -r requirements-phase2.txt
+python3 -m pip check
+```
+
+For Phase 1 alone, use `python3 -m pip install -r requirements.txt` instead. The helper run scripts are for environments registered by `setup_mac.sh`. In your own activated environment, start the app directly:
+
+<!-- readme: manual-dashboard -->
+```bash
+python3 -m streamlit run app.py
+```
+
+Check an included image with the saved CNN, without downloading a dataset or retraining:
+
+<!-- readme: cnn-predict -->
 ```bash
 bash scripts/run_python.sh -m src.inventory_tagging_dl.cli predict --image assets/sample.png
-bash scripts/start_dashboard.sh
 ```
 
 In the local dashboard, select **Neural model**, choose an image and click **Predict image**. The saved CNN predicts one of ten categories. Ordinary PNG/JPEG photos need the explicitly labelled experimental preparation mode. Command-line photo mode uses `--photo --isolate` for background removal, or `--photo --invert` for the resize-only alternative. Its accuracy is unmeasured.
@@ -123,17 +173,41 @@ Output goes to `runs/phase2/` and never overwrites the saved results. The stages
 
 ## Check that it works
 
+Run these checks after either setup method:
+
+<!-- readme: checks -->
 ```bash
 bash scripts/run_python.sh -m pytest -q
 bash scripts/run_python.sh scripts/verify_results.py
 bash scripts/run_python.sh scripts/check_dashboard.py
 bash scripts/run_python.sh scripts/verify_artifacts.py
-# With Phase 2 installed:
+```
+
+With Phase 2 installed, also run:
+
+<!-- readme: phase2-checks -->
+```bash
 bash scripts/run_python.sh scripts/verify_phase2.py
+bash scripts/run_python.sh -m src.inventory_tagging.cli prepare
 bash scripts/run_python.sh scripts/check_notebooks.py
 ```
 
-Tests for Phase 2 run only when PyTorch is installed. A few more are skipped on a fresh clone because they need the dataset.
+The Phase 1 notebook needs the training archives, so this step downloads and verifies them first. The Phase 2 notebook itself can read the saved results without a dataset download.
+
+For the complete data-dependent checks and a replay of the saved CNN predictions:
+
+<!-- readme: full-data-checks -->
+```bash
+bash scripts/run_python.sh -c "from src.inventory_tagging.data import prepare; prepare(include_test=True)"
+bash scripts/run_python.sh -m pytest -q --junitxml=.runtime-cache/full-data-tests.xml
+bash scripts/run_python.sh scripts/verify_phase2.py --replay
+```
+
+This downloads the official test archives for verification only. It does not train, tune or overwrite the reported experiment.
+
+The [**README reproducibility** GitHub workflow](https://github.com/aryankinha/inventory-image-tagging/actions/workflows/compatibility.yml) makes a complete, separate clone of the exact commit being checked, in a path containing spaces and a colon. It executes the setup and check blocks above for uv and pip on Python 3.11 and 3.12. It also checks the first published-model download, the saved CNN prediction and actual dashboard startup. Each job starts without local datasets, models or environments, then follows the documented archive downloads for the notebook and full-data checks. Pip's direct commands above are checked inside its new virtual environment too.
+
+Phase 1 deliberately skips deep-learning tests until Phase 2 is installed. A fresh clone also skips three tests that need optional local dataset archives. Those skips are shown in the initial logs, not counted as passes; the final full-data check must run without skips. The workflow verifies the saved experiment and runs inference; it does not retrain the 21-run study or promise identical GPU training results. The optional retraining commands below remain separate.
 
 ## Train the Phase 1 models yourself (optional)
 

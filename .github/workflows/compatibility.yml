@@ -1,40 +1,106 @@
-name: macOS compatibility
+name: README reproducibility
 
 on:
   push:
+    branches: [main]
   pull_request:
   workflow_dispatch:
 
 permissions:
   contents: read
 
+concurrency:
+  group: readme-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  test:
-    name: macOS / Python ${{ matrix.python-version }}
+  reproduce:
+    name: macOS / Python ${{ matrix.python-version }} / ${{ matrix.installer }}
     runs-on: macos-latest
+    timeout-minutes: 25
     strategy:
       fail-fast: false
+      max-parallel: 2
       matrix:
         python-version: ['3.11', '3.12']
+        installer: [uv, pip]
     env:
+      REPLICA_DIR: '${{ runner.temp }}/inventory clone: ${{ matrix.installer }}-${{ matrix.python-version }}'
+      INVENTORY_PIP_ENV: '${{ runner.temp }}/inventory-pip-${{ matrix.python-version }}'
       MPLBACKEND: Agg
       LOKY_MAX_CPU_COUNT: '2'
+      EXPECTED_PYTHON: '${{ matrix.python-version }}'
     steps:
       - uses: actions/checkout@v7.0.1
+        with:
+          path: source
+          fetch-depth: 0
       - uses: actions/setup-python@v7.1.0
+        id: python
         with:
           python-version: ${{ matrix.python-version }}
-          cache: pip
-      - name: Install locked pip dependencies
-        run: python3 -m pip install -r requirements-phase2.txt
-      - name: Check environment and feature extraction
-        run: python3 scripts/check_environment.py
-      - name: Run pipeline and dashboard checks
-        run: python3 -m pytest -q
-      - name: Verify saved experiment evidence
-        run: python3 scripts/verify_results.py
-      - name: Verify protected reports and sample pictures
-        run: python3 scripts/verify_artifacts.py
-
-      - name: Verify Phase 2 results and checkpoint inference
-        run: python3 scripts/verify_phase2.py
+      - name: Install the uv prerequisite
+        if: matrix.installer == 'uv'
+        run: python3 -m pip install uv==0.13.7
+      - name: Clone the complete tested commit without local runtime files
+        shell: bash
+        run: |
+          set -euo pipefail
+          git clone --no-local "$GITHUB_WORKSPACE/source" "$REPLICA_DIR"
+          git -C "$REPLICA_DIR" checkout --detach "$GITHUB_SHA"
+          test "$(git -C "$REPLICA_DIR" rev-parse HEAD)" = "$GITHUB_SHA"
+          test "$(git -C "$REPLICA_DIR" rev-parse --is-shallow-repository)" = false
+          for absent in .venv .runtime-cache models data; do
+            test ! -e "$REPLICA_DIR/$absent"
+          done
+      - name: Check that pip and uv use the same locked packages
+        if: matrix.installer == 'uv'
+        working-directory: ${{ env.REPLICA_DIR }}
+        run: python3 scripts/check_dependency_exports.py
+      - name: Follow the Phase 1 README setup
+        working-directory: ${{ env.REPLICA_DIR }}
+        env:
+          UV_PYTHON: ${{ steps.python.outputs.python-path }}
+        run: |
+          python3 scripts/readme_steps.py setup-${{ matrix.installer }}
+          bash scripts/run_python.sh -c 'import os, sys, importlib.util; assert ".".join(map(str, sys.version_info[:2])) == os.environ["EXPECTED_PYTHON"]; assert importlib.util.find_spec("torch") is None'
+          python3 scripts/readme_steps.py checks
+          bash scripts/run_python.sh scripts/check_readme_dashboard.py
+      - name: Follow the Phase 2 README upgrade and checks
+        working-directory: ${{ env.REPLICA_DIR }}
+        env:
+          UV_PYTHON: ${{ steps.python.outputs.python-path }}
+        run: |
+          python3 scripts/readme_steps.py phase2-${{ matrix.installer }}
+          bash scripts/run_python.sh -c 'import os, sys, torch; assert ".".join(map(str, sys.version_info[:2])) == os.environ["EXPECTED_PYTHON"]'
+          python3 scripts/readme_steps.py checks
+          python3 scripts/readme_steps.py cnn-predict
+          python3 scripts/readme_steps.py phase2-checks
+          python3 scripts/readme_steps.py full-data-checks
+          bash scripts/run_python.sh scripts/check_test_report.py .runtime-cache/full-data-tests.xml
+          bash scripts/run_python.sh scripts/check_readme_dashboard.py
+      - name: Verify the direct pip commands in the new pip environment
+        if: matrix.installer == 'pip'
+        working-directory: ${{ env.REPLICA_DIR }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          export PATH="$INVENTORY_PIP_ENV/bin:$PATH"
+          python3 scripts/readme_steps.py manual-pip
+          python3 scripts/check_readme_dashboard.py --step manual-dashboard
+      - name: Check the first published-model prediction from a clean clone
+        working-directory: ${{ env.REPLICA_DIR }}
+        run: |
+          bash scripts/run_python.sh - <<'PY'
+          from pathlib import Path
+          from dashboard.services import experiment, prepare_image, predict_one
+          root = Path.cwd()
+          assert not (root / 'models').exists()
+          _, frozen, records = experiment(root)
+          pixels, _ = prepare_image((root / 'assets/sample.png').read_bytes())
+          result = predict_one(root, records[frozen['selected']], pixels)
+          assert result['Model'] == frozen['selected']
+          assert result['Inference ms'] > 0
+          print('Published model download, SHA-256 verification and prediction passed:', result['Prediction'])
+          PY
+          git diff --exit-code
