@@ -24,7 +24,19 @@ notebook = ["jupyterlab>=4,<5", "ipykernel>=6,<8", "nbformat>=5,<6", "nbclient>=
 
 [tool.uv]
 package = false
-default-groups = ["dev", "notebook"]
+# Streamlit Community Cloud installs the default groups. Including phase2 gives
+# the hosted dashboard PyTorch for the committed CNN checkpoints.
+default-groups = ["dev", "notebook", "phase2"]
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[tool.uv.sources]
+# Linux hosts, including Streamlit Community Cloud, use the CPU-only wheel
+# instead of the large CUDA build published on PyPI.
+torch = [{ index = "pytorch-cpu", marker = "sys_platform == 'linux'" }]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

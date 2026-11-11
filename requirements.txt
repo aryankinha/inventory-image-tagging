@@ -306,7 +306,7 @@ python-multipart==0.0.32
     # via streamlit
 pytz==2026.5
     # via pandas
-pywinpty==3.1.0 ; os_name == 'nt'
+pywinpty==3.1.0 ; os_name == 'nt' and sys_platform != 'linux'
     # via
     #   jupyter-server
     #   jupyter-server-terminals

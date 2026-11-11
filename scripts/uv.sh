@@ -11,7 +11,7 @@ mkdir -p "$IPYTHONDIR" "$JUPYTER_RUNTIME_DIR"
 if [[ "$PWD" == *:* ]]; then
   # `uv sync` itself works before the alias is needed for `uv run`.
   if [[ ! -f .venv/pyvenv.cfg ]]; then
-    uv sync --locked
+    uv sync --locked --no-group phase2
   fi
   if command -v sha256sum >/dev/null 2>&1; then
     key=$(printf '%s' "$PWD" | sha256sum | cut -c 1-12)

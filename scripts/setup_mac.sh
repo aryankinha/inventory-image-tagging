@@ -51,7 +51,8 @@ elif [[ "$method" == "uv" ]]; then
   if [[ "$phase2" == true ]]; then
     uv sync --locked --group phase2
   else
-    uv sync --locked
+    # phase2 is a default group for the hosted app; keep Phase 1 local installs light.
+    uv sync --locked --no-group phase2
   fi
   runtime="$project_dir/.venv/bin/python3"
 else

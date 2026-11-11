@@ -2,7 +2,7 @@
 
 ### [Try it live: inventory-image-tagging.streamlit.app](https://inventory-image-tagging.streamlit.app/?view=predict)
 
-Upload a picture of a clothing item and the app tells you which of ten categories it is. No install and no sign-in. The first prediction can be slow because a free-hosted app may need a moment to wake up. The live app uses the Phase 1 models.
+Upload a picture of a clothing item and the app tells you which of ten categories it is. No install and no sign-in. The first prediction can be slow because a free-hosted app may need a moment to wake up. The live app offers the Phase 1 models and the Phase 2 CNN.
 
 [Predict an image](https://inventory-image-tagging.streamlit.app/?view=predict) · [Compare results](https://inventory-image-tagging.streamlit.app/?view=results) · [Explore mistakes](https://inventory-image-tagging.streamlit.app/?view=mistakes)
 
@@ -119,7 +119,7 @@ With pip:
 bash scripts/setup_mac.sh --pip --phase2
 ```
 
-These commands also work directly on a new clone if you want both phases from the start. uv uses the locked `phase2` group; pip installs its exported `requirements-phase2.txt`.
+These commands also work directly on a new clone if you want both phases from the start. uv uses the locked `phase2` group; pip installs its exported `requirements-phase2.txt`. The hosted app installs that group with the CPU-only PyTorch wheel on Linux. Hybrid inference stays local because its exported forest is not published.
 
 Already using your own activated Python 3.11/3.12 virtual environment? The direct pip commands are:
 
@@ -265,7 +265,7 @@ Folders `data/`, `models/` and `runs/` are created on your computer and are not 
 
 - One split, a small settings search, and three random seeds for Phase 2 (one for Phase 1).
 - Fashion-MNIST is a well-known, small, centred benchmark, so these numbers say little about a real store catalogue or phone photos.
-- Phase 2 predictions are available locally. The hosted installation uses Phase 1 dependencies; Phase 2 prediction requires the optional PyTorch setup.
+- The hosted app can run the committed CNN. Hybrid prediction still needs the local Phase 2 setup and its exported classifier; that larger file is not published.
 
 ## Credits
 
@@ -273,4 +273,4 @@ Built on ideas from a supplied reference project, listed in [attribution](docs/A
 
 ## Hosting
 
-The live app runs on Streamlit Community Cloud from branch `main`, entry file `app.py`, Python 3.12. It needs no secrets and does not install PyTorch.
+The live app runs on Streamlit Community Cloud from branch `main`, entry file `app.py`, Python 3.12. It needs no secrets. The lockfile installs the CPU-only PyTorch build on Linux so the **Neural model** page can run the committed CNN; hybrid prediction remains local.

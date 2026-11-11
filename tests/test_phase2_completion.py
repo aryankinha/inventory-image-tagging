@@ -45,6 +45,11 @@ def test_frozen_stages_cannot_rewrite_choices(tmp_path,monkeypatch,stage):
         getattr(experiments,stage)()
 
 
+def test_phase2_page_is_offered_in_navigation():
+    app=AppTest.from_file(str(ROOT/'app.py')).run(timeout=40)
+    assert 'Neural model' in app.sidebar.radio[0].options
+
+
 def test_phase2_page_predicts_sample_without_retraining():
     app=AppTest.from_file(str(ROOT/'app.py')).run(timeout=40)
     app.sidebar.radio[0].set_value('Phase 2').run(timeout=40)

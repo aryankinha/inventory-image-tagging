@@ -6,7 +6,7 @@ After setup, start it from the project folder:
 bash scripts/start_dashboard.sh
 ```
 
-The app opens four pages: Predict, Results, Mistakes and About. Predict is the first page. Its default **Results folder**, under **Local setup** in the sidebar, is `.`: the original
+The app opens four pages: Predict, Results, Mistakes and About, plus Neural model when PyTorch is installed. Predict is the first page. Its default **Results folder**, under **Local setup** in the sidebar, is `.`: the original
 saved experiment. After building models on your Mac, change it to
 `runs/phase1` to use that run's own scores and model files.
 
@@ -86,9 +86,14 @@ to wake up.
 The deployment uses Python 3.12 and the committed `uv.lock`. The server binds
 explicitly to `0.0.0.0`. All eight active model downloads must match their frozen records. The hosted app uses the validation-selected pixel Random Forest by default.
 
-## Local Phase 2 page
+The hosted lock installs CPU-only PyTorch on Linux, so **Neural model** is also
+available at `?view=neural`. It runs the same checksum-verified seed-42 CNN
+checkpoint as local Phase 2. Hybrid prediction remains local because its exported
+forest is not published.
 
-Both phases are on main. Set up with `bash scripts/setup_mac.sh --phase2` and open **Neural model** in the sidebar. The page predicts first, with three-seed scores collapsed under **Saved evaluation results**. It predicts an uploaded image or the included sample using a checksum-verified CNN checkpoint. Build the frozen hybrid classifier once with `cli export` to enable that option locally. If PyTorch or optional model files are absent, the page explains how to enable them. Ordinary photos use the existing labelled preparation mode and have no measured accuracy. The hosted installation uses the smaller Phase 1 dependency set; local Phase 2 prediction requires PyTorch.
+## Phase 2 page
+
+Both phases are on main. Set up with `bash scripts/setup_mac.sh --phase2` and open **Neural model** in the sidebar. The page predicts first, with three-seed scores collapsed under **Saved evaluation results**. It predicts an uploaded image or the included sample using a checksum-verified CNN checkpoint. Build the frozen hybrid classifier once with `cli export` to enable that option locally. If PyTorch or optional model files are absent, the page explains how to enable them. Ordinary photos use the existing labelled preparation mode and have no measured accuracy. The hosted app can run the CNN; hybrid prediction requires the local exported classifier.
 
 ## Interface check, 10 November 2026
 
@@ -96,7 +101,7 @@ The first page keeps image selection, the model and Predict visible, with the
 preview and answer alongside. The layout stacks on small screens. Optional
 comparisons, photo settings, feature views and detailed scores stay collapsed.
 Shareable `view` links open the requested page; invalid links fall back to Predict.
-The neural page appears only when PyTorch is installed. Its photo mode detects
+The neural page appears when PyTorch is installed, including on the hosted app. Its photo mode detects
 ordinary uploads, clears stale answers on a new image and keeps results across
 reruns. Photo settings also survive navigation. CNN and hybrid scores can still
 be read under Results without installing PyTorch. No trained artifacts or official
