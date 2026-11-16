@@ -87,6 +87,8 @@ def prepare_image(content, experimental=False, sizing='Pad', invert=False, brigh
             raise ValueError('Choose a PNG or JPEG image.')
         if opened.width * opened.height > 20_000_000:
             raise ValueError('Use an image with at most 20 million pixels.')
+        if opened.mode not in ('1', 'L', 'LA', 'P', 'RGB', 'RGBA', 'CMYK', 'YCbCr'):
+            raise ValueError('Use an 8-bit grayscale or colour image. Export this picture as an 8-bit PNG or JPEG first.')
         if not experimental:
             if opened.format != 'PNG' or opened.size != (28, 28) or opened.mode != 'L':
                 raise ValueError('Dataset image mode needs a 28×28 grayscale PNG. To convert other pictures, switch to Prepare an ordinary picture.')

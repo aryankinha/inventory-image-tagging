@@ -56,6 +56,8 @@ def predict(images, predictor):
         features = model.embedding(values)
         if head is None:
             probabilities = model.head(features).softmax(1).numpy()
+            if not np.isfinite(probabilities).all():
+                raise ValueError('The CNN returned invalid scores. No prediction was made.')
             labels = probabilities.argmax(1)
         else:
             labels = head.predict(features.numpy())

@@ -95,6 +95,13 @@ forest is not published.
 
 Both phases are on main. Set up with `bash scripts/setup_mac.sh --phase2` and open **Neural model** in the sidebar. The page predicts first, with three-seed scores collapsed under **Saved evaluation results**. It predicts an uploaded image or the included sample using a checksum-verified CNN checkpoint. Build the frozen hybrid classifier once with `cli export` to enable that option locally. If PyTorch or optional model files are absent, the page explains how to enable them. Ordinary photos use the existing labelled preparation mode and have no measured accuracy. The hosted app can run the CNN; hybrid prediction requires the local exported classifier.
 
+After a CNN prediction, **Other possible categories** shows its three highest
+softmax scores. They are not calibrated confidence estimates or photo accuracy.
+This table is absent for the hybrid, which returns labels only. Invalid CNN
+scores produce an error rather than an arbitrary category. Both prediction pages
+require 8-bit uploads; high-bit-depth pictures must first be exported as 8-bit PNG
+or JPEG, so conversion cannot silently clip their detail.
+
 ## Interface check, 10 November 2026
 
 The first page keeps image selection, the model and Predict visible, with the

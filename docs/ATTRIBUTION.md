@@ -21,3 +21,11 @@ foreground preparation was written for our existing dashboard, using conventiona
 border-colour estimation, thresholding and connected regions. The reference's
 model files and prediction results were not used for this change. See
 `docs/PHOTO_INPUTS.md` for the actual photo checks and remaining failures.
+
+The November 2026 review of the updated reference's `src/predict.py` informed two
+small inference safeguards: reject unsupported high-bit-depth uploads before
+conversion, and reject non-finite CNN scores. Its ranked predictions also informed
+the optional CNN score table, using our existing prediction output. Our Phase 1
+already provides alternative-class scores. No reference weights, scores, ResNet,
+ensemble, training code or additional UI framework were imported. Both phases
+retain their existing splits, model selection and frozen evaluation artifacts.

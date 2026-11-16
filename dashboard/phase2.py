@@ -9,7 +9,7 @@ import pandas as pd
 from PIL import Image
 import streamlit as st
 
-from .services import ROOT, prepare_image, read_json, stamp
+from .services import CLASSES, ROOT, prepare_image, read_json, stamp
 
 
 @st.cache_resource(max_entries=2, show_spinner=False)
@@ -91,6 +91,12 @@ def show(work_dir):
             result = previous[1]
             answer.success('Predicted category: ' + result['categories'][0])
             answer.caption(f"Prediction time: {result['elapsed_ms']:.1f} ms")
+            if result['probabilities'] is not None:
+                with answer.expander('Other possible categories'):
+                    scores = pd.DataFrame({'Category': CLASSES, 'Model score': result['probabilities'][0]})
+                    st.dataframe(scores.sort_values('Model score', ascending=False, kind='stable').head(3),
+                                 hide_index=True, width='stretch')
+                    st.caption('The CNN’s three highest scores. These are not calibrated confidence or measured photo accuracy.')
         with st.expander('See how the picture is prepared'):
             for name, image in steps:
                 st.image(image, caption=name, width=160)
