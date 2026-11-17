@@ -90,7 +90,7 @@ jobs:
           export PATH="$INVENTORY_PIP_ENV/bin:$PATH"
           python3 scripts/readme_steps.py manual-pip
           python3 scripts/check_readme_dashboard.py --step manual-dashboard
-      - name: Check the first published-model prediction from a clean clone
+      - name: Check published classical and hybrid model downloads and predictions
         working-directory: ${{ env.REPLICA_DIR }}
         run: |
           bash scripts/run_python.sh - <<'PY'
@@ -104,5 +104,29 @@ jobs:
           assert result['Model'] == frozen['selected']
           assert result['Inference ms'] > 0
           print('Published model download, SHA-256 verification and prediction passed:', result['Prediction'])
+
+          # The local export above must not conceal a broken hosted hybrid release.
+          import shutil
+          import tempfile
+          from dashboard import hybrid_hosting
+          from src.inventory_tagging_dl.predict import load_predictor, predict
+          with tempfile.TemporaryDirectory(prefix='published-hybrid-') as directory:
+              clean = Path(directory).resolve()
+              for relative in ['assets/hosted_hybrid.json', 'reports/phase2/frozen.json']:
+                  target = clean / relative
+                  target.parent.mkdir(parents=True, exist_ok=True)
+                  shutil.copyfile(root / relative, target)
+              folder = clean / 'reports/phase2'
+              checkpoint = folder / 'checkpoints'
+              checkpoint.mkdir()
+              import json
+              frozen = json.loads((folder / 'frozen.json').read_text())
+              name = frozen['cnn_config'] + '_seed42.pt'
+              shutil.copyfile(root / 'reports/phase2/checkpoints' / name, checkpoint / name)
+              hybrid_hosting.ROOT = clean
+              hybrid_hosting.ensure_hybrid(folder)
+              result = predict(pixels[None], load_predictor(folder, 'hybrid'))
+              assert result['categories'] == ['Shirt']
+              print('Published hybrid download, SHA-256 verification and prediction passed:', result['categories'])
           PY
           git diff --exit-code

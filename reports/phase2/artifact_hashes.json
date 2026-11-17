@@ -90,7 +90,7 @@
     "src/inventory_tagging_dl/cnn.py": "0d6b81c2dc21139954183948c00732fb90b4d52af1835348dc169813d090509e",
     "src/inventory_tagging_dl/experiments.py": "ba2ec5aff032dd60184ba23c51f24ad1588fdf928e3efe5860211474b64cf866",
     "src/inventory_tagging_dl/predict.py": "e29d66ea3616ff7772c8d1af01d2d317e4442fc46eaf9e501013fb11b33f6789",
-    "tests/test_hybrid_hosting.py": "3522b86ee32fa347228c069ec2fff8d1d454887143c94deae4a069ee2f211569",
+    "tests/test_hybrid_hosting.py": "761bdf537559c1a5ebb7e957791a041a9cfeb0b0ee1008c87a15b01575a543e4",
     "tests/test_phase2.py": "19a38e87395323a3b3289eda25a17b02f105a84a2e2ad7a944a845720df71236",
     "tests/test_phase2_completion.py": "48506f559b2b57f0c7d92e76db93e0efd440927e72a5fba7487e39409ac2b407",
     "tests/test_phase2_evidence.py": "387489901e5973b385bc64e93716cf2aadcb6e276ef0c21139bc63f995139994",

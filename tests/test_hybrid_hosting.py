@@ -77,6 +77,9 @@ def test_single_seed_download_does_not_block_full_local_export(tmp_path, monkeyp
 def test_fresh_install_can_select_download_and_predict_both_models(tmp_path, monkeypatch):
     pytest.importorskip('torch')
     from streamlit.testing.v1 import AppTest
+    import joblib
+    import numpy as np
+    from sklearn.dummy import DummyClassifier
     monkeypatch.setattr(hybrid_hosting, 'ROOT', tmp_path)
     for relative in ['reports/frozen.json', 'reports/test/results.csv',
                      'reports/phase2/frozen.json', 'assets/hosted_hybrid.json']:
@@ -88,10 +91,19 @@ def test_fresh_install_can_select_download_and_predict_both_models(tmp_path, mon
     checkpoints = tmp_path / 'reports/phase2/checkpoints'
     checkpoints.mkdir()
     shutil.copyfile(ROOT / 'reports/phase2/checkpoints' / name, checkpoints / name)
+    # A test-only classifier keeps this UI test independent of ignored model files.
+    head = DummyClassifier(strategy='constant', constant=6).fit(np.zeros((2, 64)), [0, 6])
+    content = BytesIO()
+    joblib.dump(head, content)
+    content = content.getvalue()
+    manifest = tmp_path / 'assets/hosted_hybrid.json'
+    record = json.loads(manifest.read_text())
+    record['hybrids']['42'].update(sha256=hashlib.sha256(content).hexdigest(), bytes=len(content))
+    manifest.write_text(json.dumps(record))
     calls = []
     def download(url, timeout):
         calls.append(url)
-        return (ROOT / 'reports/phase2/checkpoints/hybrid_seed42.joblib').open('rb')
+        return BytesIO(content)
     monkeypatch.setattr(hosting, 'urlopen', download)
     app = AppTest.from_file(str(ROOT / 'app.py')).run(timeout=40)
     app.sidebar.text_input[0].set_value(str(tmp_path)).run()
@@ -101,6 +113,7 @@ def test_fresh_install_can_select_download_and_predict_both_models(tmp_path, mon
     app.button(key='p2_predict').click().run(timeout=40)
     assert app.success[0].value == 'Predicted category: Shirt'
     app.selectbox(key='p2_model').set_value('hybrid').run(timeout=40)
+    assert not app.error and not app.exception
     assert not app.success  # Switching models clears the old displayed answer.
     app.button(key='p2_predict').click().run(timeout=40)
     assert not app.error and not app.exception
