@@ -1,4 +1,4 @@
-"""Fetch published Phase 1 weights on demand, checking bytes before loading them."""
+"""Fetch published weights on demand, checking bytes before loading them."""
 import hashlib
 import json
 from pathlib import Path
@@ -41,20 +41,28 @@ def ensure_model(work_dir, record):
     entry = published_model(work_dir, record)
     if entry is None:
         raise FileNotFoundError('The saved model is unavailable for this results folder.')
+    return download_verified(target, entry, RELEASE_URL + target.name)
+
+
+def download_verified(target, entry, url):
+    """Download atomically; callers verify their model record before loading."""
+    target = Path(target)
+    if target.is_file():
+        return target
     target.parent.mkdir(parents=True, exist_ok=True)
     temporary = None
     try:
         with tempfile.NamedTemporaryFile(dir=target.parent, suffix='.download', delete=False) as output:
             temporary = Path(output.name)
             digest, count = hashlib.sha256(), 0
-            with urlopen(RELEASE_URL + target.name, timeout=60) as response:
+            with urlopen(url, timeout=60) as response:
                 for chunk in iter(lambda: response.read(1024 * 1024), b''):
                     count += len(chunk)
                     if count > entry['bytes']:
                         raise ValueError('Downloaded model is larger than its published size.')
                     digest.update(chunk)
                     output.write(chunk)
-            if count != entry['bytes'] or digest.hexdigest() != record['model_sha256']:
+            if count != entry['bytes'] or digest.hexdigest() != entry['sha256']:
                 raise ValueError('Downloaded model checksum mismatch. Please try again later.')
         temporary.replace(target)
     finally:

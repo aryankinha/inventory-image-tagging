@@ -1,4 +1,4 @@
-"""A compact prediction page for the verified CNN and optional local hybrid."""
+"""A compact prediction page for the verified CNN and published or local hybrid."""
 import hashlib
 import importlib.util
 from io import BytesIO
@@ -10,6 +10,7 @@ from PIL import Image
 import streamlit as st
 
 from .services import CLASSES, ROOT, prepare_image, read_json, stamp
+from .hybrid_hosting import published_hybrid, ensure_hybrid
 
 
 @st.cache_resource(max_entries=2, show_spinner=False)
@@ -29,14 +30,22 @@ def show(work_dir):
         return
 
     options = ['cnn']
+    local_hybrid = False
     try:
         record = read_json(stamp(folder / 'inference.json'))
         hybrid = record.get('hybrids', {}).get('42', {})
         filename = hybrid.get('file', '')
         if filename and Path(filename).name == filename and (folder / 'checkpoints' / filename).is_file():
             options.append('hybrid')
+            local_hybrid = True
     except (OSError, ValueError, TypeError, KeyError):
         pass  # The CNN works without an exported hybrid.
+    if not local_hybrid:
+        try:
+            if published_hybrid(folder) is not None:
+                options.append('hybrid')
+        except (OSError, ValueError, TypeError, KeyError):
+            pass
     if st.session_state.get('p2_model') not in options:
         st.session_state['p2_model'] = options[0]
 
@@ -70,6 +79,9 @@ def show(work_dir):
             st.warning('Photo predictions are experimental. Use one complete item on a plain background.')
 
     try:
+        if kind == 'hybrid' and not local_hybrid:
+            with st.spinner('Downloading the verified hybrid model…'):
+                record = ensure_hybrid(folder)
         pixels, steps = prepare_image(content, experimental=photo, invert=invert, **photo_options)
         answer = preview.container()
         preview.image(steps[0][1] if photo else pixels, caption='Your picture' if uploaded else 'Included sample · Shirt', width=280 if photo else 180)

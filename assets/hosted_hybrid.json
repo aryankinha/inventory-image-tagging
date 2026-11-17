@@ -1,0 +1,11 @@
+{
+  "frozen_sha256": "41370ac9020384f22c1cba732146bc6a51dd60b7cb770f5955a2a7d67bf7c4b5",
+  "hybrids": {
+    "42": {
+      "file": "hybrid_seed42.joblib",
+      "sha256": "64610da4668f81338f96644d2e5117d7c5f7453340a5d765fd0d10ccd67f1264",
+      "bytes": 36807897
+    }
+  },
+  "provenance": "Frozen hybrid rebuilt on CPU features; original GPU-feature evaluation scores are unchanged."
+}

@@ -88,12 +88,15 @@ explicitly to `0.0.0.0`. All eight active model downloads must match their froze
 
 The hosted lock installs CPU-only PyTorch on Linux, so **Neural model** is also
 available at `?view=neural`. It runs the same checksum-verified seed-42 CNN
-checkpoint as local Phase 2. Hybrid prediction remains local because its exported
-forest is not published.
+checkpoint as local Phase 2. The selector also offers CNN + Random Forest. Its
+37 MB seed-42 forest downloads on first selection, with size, SHA-256 and frozen
+experiment checks before loading. It is the existing CPU rebuild, whose
+predictions agree with 99.94-99.98% of the original hybrid test predictions across
+three seeds. The original saved evaluation scores remain unchanged.
 
 ## Phase 2 page
 
-Both phases are on main. Set up with `bash scripts/setup_mac.sh --phase2` and open **Neural model** in the sidebar. The page predicts first, with three-seed scores collapsed under **Saved evaluation results**. It predicts an uploaded image or the included sample using a checksum-verified CNN checkpoint. Build the frozen hybrid classifier once with `cli export` to enable that option locally. If PyTorch or optional model files are absent, the page explains how to enable them. Ordinary photos use the existing labelled preparation mode and have no measured accuracy. The hosted app can run the CNN; hybrid prediction requires the local exported classifier.
+Both phases are on main. Set up with `bash scripts/setup_mac.sh --phase2` and open **Neural model** in the sidebar. The page predicts first, with three-seed scores collapsed under **Saved evaluation results**. It predicts an uploaded image or the included sample using a checksum-verified CNN checkpoint. The original experiment can download the published hybrid; use `cli export` to rebuild all three hybrid seeds locally. If PyTorch or optional model files are absent, the page explains how to enable them. Ordinary photos use the existing labelled preparation mode and have no measured accuracy. The hosted app can run both CNN and CNN + Random Forest. Reproduction folders always use their own models and cannot substitute published weights.
 
 After a CNN prediction, **Other possible categories** shows its three highest
 softmax scores. They are not calibrated confidence estimates or photo accuracy.

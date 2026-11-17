@@ -119,7 +119,7 @@ With pip:
 bash scripts/setup_mac.sh --pip --phase2
 ```
 
-These commands also work directly on a new clone if you want both phases from the start. uv uses the locked `phase2` group; pip installs its exported `requirements-phase2.txt`. The hosted app installs that group with the CPU-only PyTorch wheel on Linux. Hybrid inference stays local because its exported forest is not published.
+These commands also work directly on a new clone if you want both phases from the start. uv uses the locked `phase2` group; pip installs its exported `requirements-phase2.txt`. The hosted app installs that group with the CPU-only PyTorch wheel on Linux. The hosted Neural model page offers both CNN and CNN + Random Forest. The hybrid forest downloads from its public release on first selection and must pass its recorded checksum.
 
 Already using your own activated Python 3.11/3.12 virtual environment? The direct pip commands are:
 
@@ -265,7 +265,7 @@ Folders `data/`, `models/` and `runs/` are created on your computer and are not 
 
 - One split, a small settings search, and three random seeds for Phase 2 (one for Phase 1).
 - Fashion-MNIST is a well-known, small, centred benchmark, so these numbers say little about a real store catalogue or phone photos.
-- The hosted app can run the committed CNN. Hybrid prediction still needs the local Phase 2 setup and its exported classifier; that larger file is not published.
+- The hosted app offers the committed CNN and the published seed-42 hybrid. The first hybrid selection downloads about 37 MB; later predictions reuse the verified file.
 
 ## Credits
 
@@ -273,4 +273,4 @@ Built on ideas from a supplied reference project, listed in [attribution](docs/A
 
 ## Hosting
 
-The live app runs on Streamlit Community Cloud from branch `main`, entry file `app.py`, Python 3.12. It needs no secrets. The lockfile installs the CPU-only PyTorch build on Linux so the **Neural model** page can run the committed CNN; hybrid prediction remains local.
+The live app runs on Streamlit Community Cloud from branch `main`, entry file `app.py`, Python 3.12. It needs no secrets. The lockfile installs the CPU-only PyTorch build on Linux so the **Neural model** page can run both CNN and CNN + Random Forest. The published hybrid is the CPU rebuild of the frozen experiment; its original evaluation scores are unchanged.

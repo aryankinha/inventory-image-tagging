@@ -61,7 +61,7 @@ Phase 1 turned each picture into a fixed list of numbers (pixels or HOG edges) a
 - Fashion-MNIST is a familiar, small, centred benchmark. Results say little about real store photos.
 - Three seeds, one split, a small settings search.
 - Training on the Apple GPU is not bit-for-bit repeatable, so a rerun can differ slightly.
-- CNN and hybrid inference work in the local Phase 2 page. The hosted main-branch dashboard remains Phase 1.
+- CNN and CNN + Random Forest inference work both locally and in the hosted Neural model page. The hosted hybrid uses the existing seed-42 CPU rebuild and downloads only when selected.
 
 ## Demonstration
 

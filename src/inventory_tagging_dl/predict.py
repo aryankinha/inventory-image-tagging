@@ -80,7 +80,7 @@ def export_hybrids(folder=None):
         existing = json.loads((folder / 'inference.json').read_text())
         if existing['frozen_sha256'] != sha256(folder / 'frozen.json'):
             raise ValueError('Hybrid record belongs to another frozen experiment.')
-        complete = all((folder / 'checkpoints' / existing['hybrids'][str(seed)]['file']).is_file() for seed in frozen['seeds'])
+        complete = all(str(seed) in existing['hybrids'] and (folder / 'checkpoints' / existing['hybrids'][str(seed)]['file']).is_file() for seed in frozen['seeds'])
         if complete:
             for seed in frozen['seeds']:
                 load_predictor(folder, 'hybrid', seed)
