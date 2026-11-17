@@ -27,7 +27,7 @@ Aryan is the team lead and owns the core modelling in both phases. Course sectio
 | Aryan | Core modelling and major implementation: the CNN, training with early stopping, the ablation study, final model selection, the hybrid model, the one-time test, reproducibility | `src/inventory_tagging_dl/cnn.py`, `experiments.py`, `cli.py`, `reports/phase2/frozen.json`, `scripts/build_phase2.sh` |
 | Divyanshu Singh | Data protocol and augmentation: reuse of the Phase 1 split, flip and shift augmentation, data and split checks | `augment()` in `cnn.py`, `tests/test_phase2.py` (split and augmentation tests) |
 | Jatin Verma | Hybrid classifier experiments: Logistic Regression, linear SVM and Random Forest on the CNN features, and the untrained-CNN control | `reports/phase2/hybrid_validation.csv`, `hybrid_selection.json`, `hybrid()` in `experiments.py` |
-| Kushagra Bhardwaj | Results, error analysis, report and presentation | `reports/phase2_findings.md`, `reports/phase2/test/`, `reports/phase2_report/`, `reports/presentation/phase2.pptx`, `docs/dl_literature_review.md` |
+| Kushagra Bhardwaj | Results, error analysis, report and presentation | `reports/phase2_findings.md`, `reports/phase2/test/`, `reports/phase2_report/`, `reports/presentation/phase2.pdf`, `docs/dl_literature_review.md` |
 | Jatin Kumar Singh | Notebook, setup and reproduction checks | `notebooks/phase2.ipynb`, `requirements-phase2.txt`, `README.md` run instructions, a fresh-clone run of `scripts/build_phase2.sh` |
 
 ## Contribution record

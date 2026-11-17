@@ -7,7 +7,7 @@ Requirements come from the Project 11 description (Project Ideas p.12: two or th
 | Architecture logic | `src/inventory_tagging_dl/cnn.py`; report section IV and `reports/phase2/figures/architecture.png`; two blocks with pooling, why not three (28, 14, 7), ablation tests a third block |
 | Hybrid approach with a reason and shown value | `hybrid()` in `experiments.py`; report section VII; CNN's 64 features into Phase 1 classifiers; compared with the CNN's own last layer and an untrained-CNN control (`reports/phase2/hybrid_selection.json`) |
 | Ablation studies | 7 versions x 3 seeds, `reports/phase2/ablation_summary.csv`, `ablation_runs.csv`, `figures/ablation.png`; report section VI |
-| Deep learning literature review | `docs/dl_literature_review.md` (10 sources, citations checked); report section II |
+| Deep learning literature review | `docs/dl_literature_review.md` (12 sources, including two Fashion-MNIST studies checked against publisher sources); report section II |
 | Dataset and regularisation | Same 48,000/12,000/10,000 split as Phase 1; batch norm, dropout, augmentation, weight decay, early stopping (patience 5, best epoch restored); report section V |
 | Fair comparison | Same official test pictures as Phase 1; choices frozen in `reports/phase2/frozen.json` before the test; test run once (`reports/phase2/test/started.json`); paired bootstrap |
 | Accuracy, macro F1, per-class recall | `reports/phase2/test/results.csv`, `per_class_recall.csv`, `comparison.csv` |
@@ -17,7 +17,7 @@ Requirements come from the Project 11 description (Project Ideas p.12: two or th
 | Theoretical rigor | Report sections IV and V (convolution, pooling, batch norm, dropout, loss, early stopping); `docs/phase2_viva_guide.md` |
 | Classifier notebook | `notebooks/phase2.ipynb`, executed; reads saved results, no retraining |
 | LaTeX/IEEE report | `reports/phase2_report/main.tex` and compiled `main.pdf` (4 pages) |
-| Presentation | `reports/presentation/phase2.pptx` (7 slides with speaker notes) and `phase2.pdf` |
+| Presentation | `reports/presentation/phase2.pdf` (8 slides, including application and team responsibilities) |
 | GitHub and code quality | `src/inventory_tagging_dl/` contains the CNN, experiments, commands and verified inference; PyTorch uses the optional `phase2` uv group and exported `requirements-phase2.txt`; both phases are included on main; hosted prediction depends on installed optional dependencies; one command to rebuild: `bash scripts/build_phase2.sh` |
 | Individual viva | `docs/phase2_viva_guide.md` and each member's own practice |
 | Five same-section members; contribution record | Names in `docs/team.md`. Section B is recorded; formal affiliation and each member's actual contribution still need confirmation before submission |

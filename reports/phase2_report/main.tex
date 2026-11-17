@@ -3,7 +3,7 @@
 \usepackage{graphicx,amsmath,amssymb,booktabs,url}
 \usepackage[hidelinks]{hyperref}
 \graphicspath{{images/}}
-\title{Inventory Image Tagging, Phase 2: A Small CNN, an Ablation Study and a CNN--Classifier Hybrid}
+\title{Inventory Image Tagging: Handcrafted Visual Features vs. a Small CNN}
 \author{\IEEEauthorblockN{Aryan, Divyanshu Singh, Jatin Kumar Singh, Jatin Verma, Kushagra Bhardwaj}
 \IEEEauthorblockA{Enrolments: 2401020013, 2401010161, 2401010199, 2401010200, 2401010247\\
 Section B. Contact: aryan.kinha2024@nst.rishihood.edu.in}}
@@ -22,7 +22,9 @@ A CNN learns its own description. Small shared filters measure local patterns, p
 \section{Related Work}
 LeCun et al.~\cite{lecun} introduced convolution, weight sharing and pooling for document recognition. Krizhevsky et al.~\cite{alexnet} showed that ReLU units, dropout and augmentation let a deep CNN generalise on large images. Srivastava et al.~\cite{dropout} describe dropout; Ioffe and Szegedy~\cite{bn} describe batch normalisation and note it can also regularise. Kingma and Ba~\cite{adam} describe Adam. Prechelt~\cite{prechelt} compares early-stopping criteria. Simard et al.~\cite{simard} found that distorting training pictures slightly helps a CNN.
 
-For the hybrid, Razavian et al.~\cite{razavian} fit a linear SVM on features from a pretrained CNN and obtained strong results; Tang~\cite{tang} replaced the softmax layer with a linear SVM trained jointly. We differ from both: our CNN is trained on this dataset only, and the classifier is fitted afterwards. Xiao et al.~\cite{fashion} introduced Fashion-MNIST. Reported gains from batch normalisation, dropout and augmentation on small CNNs are modest, so we measure them with several seeds instead of assuming them.
+For the hybrid, Razavian et al.~\cite{razavian} fit a linear SVM on features from a pretrained CNN; Tang~\cite{tang} replaced the softmax layer with a linear SVM trained jointly. Our CNN is trained on Fashion-MNIST only, and the classifier is fitted afterwards. Xiao et al.~\cite{fashion} introduced the dataset. We measure regularisation choices with several seeds because their effects can vary between runs.
+
+Kadam et al.~\cite{kadam} compare five CNN architectures on MNIST and Fashion-MNIST, varying depth, activation, optimiser and dropout. Sumera et al.~\cite{sumera} compare dense and convolutional networks under four optimisers. These studies support testing architecture and training choices on clothing images. We use Adam and measure depth and regularisation through controlled ablations. Their scores use different protocols and are not direct comparisons with our experiment.
 
 \section{Data and Protocol}
 We reuse the Phase 1 split: official training pictures divided by a stratified split with seed 42 into 48,000 for training and 12,000 for validation, plus the official 10,000 test pictures. Pixels are divided by 255. All training, selection and early stopping use training and validation pictures only. The settings were written to \textit{reports/phase2/frozen.json} before the test pictures were scored, and a marker file blocks a second test run. Phase 1 predictions on the same test pictures give a paired comparison.
@@ -65,7 +67,7 @@ All seven versions lie within 0.9 points, and most gaps are about as large as th
 \section{Hybrid Approach}
 The CNN's second dense layer gives a vector $z\in\mathbb{R}^{64}$ per picture. Instead of the final linear layer we fit a Phase 1 classifier on $z$ from the training pictures: Logistic Regression, linear SVM or Random Forest, each with the two Phase 1 settings, chosen by validation macro F1. The reason is that the final layer is one linear map, while a forest or a margin classifier may draw a better boundary around the same features. The classifier is fitted after the CNN is trained, not jointly.
 
-Two checks keep the claim honest. First, the CNN's own last layer is the comparison. Second, a control uses features from an untrained CNN of the same shape. On validation data the selected Random Forest reaches macro F1 $0.9324$, against $0.9264$ for the CNN's last layer and $0.7944$ for the untrained-network control. The control shows that training, not only the architecture, makes the features useful. The three classifier families land within 0.15 points of each other, and even Logistic Regression gains about half a point, so the gain comes from refitting on the learned features rather than from the forest itself.
+We compare the hybrid with the CNN's own last layer and with features from an untrained CNN of the same shape. On validation data the selected Random Forest reaches macro F1 $0.9324$, against $0.9264$ for the CNN's last layer and $0.7944$ for the untrained-network control. The control supports the value of learned features. The three classifier families land within 0.15 points of each other, and Logistic Regression also gains about half a point. The improvement is therefore not specific to Random Forest.
 
 \section{Results}
 Table~\ref{tab:test} gives test results. The CNN and the hybrid use three seeds each. A paired bootstrap over the 10,000 test pictures (2,000 resamples, seed 42 models) gives an accuracy difference of $+4.10$ points for the CNN over the Phase 1 best, 95\% interval $[+3.52,+4.67]$, and $+0.60$ points for the hybrid over the CNN, interval $[+0.28,+0.94]$. The three-seed means differ by 0.51 points.
@@ -91,13 +93,20 @@ Shirt & 59.2 & 73.6 & 75.7\\\bottomrule\end{tabular}\end{table}
 
 \textbf{Cost.} On the same CPU with two threads, from picture to label, the CNN takes 0.17\,ms per picture and 429,450 weights (1.7\,MB). The Phase 1 forest took 24.98\,ms (measured in an earlier session on the same machine). The hybrid takes 25.88\,ms because its 400-tree forest dominates.
 
+\section{Application Implementation}
+The Streamlit dashboard accepts an uploaded picture or an included training sample. Users choose a saved classical model under Predict or the CNN under Neural model, preview the input, and request a category and measured prediction time. The hosted app supports both phases at \url{https://inventory-image-tagging.streamlit.app/}. Hybrid prediction is available locally after exporting the frozen classifier.
+
+Both pages share image preparation. Benchmark mode preserves a $28\times28$ grayscale PNG exactly. Experimental photo mode applies orientation correction, grayscale conversion, optional crop or background removal, and resizing to $28\times28$; the processed input is visible before prediction. Unsupported high-bit-depth pictures are rejected before conversion. Classical models reuse their recorded pixels or HOG features; CNN inputs are divided by 255. Every model's checksum is verified before loading, and cached models are loaded only when needed. The dashboard never trains or changes evaluation data.
+
+The optional CNN score table shows its three highest softmax values, which are not calibrated confidence estimates. A non-finite score stops prediction. The hybrid returns labels without invented probabilities. Saved comparison tables and error views use the recorded experiment results. Ordinary-photo accuracy remains unmeasured, so a plausible prediction is not evidence of reliable catalogue performance.
+
 \section{Technical Validation and Limitations}
 Tests recompute every reported score from the saved predictions, check the committed checkpoints against the saved hashes, check that the frozen choices match the selection files, and check that the Phase 2 split equals Phase 1. All three CNN checkpoints reproduce the saved test predictions on the CPU. Rebuilding the frozen hybrid on CPU features agrees with 99.94--99.98\% of the recorded predictions; the original GPU-feature results remain the reported experiment. Training on an Apple GPU is not exactly repeatable, so a rerun can differ slightly.
 
 Limits: Fashion-MNIST is a small, centred, familiar benchmark, and these results say little about real catalogue photos. We use one split, three seeds and a small search. In the hybrid, the classifier is fitted on training-picture features from a network that already saw those pictures, which may make them look cleaner than features of new pictures. Light dropout and the rule ``best version that uses dropout'' were added after seeing validation results; the test pictures played no part in either. We did not test residual networks, pretrained models, schedules or other augmentations because they add machinery beyond the problem.
 
 \section{Conclusion}
-A two-block CNN with batch normalisation, light dropout, augmentation and early stopping beat the best Phase 1 model by about four points and helped most with Pullover, Coat and Shirt. Feeding its 64 learned features to a Random Forest added about half a point more. Most ablation choices mattered less than the seed-to-seed spread, and heavy dropout hurt. The saved CNN and an exported hybrid support verified image prediction in the local dashboard and command line. The hosted main-branch dashboard remains Phase 1.
+A two-block CNN with batch normalisation, light dropout, augmentation and early stopping beat the best Phase 1 model by about four points and improved recall for Pullover, Coat and Shirt. Feeding its 64 learned features to a Random Forest added about half a point more. Most ablation differences were close to the seed-to-seed spread, and heavy dropout hurt. The dashboard demonstrates classical and CNN prediction online, with the exported hybrid available locally. These results apply to Fashion-MNIST; ordinary photographs require a separate evaluation.
 
 \begin{thebibliography}{12}
 \bibitem{lecun} Y. LeCun, L. Bottou, Y. Bengio, and P. Haffner, ``Gradient-based learning applied to document recognition,'' \emph{Proc. IEEE}, vol. 86, no. 11, pp. 2278--2324, 1998.
@@ -110,5 +119,7 @@ A two-block CNN with batch normalisation, light dropout, augmentation and early 
 \bibitem{razavian} A. S. Razavian, H. Azizpour, J. Sullivan, and S. Carlsson, ``CNN features off-the-shelf: an astounding baseline for recognition,'' in \emph{CVPR Workshops}, 2014, arXiv:1403.6382.
 \bibitem{tang} Y. Tang, ``Deep learning using linear support vector machines,'' arXiv:1306.0239, 2013.
 \bibitem{fashion} H. Xiao, K. Rasul, and R. Vollgraf, ``Fashion-MNIST: a novel image dataset for benchmarking machine learning algorithms,'' arXiv:1708.07747, 2017.
+\bibitem{kadam} S. S. Kadam, A. C. Adamuthe, and A. B. Patil, ``CNN model for image classification on MNIST and Fashion-MNIST dataset,'' \emph{J. Sci. Res.}, vol. 64, no. 2, pp. 374--384, 2020, doi: 10.37398/JSR.2020.640251.
+\bibitem{sumera} Sumera, R. Sirisha, N. Anjum, and K. Vaidehi, ``Implementation of CNN and ANN for Fashion-MNIST-dataset using different optimizers,'' \emph{Indian J. Sci. Technol.}, vol. 15, no. 47, pp. 2639--2645, 2022, doi: 10.17485/IJST/v15i47.1821.
 \end{thebibliography}
 \end{document}

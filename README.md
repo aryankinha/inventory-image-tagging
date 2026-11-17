@@ -239,7 +239,7 @@ bash scripts/run_python.sh -m jupyterlab notebooks/phase1.ipynb
 |---|---|---|
 | Findings | [phase1_findings.md](reports/phase1_findings.md) | [phase2_findings.md](reports/phase2_findings.md) |
 | IEEE report | [PDF](reports/phase1_report/main.pdf), [LaTeX](reports/phase1_report/main.tex) | [PDF](reports/phase2_report/main.pdf), [LaTeX](reports/phase2_report/main.tex) |
-| Slides | [pptx](reports/presentation/phase1.pptx), [PDF](reports/presentation/phase1.pdf) | [pptx](reports/presentation/phase2.pptx), [PDF](reports/presentation/phase2.pdf) |
+| Slides | [pptx](reports/presentation/phase1.pptx), [PDF](reports/presentation/phase1.pdf) | [Presentation PDF](reports/presentation/phase2.pdf) |
 | Notebook | [phase1.ipynb](notebooks/phase1.ipynb) | [phase2.ipynb](notebooks/phase2.ipynb) |
 | Literature review | [docs/literature_review.md](docs/literature_review.md) | [docs/dl_literature_review.md](docs/dl_literature_review.md) |
 | Viva guide | [docs/viva_guide.md](docs/viva_guide.md) | [docs/phase2_viva_guide.md](docs/phase2_viva_guide.md) |

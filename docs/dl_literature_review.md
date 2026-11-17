@@ -14,6 +14,8 @@ Phase 1 used fixed descriptions of a picture (pixels, HOG) with classical classi
 | Razavian et al. (2014), [CNN features off-the-shelf](https://arxiv.org/abs/1403.6382), CVPR Workshops | Features from a CNN, fed to a linear SVM, make a strong baseline | The hybrid model: CNN features into a classical classifier | They used a large pretrained network; ours is trained on this dataset only |
 | Tang (2013), [Deep learning using linear support vector machines](https://arxiv.org/abs/1306.0239) | Replacing the softmax layer with a linear SVM can help | Same idea, tested here with logistic regression, linear SVM and Random Forest | Tang trains the SVM together with the network; we fit it afterwards |
 | Xiao, Rasul and Vollgraf (2017), [Fashion-MNIST](https://arxiv.org/abs/1708.07747) | The benchmark and its official split | Data and the official test set | A familiar benchmark: results do not transfer to a real store catalogue |
+| Kadam, Adamuthe and Patil (2020), [CNN model for image classification on MNIST and Fashion-MNIST](https://www.bhu.ac.in/Images/files/51.pdf), Journal of Scientific Research 64(2):374-384 | Compares five architectures and varies depth, activation, optimiser and dropout | Context for our existing depth and dropout ablations | We have not reproduced their architectures; their protocol differs from ours |
+| Sumera, Sirisha, Anjum and Vaidehi (2022), [Implementation of CNN and ANN for Fashion-MNIST-dataset using different optimizers](https://doi.org/10.17485/IJST/v15i47.1821), Indian Journal of Science and Technology 15(47):2639-2645 | Compares dense and convolutional networks with SGD, Adagrad, RMSprop and Adam | Fashion-MNIST context for our existing small CNN and Adam optimiser | We did not compare optimisers or reproduce their reported scores |
 
 ## What this review tells us to test
 
@@ -28,4 +30,9 @@ Residual networks, pretrained models, learning-rate schedules, attention and gen
 ## Implementation references
 
 - [PyTorch model loading](https://docs.pytorch.org/tutorials/beginner/basics/saveloadrun_tutorial.html): restore a state dictionary with `weights_only=True` and use evaluation mode for prediction. Our loader also verifies the checkpoint checksum.
-- [uv dependency groups](https://docs.astral.sh/uv/concepts/dependencies/): the optional `phase2` group keeps PyTorch reproducible without adding it to the smaller hosted Phase 1 environment.
+- [uv dependency groups](https://docs.astral.sh/uv/concepts/dependencies/): the `phase2` group pins PyTorch. The hosted Linux lock includes CPU-only PyTorch; local users can install the smaller Phase 1 environment separately.
+
+Kadam et al. and Sumera et al. were checked in the publisher sources after reviewing
+the reference repository's IEEE report. They provide research context for methods
+we already use. They do not justify adding a ResNet, ensemble or new optimiser
+search to the completed frozen experiment.

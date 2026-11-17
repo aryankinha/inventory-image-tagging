@@ -12,6 +12,20 @@ The prediction flow is kept in `reports/presentation/prediction_flow.mmd` and `p
 
 ## Phase 2
 
-`reports/phase2_report/main.tex` and its compiled `main.pdf` contain the four-page IEEE report. Compile from that directory so relative image paths resolve. `reports/presentation/phase2.pptx` and `phase2.pdf` contain seven slides. The existing study results are unchanged. Wording about flattening, convolution weights, local prediction and setup was checked against the implementation.
+`reports/phase2_report/main.tex` and its compiled `main.pdf` contain the four-page IEEE report. Compile from that directory so relative image paths resolve. `reports/presentation/phase2.pdf` is the main presentation, adapted from the supplied eight-slide PDF. An editable source was not supplied. The existing study results are unchanged. Wording about flattening, convolution weights, local prediction and setup was checked against the implementation.
+
+For the Phase 2 submission, use the report PDF and the presentation PDF.
+Each file must be below 10 MB. The presentation covers the problem, shared data,
+CNN architecture, ablations, hybrid, test results and application flow. The report holds source citations and detailed settings.
+The report includes application implementation and distinguishes the hosted CNN
+from the hybrid available locally after export. The common four-step application
+flow is also recorded in `reports/presentation/prediction_flow.mmd`.
+
+Compile the report twice from `reports/phase2_report/`:
+
+```bash
+pdflatex -interaction=nonstopmode -halt-on-error main.tex
+pdflatex -interaction=nonstopmode -halt-on-error main.tex
+```
 
 `reports/phase2/artifact_hashes.json` records the audited evidence and current implementation after the original experiment. It is separate from the original frozen model choices and makes no claim about historical source hashes. Run `scripts/verify_phase2.py` in the project environment after intentional changes. Generated local hybrid forests and `inference.json` are excluded from that evidence snapshot.
